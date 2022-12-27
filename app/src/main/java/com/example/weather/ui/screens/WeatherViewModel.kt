@@ -20,17 +20,13 @@ class WeatherViewModel @Inject constructor(
     var weather by mutableStateOf("Rain")
         private set
 
-    init {
-        viewModelScope.launch {
-            getWeather()
-        }
-    }
-
     fun updateSearchText(value: String) {
         searchText = value
     }
 
-    private suspend fun getWeather() {
-        weather = repository.getWeather()
+    fun getWeather(city: String) {
+        viewModelScope.launch {
+            weather = repository.getWeather(city)
+        }
     }
 }

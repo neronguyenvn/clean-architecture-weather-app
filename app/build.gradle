@@ -20,6 +20,14 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        def properties = new Properties()
+        properties.load(rootProject.file("local.properties").newDataInputStream())
+
+        buildConfigField("String", "OPENCAGE_API_KEY",
+                "\"${properties.getProperty("OPENCAGE_API_KEY")}\"")
+        buildConfigField("String", "OPENWEATHER_API_KEY",
+                "\"${properties.getProperty("OPENWEATHER_API_KEY")}\"")
     }
 
     buildTypes {
@@ -37,7 +45,6 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-
 
     buildFeatures {
         compose true
@@ -65,6 +72,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinXSerializationJsonVersion"
     implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$retrofit2KotlinXSerializationConverterVersion"
     implementation "io.coil-kt:coil-compose:$coilComposeVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$loggingInterceptorVersion"
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$hiltVersion"

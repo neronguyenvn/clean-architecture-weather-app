@@ -12,9 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weather.R
+import com.example.weather.ui.theme.White
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -28,7 +30,8 @@ fun HomeScreen(
     ) {
         SearchField(
             value = weatherViewModel.searchText,
-            onValueChange = { weatherViewModel.updateSearchText(it) }
+            onValueChange = weatherViewModel::updateSearchText,
+            onActionDone = { weatherViewModel.getWeather(weatherViewModel.searchText) }
         )
         Spacer(modifier = Modifier.height(48.dp))
         CurrentWeatherContent(temperature = 28, weather = weatherViewModel.weather)
@@ -42,20 +45,23 @@ fun SearchField(
     onValueChange: (String) -> Unit = {},
     onActionDone: () -> Unit = {}
 ) {
+    val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
+        backgroundColor = MaterialTheme.colors.background,
+        focusedBorderColor = Color.Transparent,
+        unfocusedBorderColor = Color.Transparent
+    )
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
-        keyboardOptions = KeyboardOptions.Default.copy(
-            imeAction = ImeAction.Done
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Done,
+            capitalization = KeyboardCapitalization.Words,
         ),
         keyboardActions = KeyboardActions(
             onDone = { onActionDone() }
         ),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            backgroundColor = MaterialTheme.colors.background,
-            focusedBorderColor = Color.Transparent
-        ),
+        colors = textFieldColors,
         modifier = modifier.fillMaxWidth(),
         leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
     )
@@ -71,11 +77,11 @@ fun CurrentWeatherContent(
         val sdf = SimpleDateFormat("EEE, MMM dd", Locale.getDefault())
         val currentDate = sdf.format(Date())
 
-        Text(text = currentDate, style = typography.body1)
+        Text(text = currentDate, style = typography.body1.copy(color = White))
         Text(
             text = stringResource(id = R.string.temperature, temperature),
-            style = typography.h2,
+            style = typography.h2.copy(color = White),
         )
-        Text(text = weather, style = typography.h5)
+        Text(text = weather, style = typography.h5.copy(color = White))
     }
 }

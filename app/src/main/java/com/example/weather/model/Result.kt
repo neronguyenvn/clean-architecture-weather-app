@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Result(
-    val annotations: Annotations,
+    val geometry: Geometry
 )

@@ -4,6 +4,7 @@ import com.example.weather.data.DefaultGeocodingRepository
 import com.example.weather.data.DefaultWeatherRepository
 import com.example.weather.data.GeocodingRepository
 import com.example.weather.data.WeatherRepository
+import com.example.weather.network.ApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,7 +25,9 @@ class RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideGeocodingRepository(): GeocodingRepository {
-        return DefaultGeocodingRepository()
+    fun provideGeocodingRepository(
+        geocodingApiService: ApiService
+    ): GeocodingRepository {
+        return DefaultGeocodingRepository(geocodingApiService)
     }
 }
