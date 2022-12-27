@@ -18,16 +18,17 @@ class RepositoryModule {
     @Singleton
     @Provides
     fun provideWeatherRepository(
-        geocodingRepository: GeocodingRepository
+        geocodingRepository: GeocodingRepository,
+        apiService: ApiService
     ): WeatherRepository {
-        return DefaultWeatherRepository(geocodingRepository)
+        return DefaultWeatherRepository(geocodingRepository, apiService)
     }
 
     @Singleton
     @Provides
     fun provideGeocodingRepository(
-        geocodingApiService: ApiService
+        apiService: ApiService
     ): GeocodingRepository {
-        return DefaultGeocodingRepository(geocodingApiService)
+        return DefaultGeocodingRepository(apiService)
     }
 }

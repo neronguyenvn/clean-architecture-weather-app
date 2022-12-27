@@ -65,7 +65,8 @@ dependencies {
     // Jetpack Compose
     implementation "androidx.activity:activity-compose:$activityComposeVersion"
     implementation "androidx.compose.material:material:$composeVersion"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleViewModelComposeVersion"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:$archLifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$archLifecycleVersion"
 
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"

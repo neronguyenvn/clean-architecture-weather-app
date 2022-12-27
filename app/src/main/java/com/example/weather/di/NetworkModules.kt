@@ -29,7 +29,6 @@ class NetworkModules {
     }
 
     @Provides
-    @Singleton
     fun provideRetrofit(
         converterFactory: Converter.Factory,
         okHttpClient: OkHttpClient
@@ -43,17 +42,16 @@ class NetworkModules {
 
     @OptIn(ExperimentalSerializationApi::class)
     @Provides
-    @Singleton
     fun provideKotlinSerialization(): Converter.Factory {
         val contentType = "application/json".toMediaType()
         val json = Json {
             ignoreUnknownKeys = true
+            isLenient = true
         }
         return json.asConverterFactory(contentType)
     }
 
     @Provides
-    @Singleton
     fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
@@ -61,7 +59,6 @@ class NetworkModules {
     }
 
     @Provides
-    @Singleton
     fun provideHTTPLoggingInterceptor(): HttpLoggingInterceptor =
         HttpLoggingInterceptor().apply {
             setLevel(Level.BODY)
