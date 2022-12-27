@@ -1,0 +1,34 @@
+buildscript {
+    ext.hiltVersion = '2.42'
+
+    dependencies {
+        classpath "com.google.dagger:hilt-android-gradle-plugin:$hiltVersion"
+    }
+}
+
+plugins {
+    id 'com.android.application' version '7.3.1' apply false
+    id 'org.jetbrains.kotlin.android' version '1.7.10' apply false
+}
+
+// Define versions in a single place
+ext {
+    // Sdk and tools
+    minSdkVersion = 26
+    targetSdkVersion = 33
+    compileSdkVersion = 33
+
+    // App dependencies
+    activityComposeVersion = '1.6.1'
+    composeVersion = '1.3.1'
+    retrofitVersion = '2.9.0'
+    lifecycleViewModelComposeVersion = '2.5.1'
+    kotlinXSerializationJsonVersion = '1.4.1'
+    retrofit2KotlinXSerializationConverterVersion = '0.8.0'
+    coilComposeVersion = '2.2.2'
+    composeCompilerVersion = '1.3.0'
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
