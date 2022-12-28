@@ -1,5 +1,6 @@
 package com.example.weather.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -40,20 +42,27 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     weatherViewModel: WeatherViewModel = viewModel(),
 ) {
-    Column(
-        modifier = modifier.padding(horizontal = 24.dp, vertical = 40.dp),
-    ) {
+    Box {
         val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
 
-        SearchField(
-            value = uiState.city,
-            onValueChange = weatherViewModel::updateCity,
-            onActionDone = { weatherViewModel.getWeather(uiState.city) }
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(uiState.bgImg),
+            contentDescription = null,
+            contentScale = ContentScale.FillHeight
         )
-        Spacer(modifier = Modifier.height(48.dp))
-        CurrentWeatherContent(uiState.date, uiState.temp, uiState.weather)
-        Spacer(modifier = Modifier.height(48.dp))
-        DailyWeatherContent(listDaily = uiState.listDaily)
+        Column(modifier = modifier.padding(horizontal = 24.dp, vertical = 40.dp)) {
+
+            SearchField(
+                value = uiState.city,
+                onValueChange = weatherViewModel::updateCity,
+                onActionDone = { weatherViewModel.getWeather(uiState.city) }
+            )
+            Spacer(modifier = Modifier.height(48.dp))
+            CurrentWeatherContent(uiState.date, uiState.temp, uiState.weather)
+            Spacer(modifier = Modifier.height(48.dp))
+            DailyWeatherContent(listDaily = uiState.listDaily)
+        }
     }
 }
 
@@ -77,9 +86,7 @@ fun SearchField(
             imeAction = ImeAction.Done,
             capitalization = KeyboardCapitalization.Words,
         ),
-        keyboardActions = KeyboardActions(
-            onDone = { onActionDone() }
-        ),
+        keyboardActions = KeyboardActions(onDone = { onActionDone() }),
         colors = textFieldColors,
         modifier = modifier.fillMaxWidth(),
         leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
@@ -92,10 +99,7 @@ fun SearchField(
 
 @Composable
 fun CurrentWeatherContent(
-    date: String,
-    temperature: Int,
-    weather: String,
-    modifier: Modifier = Modifier
+    date: String, temperature: Int, weather: String, modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(start = 24.dp)) {
         Text(text = date, style = typography.body2)
@@ -118,22 +122,17 @@ fun DailyWeatherContent(listDaily: List<DailyWeather>) {
 
 @Composable
 fun DailyWeatherItem(
-    daily: DailyWeather,
-    modifier: Modifier = Modifier
+    daily: DailyWeather, modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
     ) {
-        val imageLoader = LocalContext.current.imageLoader.newBuilder()
-            .logger(DebugLogger())
-            .build()
+        val imageLoader =
+            LocalContext.current.imageLoader.newBuilder().logger(DebugLogger()).build()
 
         AsyncImage(
-            model = ImageRequest.Builder(context = LocalContext.current)
-                .data(daily.iconUrl)
-                .crossfade(true)
-                .build(),
+            model = ImageRequest.Builder(context = LocalContext.current).data(daily.iconUrl)
+                .crossfade(true).build(),
             placeholder = painterResource(id = R.drawable.loading_img),
             contentDescription = null,
             imageLoader = imageLoader

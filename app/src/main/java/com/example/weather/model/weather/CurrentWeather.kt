@@ -5,7 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CurrentWeather(
-    val dt: Long,
+    @SerialName("dt") val timestamp: Long,
+    @SerialName("sunrise") val sunriseTimestamp: Long,
+    @SerialName("sunset") val sunsetTimestamp: Long,
     @SerialName("feels_like") val temp: Double,
     @SerialName("weather") val weatherItem: List<WeatherItem>,
 )

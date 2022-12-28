@@ -1,8 +1,11 @@
 package com.example.weather.ui.screens
 
+import androidx.annotation.DrawableRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.weather.R
 import com.example.weather.data.WeatherRepository
+import com.example.weather.model.weather.CurrentWeather
 import com.example.weather.model.weather.DailyWeather
 import com.example.weather.model.weather.asModel
 import com.example.weather.utils.DATE_PATTERN
@@ -21,7 +24,8 @@ data class WeatherUiState(
     val date: String = "",
     val temp: Int = 0,
     val weather: String = "",
-    val listDaily: List<DailyWeather> = emptyList()
+    val listDaily: List<DailyWeather> = emptyList(),
+    @DrawableRes val bgImg: Int = R.drawable.day_rain
 )
 
 @HiltViewModel
@@ -30,7 +34,6 @@ class WeatherViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(WeatherUiState())
     val uiState: StateFlow<WeatherUiState> = _uiState.asStateFlow()
-
 
     fun updateCity(value: String) {
         _uiState.update {
@@ -42,13 +45,38 @@ class WeatherViewModel @Inject constructor(
         viewModelScope.launch {
             val weather = repository.getWeather(city)
             val current = weather.current
-            _uiState.update { it ->
+            _uiState.update {
                 it.copy(
-                    date = current.dt.toDateString(DATE_PATTERN),
+                    date = current.timestamp.toDateString(DATE_PATTERN),
                     temp = current.temp.roundToInt(),
                     weather = current.weatherItem.first().main,
-                    listDaily = weather.daily.map { daily -> daily.asModel(current.dt) }
+                    listDaily = weather.daily.map { daily -> daily.asModel(current.timestamp) },
+                    bgImg = selectBackgroundImage(current)
                 )
+            }
+        }
+    }
+
+    private fun selectBackgroundImage(
+        current: CurrentWeather
+    ): Int {
+        current.apply {
+            return if (timestamp in sunriseTimestamp..sunsetTimestamp) {
+                when (weatherItem.first().main) {
+                    "Thunderstorm", "Drizzle", "Rain" -> R.drawable.day_rain
+                    "Snow" -> R.drawable.day_snow
+                    "Clear" -> R.drawable.day_clearsky
+                    "Cloud" -> R.drawable.day_cloudy
+                    else -> R.drawable.day_other_atmosphere
+                }
+            } else {
+                when (weatherItem.first().main) {
+                    "Thunderstorm", "Drizzle", "Rain" -> R.drawable.night_rain
+                    "Snow" -> R.drawable.night_snow
+                    "Clear" -> R.drawable.night_clearsky
+                    "Clouds" -> R.drawable.night_cloudy
+                    else -> R.drawable.night_other_atmosphere
+                }
             }
         }
     }
