@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Weather(
-    val current: Current,
-    val daily: List<Daily>,
-    val hourly: List<Hourly>,
+    val current: CurrentWeather,
+    val hourly: List<HourlyWeather>,
+    val daily: List<DailyWeatherApiModel>,
 )

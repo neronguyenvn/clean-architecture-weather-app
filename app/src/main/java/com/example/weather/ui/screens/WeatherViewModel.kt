@@ -3,7 +3,10 @@ package com.example.weather.ui.screens
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weather.data.WeatherRepository
-import com.example.weather.utils.DateFormat
+import com.example.weather.model.weather.DailyWeather
+import com.example.weather.model.weather.asModel
+import com.example.weather.utils.DATE_PATTERN
+import com.example.weather.utils.toDateString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +20,8 @@ data class WeatherUiState(
     val city: String = "",
     val date: String = "",
     val temp: Int = 0,
-    val weather: String = ""
+    val weather: String = "",
+    val listDaily: List<DailyWeather> = emptyList()
 )
 
 @HiltViewModel
@@ -27,8 +31,6 @@ class WeatherViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(WeatherUiState())
     val uiState: StateFlow<WeatherUiState> = _uiState.asStateFlow()
 
-    @Inject
-    lateinit var dateFormat: DateFormat
 
     fun updateCity(value: String) {
         _uiState.update {
@@ -38,12 +40,14 @@ class WeatherViewModel @Inject constructor(
 
     fun getWeather(city: String) {
         viewModelScope.launch {
-            val weather = repository.getWeather(city).current
-            _uiState.update {
+            val weather = repository.getWeather(city)
+            val current = weather.current
+            _uiState.update { it ->
                 it.copy(
-                    date = dateFormat.convertUnixTimeToDate(weather.dt),
-                    temp = weather.temp.roundToInt(),
-                    weather = weather.weather.first().main
+                    date = current.dt.toDateString(DATE_PATTERN),
+                    temp = current.temp.roundToInt(),
+                    weather = current.weatherItem.first().main,
+                    listDaily = weather.daily.map { daily -> daily.asModel(current.dt) }
                 )
             }
         }

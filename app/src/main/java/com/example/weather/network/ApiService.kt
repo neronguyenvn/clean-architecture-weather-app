@@ -3,11 +3,10 @@ package com.example.weather.network
 import com.example.weather.BuildConfig
 import com.example.weather.model.geocoding.Geocoding
 import com.example.weather.model.weather.Weather
+import com.example.weather.utils.OPENWEATHER_BASE_URL
 import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.Url
-
-private const val OPENWEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5/onecall"
 
 interface ApiService {
     @GET("geocode/v1/json")

@@ -1,6 +1,7 @@
 package com.example.weather.di
 
 import com.example.weather.network.ApiService
+import com.example.weather.utils.OPENCAGE_BASE_URL
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -15,8 +16,6 @@ import okhttp3.logging.HttpLoggingInterceptor.Level
 import retrofit2.Converter
 import retrofit2.Retrofit
 import javax.inject.Singleton
-
-private const val OPENCAGE_BASE_URL = "https://api.opencagedata.com"
 
 @InstallIn(SingletonComponent::class)
 @Module

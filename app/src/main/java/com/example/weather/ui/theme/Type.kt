@@ -21,6 +21,7 @@ val Typography = Typography(
         fontFamily = Poppins,
         fontWeight = FontWeight.Light,
         fontSize = 60.sp,
+        color = White,
         platformStyle = PlatformTextStyle(
             includeFontPadding = false
         ),
@@ -29,10 +30,18 @@ val Typography = Typography(
         fontFamily = Poppins,
         fontWeight = FontWeight.Normal,
         fontSize = 24.sp,
+        color = White
     ),
     body1 = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        color = White
+    ),
+    body2 = TextStyle(
+        fontFamily = Poppins,
+        fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
-    )
+        color = White
+    ),
 )
