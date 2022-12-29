@@ -14,14 +14,19 @@ annotation class DefaultDispatcher
 @Qualifier
 annotation class IoDispatcher
 
+/**
+ * Module for injecting coroutine dispatchers
+ */
 @InstallIn(SingletonComponent::class)
 @Module
 class CoroutineDispatcherModule {
 
+    // Function for injecting default dispatcher
     @DefaultDispatcher
     @Provides
     fun providesDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
 
+    // Function for injecting io dispatcher
     @IoDispatcher
     @Provides
     fun providesIoDispatcher(): CoroutineDispatcher = Dispatchers.IO

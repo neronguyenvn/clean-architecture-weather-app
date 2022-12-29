@@ -9,6 +9,9 @@ import com.example.weather.ui.WeatherApp
 import com.example.weather.ui.theme.WeatherTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Single activity for the entire app
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

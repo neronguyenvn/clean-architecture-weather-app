@@ -17,6 +17,9 @@ import retrofit2.Converter
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
+/**
+ * Module for injecting network services
+ */
 @InstallIn(SingletonComponent::class)
 @Module
 class NetworkModules {
