@@ -1,5 +1,6 @@
 package com.example.weather.ui.screens
 
+import android.Manifest
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -51,6 +52,14 @@ fun HomeScreen(
             contentDescription = null,
             contentScale = ContentScale.FillHeight
         )
+        PermissionScreen(
+            permission = Manifest.permission.ACCESS_FINE_LOCATION,
+        ) {
+            if (it is PermissionAction.OnPermissionGranted) {
+                weatherViewModel.updatePermission(true)
+            }
+        }
+
         Column(modifier = modifier.padding(horizontal = 24.dp, vertical = 40.dp)) {
 
             SearchField(

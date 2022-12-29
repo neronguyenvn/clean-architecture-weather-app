@@ -25,7 +25,8 @@ data class WeatherUiState(
     val temp: Int = 0,
     val weather: String = "",
     val listDaily: List<DailyWeather> = emptyList(),
-    @DrawableRes val bgImg: Int = R.drawable.day_rain
+    @DrawableRes val bgImg: Int = R.drawable.day_rain,
+    val isLocationPermissionGranted: Boolean = false
 )
 
 @HiltViewModel
@@ -36,9 +37,11 @@ class WeatherViewModel @Inject constructor(
     val uiState: StateFlow<WeatherUiState> = _uiState.asStateFlow()
 
     fun updateCity(value: String) {
-        _uiState.update {
-            it.copy(city = value)
-        }
+        _uiState.update { it.copy(city = value) }
+    }
+
+    fun updatePermission(value: Boolean) {
+        _uiState.update { it.copy(isLocationPermissionGranted = value) }
     }
 
     fun getWeather(city: String) {
