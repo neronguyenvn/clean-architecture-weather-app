@@ -1,6 +1,13 @@
 package com.example.weather.di
 
-import com.example.weather.data.*
+import com.example.weather.data.DefaultGeocodingRepository
+import com.example.weather.data.DefaultLocationDataSource
+import com.example.weather.data.DefaultLocationRepository
+import com.example.weather.data.DefaultWeatherRepository
+import com.example.weather.data.GeocodingRepository
+import com.example.weather.data.LocationDataSource
+import com.example.weather.data.LocationRepository
+import com.example.weather.data.WeatherRepository
 import com.example.weather.network.ApiService
 import com.google.android.gms.location.FusedLocationProviderClient
 import dagger.Module
@@ -40,6 +47,11 @@ class RepositoryModule {
     ): LocationRepository {
         return DefaultLocationRepository(dataSource, externalScope)
     }
+}
+
+@InstallIn(SingletonComponent::class)
+@Module
+class DataSourceModule() {
 
     @Singleton
     @Provides

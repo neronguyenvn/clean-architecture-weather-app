@@ -11,12 +11,15 @@ import kotlinx.coroutines.SupervisorJob
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
+@Retention(AnnotationRetention.RUNTIME)
 @Qualifier
 annotation class DefaultDispatcher
 
+@Retention(AnnotationRetention.RUNTIME)
 @Qualifier
 annotation class IoDispatcher
 
+@Retention(AnnotationRetention.RUNTIME)
 @Qualifier
 annotation class ApplicationScope
 

@@ -10,7 +10,7 @@ import kotlin.math.roundToInt
 data class DailyWeatherApiModel(
     val dt: Long,
     val temp: Temp,
-    @SerialName("weather") val weatherItem: List<WeatherItem>,
+    @SerialName("weather") val weatherItem: List<WeatherItem>
 )
 
 fun DailyWeatherApiModel.asModel(currentDt: Long): DailyWeather {

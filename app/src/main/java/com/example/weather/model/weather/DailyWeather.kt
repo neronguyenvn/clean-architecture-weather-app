@@ -5,5 +5,5 @@ data class DailyWeather(
     val date: String,
     val weather: String,
     val maxTemp: Int,
-    val minTemp: Int,
+    val minTemp: Int
 )

@@ -4,9 +4,12 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.7.20'
+    id 'org.jmailen.kotlinter'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
+    namespace 'com.example.weather'
     compileSdk rootProject.compileSdkVersion
 
     defaultConfig {
@@ -17,9 +20,6 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary true
-        }
 
         def properties = new Properties()
         properties.load(rootProject.file("local.properties").newDataInputStream())
@@ -37,31 +37,35 @@ android {
         }
     }
 
+    buildFeatures {
+        compose true
+    }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
     }
 
     kotlinOptions {
         jvmTarget = '1.8'
     }
 
-    buildFeatures {
-        compose true
+    packagingOptions {
+        exclude 'META-INF/AL2.0'
+        exclude 'META-INF/LGPL2.1'
     }
 
     composeOptions {
         kotlinCompilerExtensionVersion "$composeCompilerVersion"
     }
-
-    packagingOptions {
-        resources {
-            excludes += '/META-INF/{AL2.0,LGPL2.1}'
-        }
-    }
 }
 
+/*
+ Dependency versions are defined in the top level build.gradle file. This helps keeping track of
+ all versions in a single place. This improves readability and helps managing project complexity.
+ */
 dependencies {
+
     // Jetpack Compose
     implementation "androidx.activity:activity-compose:$activityComposeVersion"
     implementation "androidx.compose.material:material:$composeVersion"

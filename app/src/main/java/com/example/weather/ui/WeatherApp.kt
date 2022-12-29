@@ -8,7 +8,7 @@ import com.example.weather.ui.screens.HomeScreen
 
 @Composable
 fun WeatherApp(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Surface(modifier = modifier.fillMaxSize()) {
         HomeScreen()

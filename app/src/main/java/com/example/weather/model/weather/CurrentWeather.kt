@@ -9,5 +9,5 @@ data class CurrentWeather(
     @SerialName("sunrise") val sunriseTimestamp: Long,
     @SerialName("sunset") val sunsetTimestamp: Long,
     @SerialName("feels_like") val temp: Double,
-    @SerialName("weather") val weatherItem: List<WeatherItem>,
+    @SerialName("weather") val weatherItem: List<WeatherItem>
 )

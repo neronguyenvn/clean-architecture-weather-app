@@ -24,7 +24,7 @@ val Typography = Typography(
         color = White,
         platformStyle = PlatformTextStyle(
             includeFontPadding = false
-        ),
+        )
     ),
     h5 = TextStyle(
         fontFamily = Poppins,
@@ -43,5 +43,5 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         color = White
-    ),
+    )
 )

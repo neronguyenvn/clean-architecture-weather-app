@@ -15,7 +15,9 @@ class DefaultLocationRepository(
     dataSource: LocationDataSource,
     @ApplicationScope externalScope: CoroutineScope
 ) : LocationRepository {
+
     override val location: Flow<Location> = dataSource.locationSource.shareIn(
-        externalScope, WhileSubscribed(5000)
+        externalScope,
+        WhileSubscribed(5000)
     )
 }

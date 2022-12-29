@@ -25,7 +25,7 @@ data class WeatherUiState(
     val temp: Int = 0,
     val weather: String = "",
     val listDaily: List<DailyWeather> = emptyList(),
-    @DrawableRes val bgImg: Int = R.drawable.day_rain,
+    @DrawableRes val bgImg: Int = R.drawable.day_rain
 )
 
 @HiltViewModel

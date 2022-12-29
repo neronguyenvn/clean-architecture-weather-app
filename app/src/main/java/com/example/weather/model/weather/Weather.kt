@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class Weather(
     val current: CurrentWeather,
     val hourly: List<HourlyWeather>,
-    val daily: List<DailyWeatherApiModel>,
+    val daily: List<DailyWeatherApiModel>
 )

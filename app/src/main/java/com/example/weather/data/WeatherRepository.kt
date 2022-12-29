@@ -16,6 +16,7 @@ class DefaultWeatherRepository(
     locationRepository: LocationRepository,
     private val apiService: ApiService
 ) : WeatherRepository {
+
     override suspend fun getWeather(city: String): Weather {
         val location = getLocation(city)
         return apiService.getWeather(lat = location.lat, lon = location.lng)

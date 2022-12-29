@@ -5,9 +5,14 @@ import android.os.Looper
 import android.text.format.DateUtils
 import android.util.Log
 import com.example.weather.model.geocoding.Location
-import com.google.android.gms.location.*
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.Priority
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
 interface LocationDataSource {
     val locationSource: Flow<Location>
@@ -34,7 +39,6 @@ class DefaultLocationDataSource(private val client: FusedLocationProviderClient)
         }
 
         client.requestLocationUpdates(locationRequest, callback, Looper.getMainLooper())
-            .addOnFailureListener { e -> close(e) }
         awaitClose { client.removeLocationUpdates(callback) }
     }
 

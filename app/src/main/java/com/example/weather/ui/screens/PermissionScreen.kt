@@ -16,12 +16,15 @@ sealed class PermissionAction {
 @Composable
 fun PermissionScreen(
     permission: String,
-    permissionAction: (PermissionAction) -> Unit,
+    permissionAction: (PermissionAction) -> Unit
 ) {
     val context = LocalContext.current
-    val isPermissionGranted = (ContextCompat.checkSelfPermission(
-        context, permission
-    ) == PackageManager.PERMISSION_GRANTED)
+    val isPermissionGranted = (
+        ContextCompat.checkSelfPermission(
+            context,
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
+        )
 
     if (isPermissionGranted) {
         permissionAction(PermissionAction.OnPermissionGranted)
@@ -29,7 +32,7 @@ fun PermissionScreen(
     }
 
     val requestPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
+        contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
             permissionAction(PermissionAction.OnPermissionGranted)

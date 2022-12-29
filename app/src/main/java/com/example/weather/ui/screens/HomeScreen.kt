@@ -2,13 +2,24 @@ package com.example.weather.ui.screens
 
 import android.Manifest
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.typography
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.runtime.Composable
@@ -35,25 +46,24 @@ import coil.util.DebugLogger
 import com.example.weather.R
 import com.example.weather.model.weather.DailyWeather
 import com.example.weather.ui.theme.Poppins
-import java.util.*
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    weatherViewModel: WeatherViewModel = viewModel(),
+    weatherViewModel: WeatherViewModel = viewModel()
 ) {
     Box {
         val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
 
         Image(
             modifier = Modifier.fillMaxSize(),
-            painter = painterResource(uiState.bgImg),
+            painter = painterResource(id = uiState.bgImg),
             contentDescription = null,
             contentScale = ContentScale.FillHeight
         )
         PermissionScreen(
-            permission = Manifest.permission.ACCESS_FINE_LOCATION,
+            permission = Manifest.permission.ACCESS_FINE_LOCATION
         ) {
             if (it is PermissionAction.OnPermissionGranted) {
                 weatherViewModel.getCurrentLocationWeather()
@@ -61,7 +71,6 @@ fun HomeScreen(
         }
 
         Column(modifier = modifier.padding(horizontal = 24.dp, vertical = 40.dp)) {
-
             SearchField(
                 value = uiState.city,
                 onValueChange = weatherViewModel::updateCity,
@@ -85,7 +94,7 @@ fun SearchField(
     val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
         backgroundColor = MaterialTheme.colors.background,
         focusedBorderColor = Color.Transparent,
-        unfocusedBorderColor = Color.Transparent,
+        unfocusedBorderColor = Color.Transparent
     )
     OutlinedTextField(
         value = value,
@@ -93,7 +102,7 @@ fun SearchField(
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Done,
-            capitalization = KeyboardCapitalization.Words,
+            capitalization = KeyboardCapitalization.Words
         ),
         keyboardActions = KeyboardActions(onDone = { onActionDone() }),
         colors = textFieldColors,
@@ -101,20 +110,23 @@ fun SearchField(
         leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
         textStyle = TextStyle(
             fontFamily = Poppins,
-            fontSize = 16.sp,
+            fontSize = 16.sp
         )
     )
 }
 
 @Composable
 fun CurrentWeatherContent(
-    date: String, temperature: Int, weather: String, modifier: Modifier = Modifier
+    date: String,
+    temperature: Int,
+    weather: String,
+    modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(start = 24.dp)) {
         Text(text = date, style = typography.body2)
         Text(
             text = stringResource(id = R.string.temperature, temperature),
-            style = typography.h2,
+            style = typography.h2
         )
         Text(text = weather, style = typography.h5)
     }
@@ -131,10 +143,12 @@ fun DailyWeatherContent(listDaily: List<DailyWeather>) {
 
 @Composable
 fun DailyWeatherItem(
-    daily: DailyWeather, modifier: Modifier = Modifier
+    daily: DailyWeather,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         val imageLoader =
             LocalContext.current.imageLoader.newBuilder().logger(DebugLogger()).build()
