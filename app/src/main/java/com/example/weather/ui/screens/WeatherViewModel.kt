@@ -49,9 +49,13 @@ class WeatherViewModel @Inject constructor(
 
     fun getCurrentLocationWeather() {
         viewModelScope.launch {
-            repository.currentCityWeather.collect {
-                updateWeatherState(it)
+            val location = repository.getCurrentLocation()
+            launch {
+                val city = repository.getCityByLocation(location)
+                updateCity(city)
             }
+            val weather = repository.getWeather(location)
+            updateWeatherState(weather)
         }
     }
 

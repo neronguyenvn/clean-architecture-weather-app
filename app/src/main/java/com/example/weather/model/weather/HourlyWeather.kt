@@ -7,8 +7,5 @@ import kotlinx.serialization.Serializable
 data class HourlyWeather(
     val dt: Int,
     @SerialName("feels_like") val temp: Double,
-    @SerialName("weather") val weatherItem: List<WeatherItem>,
-    val wind_deg: Int,
-    val wind_gust: Double,
-    val wind_speed: Double
+    @SerialName("weather") val weatherItem: List<WeatherItem>
 )

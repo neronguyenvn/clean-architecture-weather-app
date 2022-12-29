@@ -1,33 +1,44 @@
 package com.example.weather.data
 
+import com.example.weather.di.IoDispatcher
 import com.example.weather.model.geocoding.Location
 import com.example.weather.model.weather.Weather
 import com.example.weather.network.ApiService
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 
 interface WeatherRepository {
+    suspend fun getCurrentLocation(): Location
     suspend fun getWeather(city: String): Weather
-    val currentCityWeather: Flow<Weather>
+    suspend fun getWeather(location: Location): Weather
+    suspend fun getCityByLocation(location: Location): String
 }
 
 class DefaultWeatherRepository(
     private val geocodingRepository: GeocodingRepository,
-    locationRepository: LocationRepository,
-    private val apiService: ApiService
+    private val locationRepository: LocationRepository,
+    private val apiService: ApiService,
+    @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) : WeatherRepository {
 
-    override suspend fun getWeather(city: String): Weather {
-        val location = getLocation(city)
-        return apiService.getWeather(lat = location.lat, lon = location.lng)
+    override suspend fun getCurrentLocation(): Location {
+        return locationRepository.getCurrentLocation()
     }
 
-    override val currentCityWeather: Flow<Weather> =
-        locationRepository.location.map { location ->
-            apiService.getWeather(lat = location.lat, lon = location.lng)
-        }
+    override suspend fun getCityByLocation(location: Location): String {
+        return geocodingRepository.getCity(location)
+    }
 
-    private suspend fun getLocation(city: String): Location {
+    override suspend fun getWeather(city: String): Weather = withContext(dispatcher) {
+        val location = getLocationByCity(city)
+        apiService.getWeather(latitude = location.latitude, longitude = location.longitude)
+    }
+
+    override suspend fun getWeather(location: Location): Weather = withContext(dispatcher) {
+        apiService.getWeather(latitude = location.latitude, longitude = location.longitude)
+    }
+
+    private suspend fun getLocationByCity(city: String): Location {
         return geocodingRepository.getLocation(city)
     }
 }
