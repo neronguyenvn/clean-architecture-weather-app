@@ -1,14 +1,13 @@
 package com.example.weather.di
 
-import com.example.weather.data.DefaultGeocodingRepository
-import com.example.weather.data.DefaultWeatherRepository
-import com.example.weather.data.GeocodingRepository
-import com.example.weather.data.WeatherRepository
+import com.example.weather.data.*
 import com.example.weather.network.ApiService
+import com.google.android.gms.location.FusedLocationProviderClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
 import javax.inject.Singleton
 
 @Module
@@ -19,9 +18,10 @@ class RepositoryModule {
     @Provides
     fun provideWeatherRepository(
         geocodingRepository: GeocodingRepository,
+        locationRepository: LocationRepository,
         apiService: ApiService
     ): WeatherRepository {
-        return DefaultWeatherRepository(geocodingRepository, apiService)
+        return DefaultWeatherRepository(geocodingRepository, locationRepository, apiService)
     }
 
     @Singleton
@@ -30,5 +30,20 @@ class RepositoryModule {
         apiService: ApiService
     ): GeocodingRepository {
         return DefaultGeocodingRepository(apiService)
+    }
+
+    @Singleton
+    @Provides
+    fun provideLocationRepository(
+        dataSource: LocationDataSource,
+        @ApplicationScope externalScope: CoroutineScope
+    ): LocationRepository {
+        return DefaultLocationRepository(dataSource, externalScope)
+    }
+
+    @Singleton
+    @Provides
+    fun provideLocationDataSource(client: FusedLocationProviderClient): LocationDataSource {
+        return DefaultLocationDataSource(client)
     }
 }

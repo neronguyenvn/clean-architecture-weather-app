@@ -78,4 +78,7 @@ dependencies {
     // Hilt
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
+
+    // Location
+    implementation "com.google.android.gms:play-services-location:$playServicesLocation"
 }

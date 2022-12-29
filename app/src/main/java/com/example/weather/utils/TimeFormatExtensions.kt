@@ -13,10 +13,10 @@ fun Long.toDateString(pattern: String): String {
     return sdf.format(date)
 }
 
-fun Long.toDayNameInWeek(dt: Long): String {
+fun Long.toDayNameInWeek(currentTimestamp: Long): String {
     return when {
-        (this - dt) * 1000 < DateUtils.HOUR_IN_MILLIS * 2 -> "Today"
-        (this - dt) * 1000 < DateUtils.DAY_IN_MILLIS * 2 -> "Tomorrow"
+        (this - currentTimestamp) * 1000 < DateUtils.HOUR_IN_MILLIS * 2 -> "Today"
+        (this - currentTimestamp) * 1000 < DateUtils.DAY_IN_MILLIS * 2 -> "Tomorrow"
         else -> this.toDateString(DAY_NAME_IN_WEEK_PATTERN)
     }
 }

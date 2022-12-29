@@ -7,12 +7,12 @@ import com.example.weather.R
 import com.example.weather.data.WeatherRepository
 import com.example.weather.model.weather.CurrentWeather
 import com.example.weather.model.weather.DailyWeather
+import com.example.weather.model.weather.Weather
 import com.example.weather.model.weather.asModel
 import com.example.weather.utils.DATE_PATTERN
 import com.example.weather.utils.toDateString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,37 +26,45 @@ data class WeatherUiState(
     val weather: String = "",
     val listDaily: List<DailyWeather> = emptyList(),
     @DrawableRes val bgImg: Int = R.drawable.day_rain,
-    val isLocationPermissionGranted: Boolean = false
 )
 
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
-    private val repository: WeatherRepository,
+    private val repository: WeatherRepository
 ) : ViewModel() {
+
     private val _uiState = MutableStateFlow(WeatherUiState())
-    val uiState: StateFlow<WeatherUiState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
     fun updateCity(value: String) {
         _uiState.update { it.copy(city = value) }
     }
 
-    fun updatePermission(value: Boolean) {
-        _uiState.update { it.copy(isLocationPermissionGranted = value) }
-    }
-
     fun getWeather(city: String) {
         viewModelScope.launch {
             val weather = repository.getWeather(city)
-            val current = weather.current
-            _uiState.update {
-                it.copy(
-                    date = current.timestamp.toDateString(DATE_PATTERN),
-                    temp = current.temp.roundToInt(),
-                    weather = current.weatherItem.first().main,
-                    listDaily = weather.daily.map { daily -> daily.asModel(current.timestamp) },
-                    bgImg = selectBackgroundImage(current)
-                )
+            updateWeatherState(weather)
+        }
+    }
+
+    fun getCurrentLocationWeather() {
+        viewModelScope.launch {
+            repository.currentCityWeather.collect {
+                updateWeatherState(it)
             }
+        }
+    }
+
+    private fun updateWeatherState(weather: Weather) {
+        val current = weather.current
+        _uiState.update {
+            it.copy(
+                date = current.timestamp.toDateString(DATE_PATTERN),
+                temp = current.temp.roundToInt(),
+                weather = current.weatherItem.first().main,
+                listDaily = weather.daily.map { daily -> daily.asModel(current.timestamp) },
+                bgImg = selectBackgroundImage(current)
+            )
         }
     }
 

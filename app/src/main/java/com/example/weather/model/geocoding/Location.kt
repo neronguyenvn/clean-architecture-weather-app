@@ -3,7 +3,7 @@ package com.example.weather.model.geocoding
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Geometry(
-    val lat: Double,
-    val lng: Double
+data class Location(
+    val lat: Double = 0.0,
+    val lng: Double = 0.0
 )

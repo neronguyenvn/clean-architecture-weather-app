@@ -56,7 +56,7 @@ fun HomeScreen(
             permission = Manifest.permission.ACCESS_FINE_LOCATION,
         ) {
             if (it is PermissionAction.OnPermissionGranted) {
-                weatherViewModel.updatePermission(true)
+                weatherViewModel.getCurrentLocationWeather()
             }
         }
 

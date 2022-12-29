@@ -33,6 +33,7 @@ ext {
     coilComposeVersion = '2.2.2'
     composeCompilerVersion = '1.3.0'
     loggingInterceptorVersion = '5.0.0-alpha.2'
+    playServicesLocation = '21.0.1'
 }
 
 task clean(type: Delete) {
