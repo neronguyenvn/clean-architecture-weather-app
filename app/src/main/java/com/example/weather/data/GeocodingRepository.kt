@@ -11,12 +11,12 @@ import kotlinx.coroutines.withContext
  */
 interface GeocodingRepository {
     /**
-     * Get location by a city name
+     * Get Location by call Api to convert City name into it
      */
     suspend fun getLocation(city: String): Location
 
     /**
-     * Get city name by a pair of latitude and longitude (Location)
+     * Get City name by call Api to convert Location into it
      */
     suspend fun getCity(location: Location): String
 }

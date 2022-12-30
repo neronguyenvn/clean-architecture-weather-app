@@ -3,6 +3,7 @@ package com.example.weather.data
 import android.annotation.SuppressLint
 import com.example.weather.di.DefaultDispatcher
 import com.example.weather.model.geocoding.Location
+import com.example.weather.utils.asModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.Tasks.await
@@ -14,7 +15,7 @@ import kotlinx.coroutines.withContext
  */
 interface LocationRepository {
     /**
-     * Get the current location of the device
+     * Get the Current Location of the Device
      */
     suspend fun getCurrentLocation(): Location
 }
@@ -30,7 +31,6 @@ class DefaultLocationRepository(
     @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): Location = withContext(dispatcher) {
         val locationTask = client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-        val sysLocation = await(locationTask)
-        Location(latitude = sysLocation.latitude, longitude = sysLocation.longitude)
+        await(locationTask).asModel()
     }
 }

@@ -8,8 +8,8 @@ import com.example.weather.data.WeatherRepository
 import com.example.weather.model.weather.AllWeather
 import com.example.weather.model.weather.CurrentWeather
 import com.example.weather.model.weather.DailyWeather
-import com.example.weather.model.weather.asModel
 import com.example.weather.utils.DATE_PATTERN
+import com.example.weather.utils.asModel
 import com.example.weather.utils.toDateString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

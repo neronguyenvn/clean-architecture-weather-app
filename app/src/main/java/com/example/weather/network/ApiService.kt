@@ -10,6 +10,9 @@ import retrofit2.http.Query
 import retrofit2.http.Url
 
 interface ApiService {
+    /**
+     * Call Forward Geocoding api to convert City name to
+     */
     @GET("geocode/v1/json")
     suspend fun getGeocoding(
         @Query("q", encoded = true) city: String,

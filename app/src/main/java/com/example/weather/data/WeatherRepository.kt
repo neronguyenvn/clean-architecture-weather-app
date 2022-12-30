@@ -12,22 +12,22 @@ import kotlinx.coroutines.withContext
  */
 interface WeatherRepository {
     /**
-     *  Get the current location of the device
+     *  Get the Current Location of the Device thank to Location Repository
      */
     suspend fun getCurrentLocation(): Location
 
     /**
-     *  Call Api to send a city name and get the weather there
+     *  Get the All Weather by call Api and send City name
      */
     suspend fun getWeather(city: String): AllWeather
 
     /**
-     * Call Api to send a location and get the weather there
+     *  Get the All Weather by call Api and send Location
      */
     suspend fun getWeather(location: Location): AllWeather
 
     /**
-     * Call Api to send a location and get the city name there
+     *  Get the City name by call Api and send Location
      */
     suspend fun getCityByLocation(location: Location): String
 }
