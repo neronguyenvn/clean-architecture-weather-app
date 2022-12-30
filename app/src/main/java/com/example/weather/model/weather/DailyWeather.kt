@@ -1,5 +1,8 @@
 package com.example.weather.model.weather
 
+/**
+ * Business Model for Daily Weather DataType
+ */
 data class DailyWeather(
     val iconUrl: String,
     val date: String,

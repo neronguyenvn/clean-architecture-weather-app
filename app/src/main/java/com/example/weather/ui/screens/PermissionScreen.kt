@@ -1,33 +1,34 @@
 package com.example.weather.ui.screens
 
-import android.content.pm.PackageManager
+import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
+import com.example.weather.utils.hasPermission
 
-sealed class PermissionAction {
-    object OnPermissionGranted : PermissionAction()
-    object OnPermissionDenied : PermissionAction()
+/**
+ * Enum of Permission Action results
+ */
+enum class PermissionAction {
+    GRANTED, DENIED
 }
 
+/**
+ * Ui component for displaying Permission Request dialog with Custom permission and handled by Custom
+ * Permission Action lambda passed in
+ */
 @Composable
 fun PermissionScreen(
     permission: String,
     permissionAction: (PermissionAction) -> Unit
 ) {
-    val context = LocalContext.current
-    val isPermissionGranted = (
-        ContextCompat.checkSelfPermission(
-            context,
-            permission
-        ) == PackageManager.PERMISSION_GRANTED
-        )
+    val activity = LocalContext.current as Activity
+    val isPermissionGranted = activity.hasPermission(permission)
 
     if (isPermissionGranted) {
-        permissionAction(PermissionAction.OnPermissionGranted)
+        permissionAction(PermissionAction.GRANTED)
         return
     }
 
@@ -35,9 +36,9 @@ fun PermissionScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            permissionAction(PermissionAction.OnPermissionGranted)
+            permissionAction(PermissionAction.GRANTED)
         } else {
-            permissionAction(PermissionAction.OnPermissionDenied)
+            permissionAction(PermissionAction.DENIED)
         }
     }
 
