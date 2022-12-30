@@ -9,10 +9,17 @@ import com.google.android.gms.tasks.Tasks.await
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
+/**
+ * Interface for Repository of Location DataType
+ */
 interface LocationRepository {
+    // Get the current location of the device
     suspend fun getCurrentLocation(): Location
 }
 
+/**
+ * Implementation of Interface for Repository of Location DataType
+ */
 class DefaultLocationRepository(
     private val client: FusedLocationProviderClient,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher

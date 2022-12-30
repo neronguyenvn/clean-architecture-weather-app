@@ -19,12 +19,13 @@ import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
 
 /**
- * Module for injecting repositories
+ * Module for injecting Repositories
  */
 @Module
 @InstallIn(SingletonComponent::class)
 class RepositoryModule {
 
+    // Inject Weather DataType Repository
     @Singleton
     @Provides
     fun provideWeatherRepository(
@@ -41,6 +42,7 @@ class RepositoryModule {
         )
     }
 
+    // Inject Geocoding DataType Repository
     @Singleton
     @Provides
     fun provideGeocodingRepository(
@@ -50,6 +52,7 @@ class RepositoryModule {
         return DefaultGeocodingRepository(apiService, dispatcher)
     }
 
+    // Inject Location DataType Repository
     @Singleton
     @Provides
     fun provideLocationRepository(
@@ -61,12 +64,13 @@ class RepositoryModule {
 }
 
 /**
- * Module for injecting location services
+ * Module for injecting Location Services
  */
 @InstallIn(SingletonComponent::class)
 @Module
 class LocationModule() {
 
+    // Inject FusedLocationProviderClient used to get Current Location
     @Singleton
     @Provides
     fun provideFusedLocationProviderClient(

@@ -6,11 +6,20 @@ import com.example.weather.network.ApiService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
+/**
+ * Interface for Repository of Geocoding DataType
+ */
 interface GeocodingRepository {
+    // Get location by a city name
     suspend fun getLocation(city: String): Location
+
+    // Get city name by a pair of latitude and longitude (Location)
     suspend fun getCity(location: Location): String
 }
 
+/**
+ * Implementation of Interface for Repository of Geocoding DataType
+ */
 class DefaultGeocodingRepository(
     private val apiService: ApiService,
     @IoDispatcher private val dispatcher: CoroutineDispatcher

@@ -7,13 +7,26 @@ import com.example.weather.network.ApiService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
+/**
+ * Interface for Repository of Weather DataType
+ */
 interface WeatherRepository {
+    // Get the current location of the device
     suspend fun getCurrentLocation(): Location
+
+    // Call Api to send a city name and get the weather there
     suspend fun getWeather(city: String): Weather
+
+    // Call Api to send a location and get the weather there
     suspend fun getWeather(location: Location): Weather
+
+    // Call Api to send a location and get the city name there
     suspend fun getCityByLocation(location: Location): String
 }
 
+/**
+ * Implementation of Interface for Repository of Weather DataType
+ */
 class DefaultWeatherRepository(
     private val geocodingRepository: GeocodingRepository,
     private val locationRepository: LocationRepository,
