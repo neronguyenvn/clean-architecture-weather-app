@@ -2,7 +2,7 @@ package com.example.weather.data
 
 import com.example.weather.di.IoDispatcher
 import com.example.weather.model.geocoding.Location
-import com.example.weather.model.weather.Weather
+import com.example.weather.model.weather.AllWeather
 import com.example.weather.network.ApiService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -15,10 +15,10 @@ interface WeatherRepository {
     suspend fun getCurrentLocation(): Location
 
     // Call Api to send a city name and get the weather there
-    suspend fun getWeather(city: String): Weather
+    suspend fun getWeather(city: String): AllWeather
 
     // Call Api to send a location and get the weather there
-    suspend fun getWeather(location: Location): Weather
+    suspend fun getWeather(location: Location): AllWeather
 
     // Call Api to send a location and get the city name there
     suspend fun getCityByLocation(location: Location): String
@@ -42,12 +42,12 @@ class DefaultWeatherRepository(
         return geocodingRepository.getCity(location)
     }
 
-    override suspend fun getWeather(city: String): Weather = withContext(dispatcher) {
+    override suspend fun getWeather(city: String): AllWeather = withContext(dispatcher) {
         val location = getLocationByCity(city)
         apiService.getWeather(latitude = location.latitude, longitude = location.longitude)
     }
 
-    override suspend fun getWeather(location: Location): Weather = withContext(dispatcher) {
+    override suspend fun getWeather(location: Location): AllWeather = withContext(dispatcher) {
         apiService.getWeather(latitude = location.latitude, longitude = location.longitude)
     }
 

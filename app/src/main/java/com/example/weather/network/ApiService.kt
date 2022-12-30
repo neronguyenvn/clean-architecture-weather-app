@@ -3,7 +3,7 @@ package com.example.weather.network
 import com.example.weather.BuildConfig
 import com.example.weather.model.geocoding.ForwardGeocoding
 import com.example.weather.model.geocoding.ReverseGeocoding
-import com.example.weather.model.weather.Weather
+import com.example.weather.model.weather.AllWeather
 import com.example.weather.utils.OPENWEATHER_BASE_URL
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -34,5 +34,5 @@ interface ApiService {
         @Query("exclude") exclude: String = "minutely",
         @Query("units") units: String = "metric",
         @Query("appid") key: String = BuildConfig.OPENWEATHER_API_KEY
-    ): Weather
+    ): AllWeather
 }

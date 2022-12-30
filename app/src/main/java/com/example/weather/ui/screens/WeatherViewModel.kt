@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weather.R
 import com.example.weather.data.WeatherRepository
+import com.example.weather.model.weather.AllWeather
 import com.example.weather.model.weather.CurrentWeather
 import com.example.weather.model.weather.DailyWeather
-import com.example.weather.model.weather.Weather
 import com.example.weather.model.weather.asModel
 import com.example.weather.utils.DATE_PATTERN
 import com.example.weather.utils.toDateString
@@ -59,25 +59,25 @@ class WeatherViewModel @Inject constructor(
         }
     }
 
-    private fun updateWeatherState(weather: Weather) {
-        val current = weather.current
+    private fun updateWeatherState(allWeather: AllWeather) {
+        val current = allWeather.current
         _uiState.update {
             it.copy(
                 date = current.timestamp.toDateString(DATE_PATTERN),
                 temp = current.temp.roundToInt(),
-                weather = current.weatherItem.first().main,
-                listDaily = weather.daily.map { daily -> daily.asModel(current.timestamp) },
+                weather = current.weatherItem.first().weatherDescription,
+                listDaily = allWeather.daily.map { daily -> daily.asModel(current.timestamp) },
                 bgImg = selectBackgroundImage(current)
             )
         }
     }
 
-    private fun selectBackgroundImage(
-        current: CurrentWeather
-    ): Int {
+    private fun selectBackgroundImage(current: CurrentWeather): Int {
         current.apply {
+            val weatherDescription = weatherItem.first().weatherDescription
+
             return if (timestamp in sunriseTimestamp..sunsetTimestamp) {
-                when (weatherItem.first().main) {
+                when (weatherDescription) {
                     "Thunderstorm", "Drizzle", "Rain" -> R.drawable.day_rain
                     "Snow" -> R.drawable.day_snow
                     "Clear" -> R.drawable.day_clearsky
@@ -85,7 +85,7 @@ class WeatherViewModel @Inject constructor(
                     else -> R.drawable.day_other_atmosphere
                 }
             } else {
-                when (weatherItem.first().main) {
+                when (weatherDescription) {
                     "Thunderstorm", "Drizzle", "Rain" -> R.drawable.night_rain
                     "Snow" -> R.drawable.night_snow
                     "Clear" -> R.drawable.night_clearsky
