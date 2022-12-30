@@ -6,14 +6,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalContext
+import com.example.weather.utils.PermissionAction
 import com.example.weather.utils.hasPermission
-
-/**
- * Enum of Permission Action results
- */
-enum class PermissionAction {
-    GRANTED, DENIED
-}
 
 /**
  * Ui component for displaying Permission Request dialog with Custom permission and handled by Custom
@@ -28,7 +22,7 @@ fun PermissionScreen(
     val isPermissionGranted = activity.hasPermission(permission)
 
     if (isPermissionGranted) {
-        permissionAction(PermissionAction.GRANTED)
+        (permissionAction(PermissionAction.OnPermissionGranted))
         return
     }
 
@@ -36,9 +30,9 @@ fun PermissionScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            permissionAction(PermissionAction.GRANTED)
+            permissionAction(PermissionAction.OnPermissionGranted)
         } else {
-            permissionAction(PermissionAction.DENIED)
+            permissionAction(PermissionAction.OnPermissionDenied)
         }
     }
 

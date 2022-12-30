@@ -46,6 +46,7 @@ import coil.util.DebugLogger
 import com.example.weather.R
 import com.example.weather.model.weather.DailyWeather
 import com.example.weather.ui.theme.Poppins
+import com.example.weather.utils.PermissionAction
 
 /**
  * Ui component for Weather Home screen
@@ -65,11 +66,19 @@ fun HomeScreen(
             contentDescription = null,
             contentScale = ContentScale.FillHeight
         )
-        PermissionScreen(
-            permission = Manifest.permission.ACCESS_FINE_LOCATION
-        ) {
-            if (it == PermissionAction.GRANTED) {
-                weatherViewModel.getCurrentLocationAllWeather()
+        if (uiState.shouldDoLocationAction) {
+            PermissionScreen(
+                permission = Manifest.permission.ACCESS_FINE_LOCATION
+            ) { permissionAction ->
+                when (permissionAction) {
+                    is PermissionAction.OnPermissionGranted -> {
+                        weatherViewModel.updateShouldDoLocationAction(false)
+                        weatherViewModel.getCurrentLocationAllWeather()
+                    }
+                    is PermissionAction.OnPermissionDenied -> {
+                        weatherViewModel.updateShouldDoLocationAction(false)
+                    }
+                }
             }
         }
 

@@ -29,7 +29,8 @@ data class WeatherUiState(
     val temp: Int = 0,
     val weather: String = "",
     val listDaily: List<DailyWeather> = emptyList(),
-    @DrawableRes val bgImg: Int = R.drawable.day_rain
+    @DrawableRes val bgImg: Int = R.drawable.day_rain,
+    val shouldDoLocationAction: Boolean = true
 )
 
 /**
@@ -48,6 +49,13 @@ class WeatherViewModel @Inject constructor(
      */
     fun updateCityName(value: String) {
         _uiState.update { it.copy(cityName = value) }
+    }
+
+    /**
+     * Update should do Location Action or not
+     */
+    fun updateShouldDoLocationAction(value: Boolean) {
+        _uiState.update { it.copy(shouldDoLocationAction = value) }
     }
 
     /**
