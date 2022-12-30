@@ -52,11 +52,11 @@ class DefaultWeatherRepository(
 
     override suspend fun getWeather(city: String): AllWeather = withContext(dispatcher) {
         val location = getLocationByCity(city)
-        apiService.getWeather(latitude = location.latitude, longitude = location.longitude)
+        apiService.getAllWeather(latitude = location.latitude, longitude = location.longitude)
     }
 
     override suspend fun getWeather(location: Location): AllWeather = withContext(dispatcher) {
-        apiService.getWeather(latitude = location.latitude, longitude = location.longitude)
+        apiService.getAllWeather(latitude = location.latitude, longitude = location.longitude)
     }
 
     private suspend fun getLocationByCity(city: String): Location {

@@ -30,11 +30,11 @@ class DefaultGeocodingRepository(
 ) : GeocodingRepository {
 
     override suspend fun getLocation(city: String): Location = withContext(dispatcher) {
-        apiService.getGeocoding(city = city).results.first().location
+        apiService.getForwardGeocoding(city = city).results.first().location
     }
 
     override suspend fun getCity(location: Location): String = withContext(dispatcher) {
-        apiService.getCity("${location.latitude}+${location.longitude}")
+        apiService.getReverseGeocoding("${location.latitude}+${location.longitude}")
             .results.first().components.city
     }
 }
