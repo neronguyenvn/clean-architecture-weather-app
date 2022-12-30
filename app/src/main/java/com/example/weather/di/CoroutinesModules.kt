@@ -21,12 +21,16 @@ annotation class IoDispatcher
 @Module
 class CoroutineDispatcherModule {
 
-    // Inject Default Dispatcher
+    /**
+     * Inject Default Dispatcher
+     */
     @DefaultDispatcher
     @Provides
     fun providesDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
 
-    // Inject Io Dispatcher
+    /**
+     * Inject Io Dispatcher
+     */
     @IoDispatcher
     @Provides
     fun providesIoDispatcher(): CoroutineDispatcher = Dispatchers.IO

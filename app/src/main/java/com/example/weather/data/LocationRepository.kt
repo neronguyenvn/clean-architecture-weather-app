@@ -13,7 +13,9 @@ import kotlinx.coroutines.withContext
  * Interface for Repository of Location DataType
  */
 interface LocationRepository {
-    // Get the current location of the device
+    /**
+     * Get the current location of the device
+     */
     suspend fun getCurrentLocation(): Location
 }
 

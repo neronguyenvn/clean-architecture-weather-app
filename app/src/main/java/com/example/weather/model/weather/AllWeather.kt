@@ -67,7 +67,9 @@ data class Temp(
     val min: Double
 )
 
-// Convert Daily Weather Api Model into Business Model one
+/**
+ * Convert Daily Weather Api Model into Business Model one
+ */
 fun DailyWeatherApiModel.asModel(currentDt: Long): DailyWeather {
     return DailyWeather(
         iconUrl = "$OPENWEATHER_ICON_BASE_URL${weatherItem.first().iconUrl}@2x.png",

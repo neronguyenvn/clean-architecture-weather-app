@@ -10,10 +10,14 @@ import kotlinx.coroutines.withContext
  * Interface for Repository of Geocoding DataType
  */
 interface GeocodingRepository {
-    // Get location by a city name
+    /**
+     * Get location by a city name
+     */
     suspend fun getLocation(city: String): Location
 
-    // Get city name by a pair of latitude and longitude (Location)
+    /**
+     * Get city name by a pair of latitude and longitude (Location)
+     */
     suspend fun getCity(location: Location): String
 }
 

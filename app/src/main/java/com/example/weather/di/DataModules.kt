@@ -25,7 +25,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class RepositoryModule {
 
-    // Inject Weather DataType Repository
+    /**
+     *  Inject Weather DataType Repository
+     */
     @Singleton
     @Provides
     fun provideWeatherRepository(
@@ -42,7 +44,9 @@ class RepositoryModule {
         )
     }
 
-    // Inject Geocoding DataType Repository
+    /**
+     * Inject Geocoding DataType Repository
+     */
     @Singleton
     @Provides
     fun provideGeocodingRepository(
@@ -52,7 +56,9 @@ class RepositoryModule {
         return DefaultGeocodingRepository(apiService, dispatcher)
     }
 
-    // Inject Location DataType Repository
+    /**
+     * Inject Location DataType Repository
+     */
     @Singleton
     @Provides
     fun provideLocationRepository(
@@ -68,9 +74,11 @@ class RepositoryModule {
  */
 @InstallIn(SingletonComponent::class)
 @Module
-class LocationModule() {
+class LocationModule {
 
-    // Inject FusedLocationProviderClient used to get Current Location
+    /**
+     *  Inject FusedLocationProviderClient used to get Current Location
+     */
     @Singleton
     @Provides
     fun provideFusedLocationProviderClient(
