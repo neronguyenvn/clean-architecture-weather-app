@@ -47,6 +47,9 @@ import com.example.weather.R
 import com.example.weather.model.weather.DailyWeather
 import com.example.weather.ui.theme.Poppins
 
+/**
+ * Ui component for Weather Home screen
+ */
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun HomeScreen(
@@ -65,16 +68,16 @@ fun HomeScreen(
         PermissionScreen(
             permission = Manifest.permission.ACCESS_FINE_LOCATION
         ) {
-            if (it is PermissionAction.OnPermissionGranted) {
-                weatherViewModel.getCurrentLocationWeather()
+            if (it == PermissionAction.GRANTED) {
+                weatherViewModel.getCurrentLocationAllWeather()
             }
         }
 
         Column(modifier = modifier.padding(horizontal = 24.dp, vertical = 40.dp)) {
             SearchField(
-                value = uiState.city,
-                onValueChange = weatherViewModel::updateCity,
-                onActionDone = { weatherViewModel.getWeather(uiState.city) }
+                value = uiState.cityName,
+                onValueChange = weatherViewModel::updateCityName,
+                onActionDone = { weatherViewModel.getAllWeather(uiState.cityName) }
             )
             Spacer(modifier = Modifier.height(48.dp))
             CurrentWeatherContent(uiState.date, uiState.temp, uiState.weather)
@@ -84,6 +87,9 @@ fun HomeScreen(
     }
 }
 
+/**
+ * Ui component for input CityName then tap Done button to search for All Weather of that city
+ */
 @Composable
 fun SearchField(
     modifier: Modifier = Modifier,
@@ -115,6 +121,9 @@ fun SearchField(
     )
 }
 
+/**
+ * Ui component for Current Weather info
+ */
 @Composable
 fun CurrentWeatherContent(
     date: String,
@@ -132,6 +141,9 @@ fun CurrentWeatherContent(
     }
 }
 
+/**
+ * Ui component for all Daily Weather info
+ */
 @Composable
 fun DailyWeatherContent(listDaily: List<DailyWeather>) {
     LazyColumn {
@@ -141,6 +153,9 @@ fun DailyWeatherContent(listDaily: List<DailyWeather>) {
     }
 }
 
+/**
+ * Ui component for one Daily Weather item
+ */
 @Composable
 fun DailyWeatherItem(
     daily: DailyWeather,

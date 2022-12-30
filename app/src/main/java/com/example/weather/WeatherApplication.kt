@@ -4,7 +4,7 @@ import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
 /**
- * Singleton application instance
+ * Singleton Application instance
  */
 @HiltAndroidApp
 class WeatherApplication : Application()

@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Api Model for Forward Geocoding api meaning convert City name into Location
+ * Api Model for Forward Geocoding api meaning convert CityName into Location
  */
 @Serializable
 data class ForwardGeocoding(

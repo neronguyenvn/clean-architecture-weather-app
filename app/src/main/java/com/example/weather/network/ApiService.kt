@@ -11,7 +11,7 @@ import retrofit2.http.Url
 
 interface ApiService {
     /**
-     * Call Forward Geocoding api to convert City name to
+     * Call Forward Geocoding api to convert CityName to
      */
     @GET("geocode/v1/json")
     suspend fun getGeocoding(

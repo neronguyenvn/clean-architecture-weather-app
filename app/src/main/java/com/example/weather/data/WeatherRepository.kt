@@ -17,7 +17,7 @@ interface WeatherRepository {
     suspend fun getCurrentLocation(): Location
 
     /**
-     *  Get the All Weather by call Api and send City name
+     *  Get the All Weather by call Api and send CityName
      */
     suspend fun getWeather(city: String): AllWeather
 
@@ -27,7 +27,7 @@ interface WeatherRepository {
     suspend fun getWeather(location: Location): AllWeather
 
     /**
-     *  Get the City name by call Api and send Location
+     *  Get the CityName by call Api and send Location
      */
     suspend fun getCityByLocation(location: Location): String
 }

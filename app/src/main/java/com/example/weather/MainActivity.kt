@@ -10,7 +10,7 @@ import com.example.weather.ui.theme.WeatherTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
- * Single activity for the entire app
+ * Single Activity for the entire App
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

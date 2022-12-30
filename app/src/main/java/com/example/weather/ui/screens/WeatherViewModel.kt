@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weather.R
 import com.example.weather.data.WeatherRepository
+import com.example.weather.model.geocoding.Location
 import com.example.weather.model.weather.AllWeather
 import com.example.weather.model.weather.CurrentWeather
 import com.example.weather.model.weather.DailyWeather
@@ -19,8 +20,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
+/**
+ * UiState for Weather Home screen
+ */
 data class WeatherUiState(
-    val city: String = "",
+    val cityName: String = "",
     val date: String = "",
     val temp: Int = 0,
     val weather: String = "",
@@ -28,6 +32,9 @@ data class WeatherUiState(
     @DrawableRes val bgImg: Int = R.drawable.day_rain
 )
 
+/**
+ * ViewModel for Weather Home screen
+ */
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
     private val repository: WeatherRepository
@@ -36,26 +43,39 @@ class WeatherViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(WeatherUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun updateCity(value: String) {
-        _uiState.update { it.copy(city = value) }
+    /**
+     * Update text for CitySearch TextField
+     */
+    fun updateCityName(value: String) {
+        _uiState.update { it.copy(cityName = value) }
     }
 
-    fun getWeather(city: String) {
+    /**
+     * Get All Weather by send Repository a CityName
+     */
+    fun getAllWeather(city: String) {
         viewModelScope.launch {
             val weather = repository.getWeather(city)
             updateWeatherState(weather)
         }
     }
 
-    fun getCurrentLocationWeather() {
+    /**
+     * Get All Weather by send Repository the Current Location received from Repository
+     */
+    fun getCurrentLocationAllWeather() {
         viewModelScope.launch {
             val location = repository.getCurrentLocation()
-            launch {
-                val city = repository.getCityByLocation(location)
-                updateCity(city)
-            }
+            getCityName(location)
             val weather = repository.getWeather(location)
             updateWeatherState(weather)
+        }
+    }
+
+    private fun getCityName(location: Location) {
+        viewModelScope.launch {
+            val city = repository.getCityByLocation(location)
+            updateCityName(city)
         }
     }
 
