@@ -1,24 +1,31 @@
 package com.example.weather.ui.screens
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weather.R
 import com.example.weather.data.WeatherRepository
-import com.example.weather.model.geocoding.Location
+import com.example.weather.model.geocoding.Coordinate
 import com.example.weather.model.weather.AllWeather
 import com.example.weather.model.weather.CurrentWeather
 import com.example.weather.model.weather.DailyWeather
 import com.example.weather.utils.DATE_PATTERN
+import com.example.weather.utils.Result.Error
+import com.example.weather.utils.Result.Success
+import com.example.weather.utils.toCoordinate
 import com.example.weather.utils.toDateString
-import com.example.weather.utils.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.roundToInt
+
+private const val TAG = "WeatherViewModel"
 
 /**
  * UiState for Weather Home screen
@@ -30,7 +37,8 @@ data class WeatherUiState(
     val weather: String = "",
     val listDaily: List<DailyWeather> = emptyList(),
     @DrawableRes val bgImg: Int = R.drawable.day_rain,
-    val shouldDoLocationAction: Boolean = true
+    val shouldDoLocationAction: Boolean = true,
+    val isRefreshing: Boolean = false
 )
 
 /**
@@ -44,10 +52,14 @@ class WeatherViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(WeatherUiState())
     val uiState = _uiState.asStateFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
+
     /**
      * Update text for CitySearch TextField
      */
     fun updateCityName(value: String) {
+        Log.d(TAG, "updateCityName() called")
         _uiState.update { it.copy(cityName = value) }
     }
 
@@ -55,6 +67,7 @@ class WeatherViewModel @Inject constructor(
      * Update should do Location Action or not
      */
     fun updateShouldDoLocationAction(value: Boolean) {
+        Log.d(TAG, "updateShouldDoLocationAction() called")
         _uiState.update { it.copy(shouldDoLocationAction = value) }
     }
 
@@ -62,28 +75,53 @@ class WeatherViewModel @Inject constructor(
      * Get All Weather by send Repository a CityName
      */
     fun getAllWeather(city: String) {
+        Log.d(TAG, "getAllWeather() called")
         viewModelScope.launch {
-            val weather = repository.getWeather(city)
-            updateWeatherState(weather)
+            _isRefreshing.emit(true)
+            when (val weather = repository.getWeather(city, true)) {
+                is Success -> updateWeatherState(weather.data)
+                is Error -> {
+                    _isRefreshing.emit(false)
+                    throw Exception(weather.exception)
+                }
+            }
+            _isRefreshing.emit(false)
         }
     }
 
     /**
      * Get All Weather by send Repository the Current Location received from Repository
      */
-    fun getCurrentLocationAllWeather() {
+    fun getCurrentCoordinateAllWeather() {
+        Log.d(TAG, "getCurrentCoordinateAllWeather() called")
         viewModelScope.launch {
-            val location = repository.getCurrentLocation()
-            getCityName(location)
-            val weather = repository.getWeather(location)
-            updateWeatherState(weather)
+            _isRefreshing.emit(true)
+            val location = repository.getCurrentCoordinate()
+            val job: Deferred<Unit>
+            try {
+                job = async { getCityName(location) }
+            } catch (ex: Exception) {
+                throw ex
+            }
+            when (val weather = repository.getWeather(location)) {
+                is Success -> updateWeatherState(weather.data)
+                is Error -> {
+                    _isRefreshing.emit(false)
+                    throw Exception(weather.exception)
+                }
+            }
+            job.await()
+            _isRefreshing.emit(false)
         }
     }
 
-    private fun getCityName(location: Location) {
-        viewModelScope.launch {
-            val city = repository.getCityByLocation(location)
-            updateCityName(city)
+    private suspend fun getCityName(coordinate: Coordinate) {
+        when (val city = repository.getCityByCoordinate(coordinate, true)) {
+            is Success -> updateCityName(city.data)
+            is Error -> {
+                _isRefreshing.emit(false)
+                throw Exception(city.exception)
+            }
         }
     }
 
@@ -94,7 +132,7 @@ class WeatherViewModel @Inject constructor(
                 date = current.timestamp.toDateString(DATE_PATTERN),
                 temp = current.temp.roundToInt().toString(),
                 weather = current.weatherItem.first().weatherDescription,
-                listDaily = allWeather.daily.map { daily -> daily.toUiModel(current.timestamp) },
+                listDaily = allWeather.daily.map { daily -> daily.toCoordinate(current.timestamp) },
                 bgImg = selectBackgroundImage(current)
             )
         }

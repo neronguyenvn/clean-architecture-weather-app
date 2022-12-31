@@ -11,7 +11,7 @@ private const val DAY_NAME_IN_WEEK_PATTERN = "EEE"
  * Convert a Timestamp to Date string with Custom Pattern param
  */
 fun Long.toDateString(pattern: String): String {
-    val sdf = SimpleDateFormat(pattern, Locale.getDefault())
+    val sdf = SimpleDateFormat(pattern, Locale.US)
     val date = Date(this * 1000)
     return sdf.format(date)
 }

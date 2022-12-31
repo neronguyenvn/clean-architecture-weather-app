@@ -1,10 +1,13 @@
 package com.example.weather.di
 
 import android.content.Context
-import com.example.weather.data.DefaultGeocodingRepository
+import androidx.room.Room
+import com.example.weather.data.AppDatabase
 import com.example.weather.data.DefaultLocationRepository
 import com.example.weather.data.DefaultWeatherRepository
-import com.example.weather.data.GeocodingRepository
+import com.example.weather.data.LocationDataSource
+import com.example.weather.data.LocationLocalDataSource
+import com.example.weather.data.LocationRemoteDataSource
 import com.example.weather.data.LocationRepository
 import com.example.weather.data.WeatherRepository
 import com.example.weather.network.ApiService
@@ -16,7 +19,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Qualifier
+annotation class RemoteLocationDataSource
+
+@Qualifier
+annotation class LocalLocationDataSource
 
 /**
  * Module for injecting Repositories
@@ -31,29 +41,11 @@ class RepositoryModule {
     @Singleton
     @Provides
     fun provideWeatherRepository(
-        geocodingRepository: GeocodingRepository,
         locationRepository: LocationRepository,
         apiService: ApiService,
         @IoDispatcher dispatcher: CoroutineDispatcher
     ): WeatherRepository {
-        return DefaultWeatherRepository(
-            geocodingRepository,
-            locationRepository,
-            apiService,
-            dispatcher
-        )
-    }
-
-    /**
-     * Inject Geocoding DataType Repository
-     */
-    @Singleton
-    @Provides
-    fun provideGeocodingRepository(
-        apiService: ApiService,
-        @IoDispatcher dispatcher: CoroutineDispatcher
-    ): GeocodingRepository {
-        return DefaultGeocodingRepository(apiService, dispatcher)
+        return DefaultWeatherRepository(locationRepository, apiService, dispatcher)
     }
 
     /**
@@ -62,10 +54,62 @@ class RepositoryModule {
     @Singleton
     @Provides
     fun provideLocationRepository(
+        @RemoteLocationDataSource remoteDataSource: LocationDataSource,
+        @LocalLocationDataSource localDataSource: LocationDataSource,
         client: FusedLocationProviderClient,
-        @DefaultDispatcher dispatcher: CoroutineDispatcher
+        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
+        @IoDispatcher ioDispatcher: CoroutineDispatcher
     ): LocationRepository {
-        return DefaultLocationRepository(client, dispatcher)
+        return DefaultLocationRepository(
+            locationRemoteDataSource = remoteDataSource,
+            locationLocalDataSource = localDataSource,
+            client = client,
+            defaultDispatcher = defaultDispatcher,
+            ioDispatcher = ioDispatcher
+        )
+    }
+}
+
+/**
+ * Module for inject Data Sources
+ */
+@InstallIn(SingletonComponent::class)
+@Module
+class DataSourceModule {
+
+    /**
+     * Inject Location Remote Data Source
+     */
+    @Singleton
+    @RemoteLocationDataSource
+    @Provides
+    fun provideLocationRemoteDataSource(apiService: ApiService): LocationDataSource {
+        return LocationRemoteDataSource(apiService)
+    }
+
+    /**
+     * Inject Location Local Data Source
+     */
+    @Singleton
+    @LocalLocationDataSource
+    @Provides
+    fun provideLocationLocalDataSource(database: AppDatabase): LocationDataSource {
+        return LocationLocalDataSource(database.locationDao())
+    }
+}
+
+@InstallIn(SingletonComponent::class)
+@Module
+class DatabaseModule {
+
+    @Singleton
+    @Provides
+    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context.applicationContext,
+            AppDatabase::class.java,
+            "WeatherApp.db"
+        ).build()
     }
 }
 

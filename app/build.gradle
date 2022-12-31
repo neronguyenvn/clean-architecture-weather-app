@@ -5,6 +5,7 @@ plugins {
     id 'com.google.dagger.hilt.android'
     id 'org.jetbrains.kotlin.plugin.serialization'
     id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
 }
 android {
     namespace 'com.example.weather'
@@ -76,4 +77,9 @@ dependencies {
 
     // Location
     implementation "com.google.android.gms:play-services-location:$playServicesLocation"
+
+    // Room
+    implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.room:room-ktx:$roomVersion"
+    ksp "androidx.room:room-compiler:$roomVersion"
 }

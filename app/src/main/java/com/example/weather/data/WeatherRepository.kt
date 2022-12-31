@@ -1,9 +1,12 @@
 package com.example.weather.data
 
 import com.example.weather.di.IoDispatcher
-import com.example.weather.model.geocoding.Location
+import com.example.weather.model.geocoding.Coordinate
 import com.example.weather.model.weather.AllWeather
 import com.example.weather.network.ApiService
+import com.example.weather.utils.Result
+import com.example.weather.utils.Result.Error
+import com.example.weather.utils.Result.Success
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -14,52 +17,82 @@ interface WeatherRepository {
     /**
      *  Get the Current Location of the Device thank to Location Repository
      */
-    suspend fun getCurrentLocation(): Location
+    suspend fun getCurrentCoordinate(): Coordinate
 
     /**
      *  Get the All Weather by call Api and send CityName
      */
-    suspend fun getWeather(city: String): AllWeather
+    suspend fun getWeather(city: String, forceUpdate: Boolean): Result<AllWeather>
 
     /**
      *  Get the All Weather by call Api and send Location
      */
-    suspend fun getWeather(location: Location): AllWeather
+    suspend fun getWeather(coordinate: Coordinate): Result<AllWeather>
 
     /**
      *  Get the CityName by call Api and send Location
      */
-    suspend fun getCityByLocation(location: Location): String
+    suspend fun getCityByCoordinate(coordinate: Coordinate, forceUpdate: Boolean): Result<String>
 }
 
 /**
- * Implementation of Interface for Repository of Weather DataType
+ * Implementation for Repository of Weather DataType
  */
 class DefaultWeatherRepository(
-    private val geocodingRepository: GeocodingRepository,
     private val locationRepository: LocationRepository,
     private val apiService: ApiService,
     @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) : WeatherRepository {
 
-    override suspend fun getCurrentLocation(): Location {
-        return locationRepository.getCurrentLocation()
+    override suspend fun getCurrentCoordinate(): Coordinate {
+        return locationRepository.getCurrentCoordinate()
     }
 
-    override suspend fun getCityByLocation(location: Location): String {
-        return geocodingRepository.getCity(location)
+    override suspend fun getCityByCoordinate(
+        coordinate: Coordinate,
+        forceUpdate: Boolean
+    ): Result<String> {
+        return locationRepository.getCityByCoordinate(coordinate, forceUpdate)
     }
 
-    override suspend fun getWeather(city: String): AllWeather = withContext(dispatcher) {
-        val location = getLocationByCity(city)
-        apiService.getAllWeather(latitude = location.latitude, longitude = location.longitude)
+    override suspend fun getWeather(city: String, forceUpdate: Boolean): Result<AllWeather> {
+        return withContext(dispatcher) {
+            try {
+                val coordinate = getCoordinateByCity(city, forceUpdate)
+                Success(
+                    apiService.getAllWeather(
+                        latitude = coordinate.latitude,
+                        longitude = coordinate.longitude
+                    )
+                )
+            } catch (ex: Exception) {
+                Error(ex)
+            }
+        }
     }
 
-    override suspend fun getWeather(location: Location): AllWeather = withContext(dispatcher) {
-        apiService.getAllWeather(latitude = location.latitude, longitude = location.longitude)
+    override suspend fun getWeather(coordinate: Coordinate): Result<AllWeather> {
+        return withContext(dispatcher) {
+            try {
+                Success(
+                    apiService.getAllWeather(
+                        latitude = coordinate.latitude,
+                        longitude = coordinate.longitude
+                    )
+                )
+            } catch (ex: Exception) {
+                Error(ex)
+            }
+        }
     }
 
-    private suspend fun getLocationByCity(city: String): Location {
-        return geocodingRepository.getLocation(city)
+    private suspend fun getCoordinateByCity(
+        city: String,
+        forceUpdate: Boolean
+    ): Coordinate {
+        when (val coordinate = locationRepository.getCoordinateByCity(city, forceUpdate)) {
+            is Success -> return coordinate.data
+            is Error -> throw coordinate.exception
+        }
     }
 }

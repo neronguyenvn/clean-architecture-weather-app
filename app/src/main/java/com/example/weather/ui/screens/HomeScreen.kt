@@ -1,6 +1,7 @@
 package com.example.weather.ui.screens
 
 import android.Manifest
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.typography
@@ -22,6 +24,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -50,21 +55,40 @@ import com.example.weather.utils.PermissionAction
 /**
  * Ui component for Weather Home screen
  */
-@OptIn(ExperimentalLifecycleComposeApi::class)
+@OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     weatherViewModel: WeatherViewModel = viewModel()
 ) {
-    Box {
-        val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
+    val isRefreshing by weatherViewModel.isRefreshing.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
+    val pullRefreshState =
+        rememberPullRefreshState(
+            refreshing = isRefreshing,
+            onRefresh = {
+                try {
+                    weatherViewModel.getCurrentCoordinateAllWeather()
+                } catch (ex: Exception) {
+                    Toast.makeText(context, ex.toString(), Toast.LENGTH_LONG).show()
+                }
+            }
+        )
+
+    Box(
+        modifier = modifier
+            .pullRefresh(pullRefreshState)
+            .fillMaxSize()
+    ) {
         Image(
             modifier = Modifier.fillMaxSize(),
             painter = painterResource(id = uiState.bgImg),
             contentDescription = null,
             contentScale = ContentScale.FillHeight
         )
+
         if (uiState.shouldDoLocationAction) {
             PermissionScreen(
                 permission = Manifest.permission.ACCESS_FINE_LOCATION
@@ -72,7 +96,11 @@ fun HomeScreen(
                 when (permissionAction) {
                     is PermissionAction.OnPermissionGranted -> {
                         weatherViewModel.updateShouldDoLocationAction(false)
-                        weatherViewModel.getCurrentLocationAllWeather()
+                        try {
+                            weatherViewModel.getCurrentCoordinateAllWeather()
+                        } catch (ex: Exception) {
+                            Toast.makeText(context, ex.toString(), Toast.LENGTH_LONG).show()
+                        }
                     }
                     is PermissionAction.OnPermissionDenied -> {
                         weatherViewModel.updateShouldDoLocationAction(false)
@@ -81,13 +109,19 @@ fun HomeScreen(
             }
         }
 
-        Column(modifier = modifier.padding(horizontal = 24.dp, vertical = 40.dp)) {
+        Column(Modifier.padding(horizontal = 24.dp, vertical = 40.dp)) {
             SearchField(
                 value = uiState.cityName,
                 onValueChange = weatherViewModel::updateCityName,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(
-                    onSearch = { weatherViewModel.getAllWeather(uiState.cityName) }
+                    onSearch = {
+                        try {
+                            weatherViewModel.getAllWeather(uiState.cityName)
+                        } catch (ex: Exception) {
+                            Toast.makeText(context, ex.toString(), Toast.LENGTH_LONG).show()
+                        }
+                    }
                 )
             )
             Spacer(modifier = Modifier.height(48.dp))
@@ -95,6 +129,12 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(48.dp))
             DailyWeatherContent(listDaily = uiState.listDaily)
         }
+
+        PullRefreshIndicator(
+            isRefreshing,
+            pullRefreshState,
+            Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 
@@ -140,10 +180,12 @@ fun CurrentWeatherContent(
 ) {
     Column(modifier = modifier.padding(start = 24.dp)) {
         Text(text = weatherUiState.date, style = typography.body2)
-        Text(
-            text = stringResource(id = R.string.temperature, weatherUiState.temp),
-            style = typography.h2
-        )
+        if (weatherUiState.temp != "") {
+            Text(
+                text = stringResource(id = R.string.temperature, weatherUiState.temp),
+                style = typography.h2
+            )
+        }
         Text(text = weatherUiState.weather, style = typography.h5)
     }
 }

@@ -16,14 +16,14 @@ data class ForwardGeocoding(
  */
 @Serializable
 data class ForwardGeocodingResult(
-    @SerialName("geometry") val location: Location
+    @SerialName("geometry") val coordinate: Coordinate
 )
 
 /**
  * Api Model for Forward Geocoding api and also used as Ui Model for Location DataType
  */
 @Serializable
-data class Location(
+data class Coordinate(
     @SerialName("lat") val latitude: Double,
     @SerialName("lng") val longitude: Double
 )
