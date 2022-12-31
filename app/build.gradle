@@ -6,7 +6,6 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization'
     id 'kotlin-kapt'
 }
-
 android {
     namespace 'com.example.weather'
     compileSdk rootProject.compileSdkVersion
@@ -28,32 +27,26 @@ android {
         buildConfigField("String", "OPENWEATHER_API_KEY",
                 "\"${properties.getProperty("OPENWEATHER_API_KEY")}\"")
     }
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
     buildFeatures {
         compose true
     }
-
     compileOptions {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
     }
-
     kotlinOptions {
         jvmTarget = '1.8'
     }
-
     packagingOptions {
         exclude 'META-INF/AL2.0'
         exclude 'META-INF/LGPL2.1'
     }
-
     composeOptions {
         kotlinCompilerExtensionVersion "$composeCompilerVersion"
     }
@@ -64,7 +57,6 @@ android {
  all versions in a single place. This improves readability and helps managing project complexity.
  */
 dependencies {
-
     // Jetpack Compose
     implementation "androidx.activity:activity-compose:$activityComposeVersion"
     implementation "androidx.compose.material:material:$composeVersion"

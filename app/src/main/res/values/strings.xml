@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Weather</string>
-    <string name="temperature">%d\u00B0</string>
+    <string name="temperature">%s\u00B0</string>
     <string name="daily_weather">%1$s\u00B7%2$s</string>
     <string name="max_min_temperature">%1$d\u00B0 / %2$d\u00B0</string>
 </resources>

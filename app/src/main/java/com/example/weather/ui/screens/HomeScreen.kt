@@ -33,7 +33,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
@@ -86,10 +85,13 @@ fun HomeScreen(
             SearchField(
                 value = uiState.cityName,
                 onValueChange = weatherViewModel::updateCityName,
-                onActionDone = { weatherViewModel.getAllWeather(uiState.cityName) }
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(
+                    onSearch = { weatherViewModel.getAllWeather(uiState.cityName) }
+                )
             )
             Spacer(modifier = Modifier.height(48.dp))
-            CurrentWeatherContent(uiState.date, uiState.temp, uiState.weather)
+            CurrentWeatherContent(uiState)
             Spacer(modifier = Modifier.height(48.dp))
             DailyWeatherContent(listDaily = uiState.listDaily)
         }
@@ -101,10 +103,11 @@ fun HomeScreen(
  */
 @Composable
 fun SearchField(
-    modifier: Modifier = Modifier,
-    value: String = "",
-    onValueChange: (String) -> Unit = {},
-    onActionDone: () -> Unit = {}
+    value: String,
+    onValueChange: (String) -> Unit,
+    keyboardOptions: KeyboardOptions,
+    keyboardActions: KeyboardActions,
+    modifier: Modifier = Modifier
 ) {
     val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
         backgroundColor = MaterialTheme.colors.background,
@@ -115,11 +118,8 @@ fun SearchField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Done,
-            capitalization = KeyboardCapitalization.Words
-        ),
-        keyboardActions = KeyboardActions(onDone = { onActionDone() }),
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
         colors = textFieldColors,
         modifier = modifier.fillMaxWidth(),
         leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
@@ -135,18 +135,16 @@ fun SearchField(
  */
 @Composable
 fun CurrentWeatherContent(
-    date: String,
-    temperature: Int,
-    weather: String,
+    weatherUiState: WeatherUiState,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(start = 24.dp)) {
-        Text(text = date, style = typography.body2)
+        Text(text = weatherUiState.date, style = typography.body2)
         Text(
-            text = stringResource(id = R.string.temperature, temperature),
+            text = stringResource(id = R.string.temperature, weatherUiState.temp),
             style = typography.h2
         )
-        Text(text = weather, style = typography.h5)
+        Text(text = weatherUiState.weather, style = typography.h5)
     }
 }
 
