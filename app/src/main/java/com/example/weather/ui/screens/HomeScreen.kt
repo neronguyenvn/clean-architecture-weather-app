@@ -70,7 +70,7 @@ fun HomeScreen(
             refreshing = isRefreshing,
             onRefresh = {
                 try {
-                    weatherViewModel.getCurrentCoordinateAllWeather()
+                    weatherViewModel.getAllWeather(uiState.cityName)
                 } catch (ex: Exception) {
                     Toast.makeText(context, ex.toString(), Toast.LENGTH_LONG).show()
                 }
