@@ -11,12 +11,10 @@ import com.example.weather.model.weather.AllWeather
 import com.example.weather.model.weather.CurrentWeather
 import com.example.weather.model.weather.DailyWeather
 import com.example.weather.utils.DATE_PATTERN
-import com.example.weather.utils.Result.Error
 import com.example.weather.utils.Result.Success
 import com.example.weather.utils.toCoordinate
 import com.example.weather.utils.toDateString
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -78,12 +76,9 @@ class WeatherViewModel @Inject constructor(
         Log.d(TAG, "getAllWeather() called")
         viewModelScope.launch {
             _isRefreshing.emit(true)
-            when (val weather = repository.getWeather(city, true)) {
-                is Success -> updateWeatherState(weather.data)
-                is Error -> {
-                    _isRefreshing.emit(false)
-                    throw Exception(weather.exception)
-                }
+            val weather = repository.getWeather(city, true)
+            if (weather is Success) {
+                updateWeatherState(weather.data)
             }
             _isRefreshing.emit(false)
         }
@@ -97,18 +92,10 @@ class WeatherViewModel @Inject constructor(
         viewModelScope.launch {
             _isRefreshing.emit(true)
             val location = repository.getCurrentCoordinate()
-            val job: Deferred<Unit>
-            try {
-                job = async { getCityName(location) }
-            } catch (ex: Exception) {
-                throw ex
-            }
-            when (val weather = repository.getWeather(location)) {
-                is Success -> updateWeatherState(weather.data)
-                is Error -> {
-                    _isRefreshing.emit(false)
-                    throw Exception(weather.exception)
-                }
+            val job = async { getCityName(location) }
+            val weather = repository.getWeather(location)
+            if (weather is Success) {
+                updateWeatherState(weather.data)
             }
             job.await()
             _isRefreshing.emit(false)
@@ -116,12 +103,9 @@ class WeatherViewModel @Inject constructor(
     }
 
     private suspend fun getCityName(coordinate: Coordinate) {
-        when (val city = repository.getCityByCoordinate(coordinate, true)) {
-            is Success -> updateCityName(city.data)
-            is Error -> {
-                _isRefreshing.emit(false)
-                throw Exception(city.exception)
-            }
+        val city = repository.getCityByCoordinate(coordinate, true)
+        if (city is Success) {
+            updateCityName(city.data)
         }
     }
 

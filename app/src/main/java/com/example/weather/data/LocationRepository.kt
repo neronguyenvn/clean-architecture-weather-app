@@ -14,6 +14,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.Tasks.await
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 /**
@@ -52,20 +53,33 @@ class DefaultLocationRepository(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : LocationRepository {
 
-    override suspend fun getCoordinateByCity(city: String, forceUpdate: Boolean): Result<Coordinate> {
+    override suspend fun getCoordinateByCity(
+        city: String,
+        forceUpdate: Boolean
+    ): Result<Coordinate> {
         return withContext(ioDispatcher) {
-            if (forceUpdate) {
-                try {
-                    updateLocationFromRemoteDataSource(city)
-                } catch (ex: Exception) {
-                    Error(ex)
+            when (val coordinate = locationLocalDataSource.getCoordinate(city)) {
+                is Success -> {
+                    // Delay 1 second to make the reload more real
+                    delay(1000)
+                    coordinate
+                }
+                is Error -> {
+                    try {
+                        updateLocationFromRemoteDataSource(city)
+                    } catch (ex: Exception) {
+                        Error(ex)
+                    }
+                    locationLocalDataSource.getCoordinate(city)
                 }
             }
-            locationLocalDataSource.getCoordinate(city)
         }
     }
 
-    override suspend fun getCityByCoordinate(coordinate: Coordinate, forceUpdate: Boolean): Result<String> {
+    override suspend fun getCityByCoordinate(
+        coordinate: Coordinate,
+        forceUpdate: Boolean
+    ): Result<String> {
         return withContext(ioDispatcher) {
             if (forceUpdate) {
                 try {
