@@ -20,7 +20,7 @@ data class ForwardGeocodingResult(
 )
 
 /**
- * Api Model for Forward Geocoding api and also used as Business Model for Location DataType
+ * Api Model for Forward Geocoding api and also used as Ui Model for Location DataType
  */
 @Serializable
 data class Location(

@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Api Model for All Weather api and also used as Business Model for All Weather DataType
+ * Api Model for All Weather api and also used as Ui Model for All Weather DataType
  */
 @Serializable
 data class AllWeather(
@@ -14,7 +14,7 @@ data class AllWeather(
 )
 
 /**
- * Api Model for All Weather api and also used as Business Model for Current Weather DataType
+ * Api Model for All Weather api and also used as Ui Model for Current Weather DataType
  */
 @Serializable
 data class CurrentWeather(
@@ -26,7 +26,7 @@ data class CurrentWeather(
 )
 
 /**
- * Api Model for All Weather api and also used as Business Model for Hourly Weather DataType
+ * Api Model for All Weather api and also used as Ui Model for Hourly Weather DataType
  */
 @Serializable
 data class HourlyWeather(
@@ -46,7 +46,7 @@ data class DailyWeatherApiModel(
 )
 
 /**
- * Api Model for All Weather api and also used as Business Model when need
+ * Api Model for All Weather api and also used as Ui Model when need
  * Weather Description
  */
 @Serializable

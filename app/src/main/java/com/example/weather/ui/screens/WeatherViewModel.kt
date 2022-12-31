@@ -10,7 +10,7 @@ import com.example.weather.model.weather.AllWeather
 import com.example.weather.model.weather.CurrentWeather
 import com.example.weather.model.weather.DailyWeather
 import com.example.weather.utils.DATE_PATTERN
-import com.example.weather.utils.asModel
+import com.example.weather.utils.toUiModel
 import com.example.weather.utils.toDateString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +26,7 @@ import kotlin.math.roundToInt
 data class WeatherUiState(
     val cityName: String = "",
     val date: String = "",
-    val temp: Int = 0,
+    val temp: String = "",
     val weather: String = "",
     val listDaily: List<DailyWeather> = emptyList(),
     @DrawableRes val bgImg: Int = R.drawable.day_rain,
@@ -92,9 +92,9 @@ class WeatherViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 date = current.timestamp.toDateString(DATE_PATTERN),
-                temp = current.temp.roundToInt(),
+                temp = current.temp.roundToInt().toString(),
                 weather = current.weatherItem.first().weatherDescription,
-                listDaily = allWeather.daily.map { daily -> daily.asModel(current.timestamp) },
+                listDaily = allWeather.daily.map { daily -> daily.toUiModel(current.timestamp) },
                 bgImg = selectBackgroundImage(current)
             )
         }
