@@ -1,7 +1,6 @@
 package com.example.weather.ui.screens
 
 import android.Manifest
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,10 +60,7 @@ import com.example.weather.utils.PermissionAction
 /**
  * Ui component for Weather Home screen
  */
-@OptIn(
-    ExperimentalLifecycleComposeApi::class,
-    ExperimentalMaterialApi::class
-)
+@OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -72,21 +68,13 @@ fun HomeScreen(
 ) {
     val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by weatherViewModel.isRefreshing.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-
-    val pullRefreshState =
-        rememberPullRefreshState(
-            refreshing = isRefreshing,
-            onRefresh = {
-                try {
-                    weatherViewModel.getAllWeather(uiState.cityName)
-                } catch (ex: Exception) {
-                    Toast.makeText(context, ex.toString(), Toast.LENGTH_LONG).show()
-                }
-            }
-        )
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = { weatherViewModel.getAllWeather(uiState.cityName) }
+    )
 
     Scaffold(
+        modifier = modifier,
         floatingActionButton = {
             FloatingActionButton(onClick = { weatherViewModel.getCurrentCoordinateAllWeather() }) {
                 Icon(
@@ -94,13 +82,11 @@ fun HomeScreen(
                     null
                 )
             }
-        },
-        modifier = modifier
+        }
     ) {
         Box(
             modifier = Modifier
                 .pullRefresh(pullRefreshState)
-                .fillMaxSize()
                 .padding(it)
         ) {
             Image(
@@ -114,37 +100,22 @@ fun HomeScreen(
                 PermissionScreen(
                     permission = Manifest.permission.ACCESS_FINE_LOCATION
                 ) { permissionAction ->
-                    when (permissionAction) {
-                        is PermissionAction.OnPermissionGranted -> {
-                            weatherViewModel.updateShouldDoLocationAction(false)
-                            try {
-                                weatherViewModel.getCurrentCoordinateAllWeather()
-                            } catch (ex: Exception) {
-                                Toast.makeText(context, ex.toString(), Toast.LENGTH_LONG).show()
-                            }
-                        }
-                        is PermissionAction.OnPermissionDenied -> {
-                            weatherViewModel.updateShouldDoLocationAction(false)
-                        }
+                    weatherViewModel.updateShouldDoLocationAction(false)
+                    if (permissionAction is PermissionAction.OnPermissionGranted) {
+                        weatherViewModel.getCurrentCoordinateAllWeather()
                     }
                 }
             }
 
             Column(Modifier.padding(horizontal = 24.dp, vertical = 40.dp)) {
                 val focusManager = LocalFocusManager.current
-
                 SearchField(
                     value = uiState.cityName,
                     onValueChange = weatherViewModel::updateCityName,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(
                         onSearch = {
-                            try {
-                                weatherViewModel.getAllWeather(uiState.cityName)
-                                focusManager.clearFocus()
-                            } catch (ex: Exception) {
-                                Toast.makeText(context, ex.toString(), Toast.LENGTH_LONG).show()
-                            }
+                            weatherViewModel.getAllWeather(uiState.cityName)
+                            focusManager.clearFocus()
                         }
                     ),
                     onValueClear = { weatherViewModel.updateCityName("") }
@@ -171,7 +142,6 @@ fun HomeScreen(
 fun SearchField(
     value: String,
     onValueChange: (String) -> Unit,
-    keyboardOptions: KeyboardOptions,
     keyboardActions: KeyboardActions,
     onValueClear: () -> Unit,
     modifier: Modifier = Modifier
@@ -186,7 +156,7 @@ fun SearchField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
-        keyboardOptions = keyboardOptions,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = keyboardActions,
         colors = textFieldColors,
         modifier = modifier.fillMaxWidth(),
@@ -268,7 +238,11 @@ fun DailyWeatherItem(
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = stringResource(id = R.string.max_min_temperature, daily.maxTemp, daily.minTemp),
+            text = stringResource(
+                id = R.string.max_min_temperature,
+                daily.maxTemp,
+                daily.minTemp
+            ),
             style = typography.body1
         )
     }

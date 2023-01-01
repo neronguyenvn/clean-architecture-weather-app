@@ -22,9 +22,15 @@ import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
+/**
+ * Annotation for Location Data Source, used to clarify Remote source will be injected
+ */
 @Qualifier
 annotation class RemoteLocationDataSource
 
+/**
+ * Annotation for Location Data Source, used to clarify Local source will be injected
+ */
 @Qualifier
 annotation class LocalLocationDataSource
 
@@ -98,10 +104,16 @@ class DataSourceModule {
     }
 }
 
+/**
+ * Module for injecting Room Database instance
+ */
 @InstallIn(SingletonComponent::class)
 @Module
 class DatabaseModule {
 
+    /**
+     * Inject Room database
+     */
     @Singleton
     @Provides
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
