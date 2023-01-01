@@ -16,13 +16,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -34,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -55,7 +61,10 @@ import com.example.weather.utils.PermissionAction
 /**
  * Ui component for Weather Home screen
  */
-@OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalMaterialApi::class)
+@OptIn(
+    ExperimentalLifecycleComposeApi::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -77,64 +86,81 @@ fun HomeScreen(
             }
         )
 
-    Box(
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(onClick = { weatherViewModel.getCurrentCoordinateAllWeather() }) {
+                Icon(
+                    Icons.Filled.LocationOn,
+                    null
+                )
+            }
+        },
         modifier = modifier
-            .pullRefresh(pullRefreshState)
-            .fillMaxSize()
     ) {
-        Image(
-            modifier = Modifier.fillMaxSize(),
-            painter = painterResource(id = uiState.bgImg),
-            contentDescription = null,
-            contentScale = ContentScale.FillHeight
-        )
+        Box(
+            modifier = Modifier
+                .pullRefresh(pullRefreshState)
+                .fillMaxSize()
+                .padding(it)
+        ) {
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                painter = painterResource(id = uiState.bgImg),
+                contentDescription = null,
+                contentScale = ContentScale.FillHeight
+            )
 
-        if (uiState.shouldDoLocationAction) {
-            PermissionScreen(
-                permission = Manifest.permission.ACCESS_FINE_LOCATION
-            ) { permissionAction ->
-                when (permissionAction) {
-                    is PermissionAction.OnPermissionGranted -> {
-                        weatherViewModel.updateShouldDoLocationAction(false)
-                        try {
-                            weatherViewModel.getCurrentCoordinateAllWeather()
-                        } catch (ex: Exception) {
-                            Toast.makeText(context, ex.toString(), Toast.LENGTH_LONG).show()
+            if (uiState.shouldDoLocationAction) {
+                PermissionScreen(
+                    permission = Manifest.permission.ACCESS_FINE_LOCATION
+                ) { permissionAction ->
+                    when (permissionAction) {
+                        is PermissionAction.OnPermissionGranted -> {
+                            weatherViewModel.updateShouldDoLocationAction(false)
+                            try {
+                                weatherViewModel.getCurrentCoordinateAllWeather()
+                            } catch (ex: Exception) {
+                                Toast.makeText(context, ex.toString(), Toast.LENGTH_LONG).show()
+                            }
                         }
-                    }
-                    is PermissionAction.OnPermissionDenied -> {
-                        weatherViewModel.updateShouldDoLocationAction(false)
+                        is PermissionAction.OnPermissionDenied -> {
+                            weatherViewModel.updateShouldDoLocationAction(false)
+                        }
                     }
                 }
             }
-        }
 
-        Column(Modifier.padding(horizontal = 24.dp, vertical = 40.dp)) {
-            SearchField(
-                value = uiState.cityName,
-                onValueChange = weatherViewModel::updateCityName,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        try {
-                            weatherViewModel.getAllWeather(uiState.cityName)
-                        } catch (ex: Exception) {
-                            Toast.makeText(context, ex.toString(), Toast.LENGTH_LONG).show()
+            Column(Modifier.padding(horizontal = 24.dp, vertical = 40.dp)) {
+                val focusManager = LocalFocusManager.current
+
+                SearchField(
+                    value = uiState.cityName,
+                    onValueChange = weatherViewModel::updateCityName,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            try {
+                                weatherViewModel.getAllWeather(uiState.cityName)
+                                focusManager.clearFocus()
+                            } catch (ex: Exception) {
+                                Toast.makeText(context, ex.toString(), Toast.LENGTH_LONG).show()
+                            }
                         }
-                    }
+                    ),
+                    onValueClear = { weatherViewModel.updateCityName("") }
                 )
-            )
-            Spacer(modifier = Modifier.height(48.dp))
-            CurrentWeatherContent(uiState)
-            Spacer(modifier = Modifier.height(48.dp))
-            DailyWeatherContent(listDaily = uiState.listDaily)
-        }
+                Spacer(modifier = Modifier.height(48.dp))
+                CurrentWeatherContent(uiState)
+                Spacer(modifier = Modifier.height(48.dp))
+                DailyWeatherContent(listDaily = uiState.listDaily)
+            }
 
-        PullRefreshIndicator(
-            isRefreshing,
-            pullRefreshState,
-            Modifier.align(Alignment.TopCenter)
-        )
+            PullRefreshIndicator(
+                isRefreshing,
+                pullRefreshState,
+                Modifier.align(Alignment.TopCenter)
+            )
+        }
     }
 }
 
@@ -147,6 +173,7 @@ fun SearchField(
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions,
     keyboardActions: KeyboardActions,
+    onValueClear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
@@ -154,6 +181,7 @@ fun SearchField(
         focusedBorderColor = Color.Transparent,
         unfocusedBorderColor = Color.Transparent
     )
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -166,7 +194,17 @@ fun SearchField(
         textStyle = TextStyle(
             fontFamily = Poppins,
             fontSize = 16.sp
-        )
+        ),
+        trailingIcon = {
+            if (value.isNotEmpty()) {
+                IconButton(onClick = { onValueClear() }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Close,
+                        contentDescription = null
+                    )
+                }
+            }
+        }
     )
 }
 
