@@ -5,6 +5,7 @@ import androidx.annotation.DrawableRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weather.R
+import com.example.weather.data.LocationRepository
 import com.example.weather.data.WeatherRepository
 import com.example.weather.model.geocoding.Coordinate
 import com.example.weather.model.weather.AllWeather
@@ -15,6 +16,7 @@ import com.example.weather.utils.Result.Success
 import com.example.weather.utils.toCoordinate
 import com.example.weather.utils.toDateString
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,14 +31,15 @@ private const val TAG = "WeatherViewModel"
  * UiState for Weather Home screen
  */
 data class WeatherUiState(
-    val cityName: String = "",
+    val city: String = "",
     val date: String = "",
     val temp: String = "",
     val weather: String = "",
     val listDaily: List<DailyWeather> = emptyList(),
     @DrawableRes val bgImg: Int = R.drawable.day_rain,
     val shouldDoLocationAction: Boolean = true,
-    val isRefreshing: Boolean = false
+    val isRefreshing: Boolean = false,
+    val error: String = ""
 )
 
 /**
@@ -44,29 +47,15 @@ data class WeatherUiState(
  */
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
-    private val repository: WeatherRepository
+    private val weatherRepository: WeatherRepository,
+    private val locationRepository: LocationRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WeatherUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _isRefreshing = MutableStateFlow(false)
-    val isRefreshing = _isRefreshing.asStateFlow()
-
-    /**
-     * Update text for CitySearch TextField
-     */
-    fun updateCityName(value: String) {
-        Log.d(TAG, "updateCityName() called")
-        _uiState.update { it.copy(cityName = value) }
-    }
-
-    /**
-     * Update should do Location Action or not
-     */
-    fun updateShouldDoLocationAction(value: Boolean) {
-        Log.d(TAG, "updateShouldDoLocationAction() called")
-        _uiState.update { it.copy(shouldDoLocationAction = value) }
+    fun updateUiState(state: WeatherUiState) {
+        _uiState.update { state }
     }
 
     /**
@@ -74,13 +63,13 @@ class WeatherViewModel @Inject constructor(
      */
     fun getAllWeather(city: String) {
         Log.d(TAG, "getAllWeather() called")
-        viewModelScope.launch {
-            _isRefreshing.emit(true)
-            val weather = repository.getWeather(city, true)
+        loadRequest {
+            val coordinate = locationRepository.getCoordinateByCity(city, true) as Success
+            val weather = weatherRepository.getWeather(coordinate.data)
             if (weather is Success) {
                 updateWeatherState(weather.data)
             }
-            _isRefreshing.emit(false)
+            _uiState.update { uiState.value.copy(isRefreshing = false) }
         }
     }
 
@@ -89,23 +78,29 @@ class WeatherViewModel @Inject constructor(
      */
     fun getCurrentCoordinateAllWeather() {
         Log.d(TAG, "getCurrentCoordinateAllWeather() called")
-        viewModelScope.launch {
-            _isRefreshing.emit(true)
-            val location = repository.getCurrentCoordinate()
-            val job = async { getCityName(location) }
-            val weather = repository.getWeather(location)
+        loadRequest {
+            val location = locationRepository.getCurrentCoordinate()
+            val job = viewModelScope.async { getCityName(location) }
+            val weather = weatherRepository.getWeather(location)
             if (weather is Success) {
                 updateWeatherState(weather.data)
             }
             job.await()
-            _isRefreshing.emit(false)
+        }
+    }
+
+    private fun loadRequest(block: suspend () -> Unit): Job {
+        return viewModelScope.launch {
+            _uiState.update { uiState.value.copy(isRefreshing = true) }
+            block()
+            _uiState.update { uiState.value.copy(isRefreshing = false) }
         }
     }
 
     private suspend fun getCityName(coordinate: Coordinate) {
-        val city = repository.getCityByCoordinate(coordinate, true)
+        val city = locationRepository.getCityByCoordinate(coordinate, true)
         if (city is Success) {
-            updateCityName(city.data)
+            _uiState.update { it.copy(city = city.data) }
         }
     }
 

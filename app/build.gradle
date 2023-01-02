@@ -45,8 +45,9 @@ android {
         jvmTarget = '1.8'
     }
     packagingOptions {
-        exclude 'META-INF/AL2.0'
-        exclude 'META-INF/LGPL2.1'
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
     }
     composeOptions {
         kotlinCompilerExtensionVersion "$composeCompilerVersion"
@@ -67,7 +68,7 @@ dependencies {
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinXSerializationJsonVersion"
-    implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$retrofit2KotlinXSerializationConverterVersion"
+    implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$kotlinXSerializationConverterVersion"
     implementation "io.coil-kt:coil-compose:$coilComposeVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:$loggingInterceptorVersion"
 

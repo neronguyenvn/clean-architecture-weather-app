@@ -47,11 +47,10 @@ class RepositoryModule {
     @Singleton
     @Provides
     fun provideWeatherRepository(
-        locationRepository: LocationRepository,
         apiService: ApiService,
         @IoDispatcher dispatcher: CoroutineDispatcher
     ): WeatherRepository {
-        return DefaultWeatherRepository(locationRepository, apiService, dispatcher)
+        return DefaultWeatherRepository(apiService, dispatcher)
     }
 
     /**

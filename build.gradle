@@ -20,7 +20,7 @@ ext {
     retrofitVersion = '2.9.0'
     archLifecycleVersion = '2.6.0-alpha03'
     kotlinXSerializationJsonVersion = '1.4.1'
-    retrofit2KotlinXSerializationConverterVersion = '0.8.0'
+    kotlinXSerializationConverterVersion = '0.8.0'
     coilComposeVersion = '2.2.2'
     hiltVersion = '2.44.2'
     composeCompilerVersion = '1.4.0-alpha02'

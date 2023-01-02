@@ -1,6 +1,7 @@
 package com.example.weather.ui.screens
 
 import android.Manifest
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,11 +68,14 @@ fun HomeScreen(
     weatherViewModel: WeatherViewModel = viewModel()
 ) {
     val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
-    val isRefreshing by weatherViewModel.isRefreshing.collectAsStateWithLifecycle()
     val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = { weatherViewModel.getAllWeather(uiState.cityName) }
+        refreshing = uiState.isRefreshing,
+        onRefresh = { weatherViewModel.getAllWeather(uiState.city) }
     )
+
+    if (uiState.error != "") {
+        Toast.makeText(LocalContext.current, uiState.error, Toast.LENGTH_LONG).show()
+    }
 
     Scaffold(
         modifier = modifier,
@@ -100,7 +104,7 @@ fun HomeScreen(
                 PermissionScreen(
                     permission = Manifest.permission.ACCESS_FINE_LOCATION
                 ) { permissionAction ->
-                    weatherViewModel.updateShouldDoLocationAction(false)
+                    weatherViewModel.updateUiState(uiState.copy(shouldDoLocationAction = false))
                     if (permissionAction is PermissionAction.OnPermissionGranted) {
                         weatherViewModel.getCurrentCoordinateAllWeather()
                     }
@@ -110,15 +114,17 @@ fun HomeScreen(
             Column(Modifier.padding(horizontal = 24.dp, vertical = 40.dp)) {
                 val focusManager = LocalFocusManager.current
                 SearchField(
-                    value = uiState.cityName,
-                    onValueChange = weatherViewModel::updateCityName,
+                    value = uiState.city,
+                    onValueChange = { city ->
+                        weatherViewModel.updateUiState(uiState.copy(city = city))
+                    },
                     keyboardActions = KeyboardActions(
                         onSearch = {
-                            weatherViewModel.getAllWeather(uiState.cityName)
+                            weatherViewModel.getAllWeather(uiState.city)
                             focusManager.clearFocus()
                         }
                     ),
-                    onValueClear = { weatherViewModel.updateCityName("") }
+                    onValueClear = { weatherViewModel.updateUiState(uiState.copy(city = "")) }
                 )
                 Spacer(modifier = Modifier.height(48.dp))
                 CurrentWeatherContent(uiState)
@@ -127,9 +133,9 @@ fun HomeScreen(
             }
 
             PullRefreshIndicator(
-                isRefreshing,
+                uiState.isRefreshing,
                 pullRefreshState,
-                Modifier.align(Alignment.TopCenter)
+                modifier = Modifier.align(Alignment.TopCenter)
             )
         }
     }
