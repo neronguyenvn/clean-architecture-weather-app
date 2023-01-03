@@ -139,21 +139,29 @@ class WeatherViewModel @Inject constructor(
         current.apply {
             val weatherDescription = weatherItem.first().weatherDescription
 
-            return if (timestamp in sunriseTimestamp..sunsetTimestamp) {
-                when (weatherDescription) {
-                    "Thunderstorm", "Drizzle", "Rain" -> R.drawable.day_rain
-                    "Snow" -> R.drawable.day_snow
-                    "Clear" -> R.drawable.day_clearsky
-                    "Cloud" -> R.drawable.day_cloudy
-                    else -> R.drawable.day_other_atmosphere
+            return if (sunriseTimestamp != null && sunsetTimestamp != null) {
+                if (timestamp in sunriseTimestamp..sunsetTimestamp) {
+                    when (weatherDescription) {
+                        "Thunderstorm", "Drizzle", "Rain" -> R.drawable.day_rain
+                        "Snow" -> R.drawable.day_snow
+                        "Clear" -> R.drawable.day_clearsky
+                        "Cloud" -> R.drawable.day_cloudy
+                        else -> R.drawable.day_other_atmosphere
+                    }
+                } else {
+                    when (weatherDescription) {
+                        "Thunderstorm", "Drizzle", "Rain" -> R.drawable.night_rain
+                        "Snow" -> R.drawable.night_snow
+                        "Clear" -> R.drawable.night_clearsky
+                        "Clouds" -> R.drawable.night_cloudy
+                        else -> R.drawable.night_other_atmosphere
+                    }
                 }
             } else {
                 when (weatherDescription) {
-                    "Thunderstorm", "Drizzle", "Rain" -> R.drawable.night_rain
-                    "Snow" -> R.drawable.night_snow
-                    "Clear" -> R.drawable.night_clearsky
                     "Clouds" -> R.drawable.night_cloudy
-                    else -> R.drawable.night_other_atmosphere
+                    "Snow" -> R.drawable.night_snow
+                    else -> R.drawable.night_snow
                 }
             }
         }

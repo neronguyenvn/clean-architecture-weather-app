@@ -20,8 +20,8 @@ data class AllWeather(
 @Serializable
 data class CurrentWeather(
     @SerialName("dt") val timestamp: Long,
-    @SerialName("sunrise") val sunriseTimestamp: Long,
-    @SerialName("sunset") val sunsetTimestamp: Long,
+    @SerialName("sunrise") val sunriseTimestamp: Long? = null,
+    @SerialName("sunset") val sunsetTimestamp: Long? = null,
     @SerialName("feels_like") val temp: Double,
     @SerialName("weather") val weatherItem: List<WeatherItem>
 )
