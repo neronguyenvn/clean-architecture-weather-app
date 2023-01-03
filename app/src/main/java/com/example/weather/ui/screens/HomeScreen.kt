@@ -69,7 +69,7 @@ fun HomeScreen(
 ) {
     val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
     val pullRefreshState = rememberPullRefreshState(
-        refreshing = uiState.isRefreshing,
+        refreshing = uiState.isLoading,
         onRefresh = { weatherViewModel.getAllWeather(uiState.city) }
     )
 
@@ -140,7 +140,7 @@ fun HomeScreen(
             }
 
             PullRefreshIndicator(
-                uiState.isRefreshing,
+                uiState.isLoading,
                 pullRefreshState,
                 modifier = Modifier.align(Alignment.TopCenter)
             )

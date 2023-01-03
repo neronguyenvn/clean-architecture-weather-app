@@ -18,4 +18,4 @@ apps.
 
 ## Screenshot
 
-<img src="./screenshot/home_screen.jpg" alt="Home Screen" width="1920"/>
+<img src="./screenshot/home_screen.jpg" alt="Home Screen" height="540"/>

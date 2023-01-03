@@ -38,7 +38,7 @@ data class WeatherUiState(
     val listDaily: List<DailyWeather> = emptyList(),
     @DrawableRes val bgImg: Int = R.drawable.day_rain,
     val shouldDoLocationAction: Boolean = true,
-    val isRefreshing: Boolean = false,
+    val isLoading: Boolean = false,
     val error: String = ""
 )
 
@@ -54,6 +54,9 @@ class WeatherViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(WeatherUiState())
     val uiState = _uiState.asStateFlow()
 
+    /**
+     * Single update state method exposed for Ui components
+     */
     fun updateUiState(state: WeatherUiState) {
         _uiState.update { state }
     }
@@ -64,29 +67,21 @@ class WeatherViewModel @Inject constructor(
     fun getAllWeather(city: String) {
         Log.d(TAG, "getAllWeather() called")
         viewModelScope.launch {
-            _uiState.update { uiState.value.copy(isRefreshing = true) }
+            _uiState.update { uiState.value.copy(isLoading = true) }
             when (val coordinate = locationRepository.getCoordinateByCity(city)) {
                 is Error -> {
                     // Delay 1 second to make the reload more real
                     delay(1000)
-                    _uiState.update {
-                        uiState.value.copy(
-                            error = coordinate.exception.message ?: "Something went wrong"
-                        )
-                    }
+                    updateErrorState(coordinate.exception)
                 }
                 is Success -> {
                     when (val weather = weatherRepository.getWeather(coordinate.data)) {
-                        is Error -> _uiState.update {
-                            uiState.value.copy(
-                                error = weather.exception.message ?: "Something went wrong"
-                            )
-                        }
+                        is Error -> updateErrorState(weather.exception)
                         is Success -> updateWeatherState(weather.data)
                     }
                 }
             }
-            _uiState.update { uiState.value.copy(isRefreshing = false) }
+            _uiState.update { uiState.value.copy(isLoading = false) }
         }
     }
 
@@ -96,15 +91,10 @@ class WeatherViewModel @Inject constructor(
     fun getCurrentCoordinateAllWeather() {
         Log.d(TAG, "getCurrentCoordinateAllWeather() called")
         val handler = CoroutineExceptionHandler { _, ex ->
-            _uiState.update {
-                uiState.value.copy(
-                    error = ex.message ?: "Something went wrong",
-                    isRefreshing = false
-                )
-            }
+            updateErrorState(ex as Exception, true)
         }
         viewModelScope.launch(handler) {
-            _uiState.update { uiState.value.copy(isRefreshing = true) }
+            _uiState.update { uiState.value.copy(isLoading = true) }
             val coordinate = locationRepository.getCurrentCoordinate()
             val job = launch {
                 when (val city = locationRepository.getCityByCoordinate(coordinate)) {
@@ -117,7 +107,16 @@ class WeatherViewModel @Inject constructor(
                 is Success -> updateWeatherState(weather.data)
             }
             job.join()
-            _uiState.update { uiState.value.copy(isRefreshing = false) }
+            _uiState.update { uiState.value.copy(isLoading = false) }
+        }
+    }
+
+    private fun updateErrorState(ex: Exception, shouldStopLoading: Boolean = false) {
+        _uiState.update {
+            uiState.value.copy(
+                error = ex.message ?: "Something went wrong",
+                isLoading = shouldStopLoading
+            )
         }
     }
 
