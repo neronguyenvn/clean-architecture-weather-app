@@ -10,7 +10,8 @@ import kotlinx.serialization.Serializable
 data class AllWeather(
     val current: CurrentWeather,
     val hourly: List<HourlyWeather>,
-    val daily: List<DailyWeatherApiModel>
+    val daily: List<DailyWeatherApiModel>,
+    @SerialName("timezone_offset") val timezoneOffset: Int
 )
 
 /**

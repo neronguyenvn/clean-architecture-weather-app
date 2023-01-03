@@ -9,10 +9,10 @@ import kotlin.math.roundToInt
 /**
  * Convert Daily Weather Api Model into Ui Model one
  */
-fun DailyWeatherApiModel.toCoordinate(currentDt: Long): DailyWeather {
+fun DailyWeatherApiModel.toUiModel(timezoneOffset: Int): DailyWeather {
     return DailyWeather(
         iconUrl = "$OPENWEATHER_ICON_BASE_URL${weatherItem.first().iconUrl}@2x.png",
-        date = dt.toDayNameInWeek(currentDt),
+        date = dt.toDayNameInWeek(timezoneOffset),
         weather = weatherItem.first().weatherDescription,
         maxTemp = temp.max.roundToInt(),
         minTemp = temp.min.roundToInt()
@@ -42,7 +42,8 @@ fun Coordinate.toLocation(city: String): Location {
 
 /**
  * Round Coordinate to make it has united number of digits after decimal point
+ * Object that can be unambiguously recognized at this scale (3): neighborhood, street
  */
 fun Coordinate.toUnifiedCoordinate(): Coordinate {
-    return Coordinate(latitude = latitude.roundTo(4), longitude = longitude.roundTo(4))
+    return Coordinate(latitude = latitude.roundTo(3), longitude = longitude.roundTo(3))
 }

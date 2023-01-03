@@ -13,13 +13,15 @@ import com.example.weather.model.weather.DailyWeather
 import com.example.weather.utils.DATE_PATTERN
 import com.example.weather.utils.Result.Error
 import com.example.weather.utils.Result.Success
-import com.example.weather.utils.toCoordinate
 import com.example.weather.utils.toDateString
+import com.example.weather.utils.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -123,10 +125,12 @@ class WeatherViewModel @Inject constructor(
         val current = allWeather.current
         _uiState.update {
             it.copy(
-                date = current.timestamp.toDateString(DATE_PATTERN),
+                date = (current.timestamp).toDateString(allWeather.timezoneOffset, DATE_PATTERN),
                 temp = current.temp.roundToInt().toString(),
                 weather = current.weatherItem.first().weatherDescription,
-                listDaily = allWeather.daily.map { daily -> daily.toCoordinate(current.timestamp) },
+                listDaily = allWeather.daily.map { dailyItem ->
+                    dailyItem.toUiModel(allWeather.timezoneOffset)
+                },
                 bgImg = selectBackgroundImage(current)
             )
         }
