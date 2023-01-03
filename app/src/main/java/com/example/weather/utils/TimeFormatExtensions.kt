@@ -3,7 +3,6 @@ package com.example.weather.utils
 import android.text.format.DateUtils
 import java.time.Instant
 import java.time.LocalDate
-import java.time.OffsetTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -27,8 +26,9 @@ fun Long.toDateString(timezoneOffset: Int, pattern: String): String {
  * Because of Api, this Timestamp always bigger than Current Timestamp a little bit.
  */
 fun Long.toDayNameInWeek(timezoneOffset: Int): String {
-    val today: LocalDate = LocalDate.now(ZoneOffset.UTC)
-    val timestampStart = today.atTime(OffsetTime.MIN).toEpochSecond()
+    val zoneOffset = ZoneOffset.ofTotalSeconds(timezoneOffset)
+    val today: LocalDate = LocalDate.now(zoneOffset)
+    val timestampStart = today.atStartOfDay(zoneOffset).toEpochSecond()
     val timestampStop = timestampStart + DateUtils.DAY_IN_MILLIS / 1000
     val timestampTomorrowStop = timestampStop + DateUtils.DAY_IN_MILLIS / 1000
     return when (this) {
