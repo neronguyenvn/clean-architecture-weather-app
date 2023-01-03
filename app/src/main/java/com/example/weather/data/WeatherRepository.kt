@@ -12,18 +12,18 @@ import kotlinx.coroutines.withContext
 import java.net.UnknownHostException
 
 /**
- * Interface for Repository of Weather DataType
+ * Interface for Repository of Weather DataType.
  */
 interface WeatherRepository {
 
     /**
-     *  Get the All Weather by call Api and send Location
+     *  Get the All Weather by call Api and send Location.
      */
     suspend fun getWeather(coordinate: Coordinate): Result<AllWeather>
 }
 
 /**
- * Implementation for Repository of Weather DataType
+ * Implementation for Repository of Weather DataType.
  */
 class DefaultWeatherRepository(
     private val apiService: ApiService,

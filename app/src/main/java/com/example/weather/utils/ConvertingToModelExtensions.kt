@@ -7,7 +7,7 @@ import com.example.weather.model.weather.DailyWeatherApiModel
 import kotlin.math.roundToInt
 
 /**
- * Convert Daily Weather Api Model into Ui Model one
+ * Convert Daily Weather Api Model into Ui Model one.
  */
 fun DailyWeatherApiModel.toUiModel(timezoneOffset: Int): DailyWeather {
     return DailyWeather(
@@ -20,29 +20,29 @@ fun DailyWeatherApiModel.toUiModel(timezoneOffset: Int): DailyWeather {
 }
 
 /**
- * Convert Android Location to Ui Model Location
+ * Convert Android Location to Ui Model Location.
  */
 fun android.location.Location.toCoordinate(): Coordinate {
     return Coordinate(latitude = latitude, longitude = longitude)
 }
 
 /**
- * Convert Database Model Location to Ui Model Location
+ * Convert Database Model Location to Ui Model Location.
  */
 fun Location.toCoordinate(): Coordinate {
     return Coordinate(latitude = latitude, longitude = longitude)
 }
 
 /**
- * Convert Ui Model Location to Database Model Location
+ * Convert Ui Model Location to Database Model Location.
  */
 fun Coordinate.toLocation(city: String): Location {
     return Location(city = city, latitude = latitude, longitude = longitude)
 }
 
 /**
- * Round Coordinate to make it has united number of digits after decimal point
- * Object that can be unambiguously recognized at this scale (3): neighborhood, street
+ * Round Coordinate to make it has united number of digits after decimal point.
+ * Object that can be unambiguously recognized at this scale (3): neighborhood, street.
  */
 fun Coordinate.toUnifiedCoordinate(): Coordinate {
     return Coordinate(latitude = latitude.roundTo(3), longitude = longitude.roundTo(3))

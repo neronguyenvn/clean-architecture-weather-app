@@ -1,7 +1,7 @@
 package com.example.weather.model.weather
 
 /**
- * Ui Model for Daily Weather DataType
+ * Ui Model for Daily Weather DataType.
  */
 data class DailyWeather(
     val iconUrl: String,

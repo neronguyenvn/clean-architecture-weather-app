@@ -10,11 +10,11 @@ import retrofit2.http.Query
 import retrofit2.http.Url
 
 /**
- * Api Service for handle Api calls, is injected to where need it
+ * Api Service for handle Api calls, is injected to where need it.
  */
 interface ApiService {
     /**
-     * Get ForwardGeocoding model by call Api with CityName, is used to get Location
+     * Get ForwardGeocoding model by call Api with CityName, is used to get Location.
      */
     @GET("geocode/v1/json")
     suspend fun getForwardGeocoding(
@@ -25,7 +25,7 @@ interface ApiService {
     ): ForwardGeocoding
 
     /**
-     * Get ForwardGeocoding model by call Api with Location, is used to get CityName
+     * Get ForwardGeocoding model by call Api with Location, is used to get CityName.
      */
     @GET("geocode/v1/json")
     suspend fun getReverseGeocoding(
@@ -37,7 +37,7 @@ interface ApiService {
 
     /**
      * Get AllWeather model by call Api with Location, is used to get
-     * all weather info of that location
+     * all weather info of that location.
      */
     @GET
     suspend fun getAllWeather(

@@ -7,19 +7,19 @@ import androidx.room.Query
 import com.example.weather.model.database.Location
 
 /**
- * Data Access Object for Location
+ * Data Access Object for Location.
  */
 @Dao
 interface LocationDao {
 
     /**
-     * Get LocationDbModel by CityName
+     * Get LocationDbModel by CityName.
      */
     @Query("SELECT * FROM location WHERE city = :city")
     fun getLocationByCity(city: String): Location?
 
     /**
-     * Get LocationDbModel by Location
+     * Get LocationDbModel by Location.
      */
     @Query("SELECT * FROM location WHERE latitude = :latitude AND longitude = :longitude")
     fun getLocationByCoordinate(latitude: Double, longitude: Double): Location?

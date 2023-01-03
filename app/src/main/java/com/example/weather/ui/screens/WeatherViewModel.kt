@@ -28,7 +28,7 @@ import kotlin.math.roundToInt
 private const val TAG = "WeatherViewModel"
 
 /**
- * UiState for Weather Home screen
+ * UiState for Weather Home screen.
  */
 data class WeatherUiState(
     val city: String = "",
@@ -43,7 +43,7 @@ data class WeatherUiState(
 )
 
 /**
- * ViewModel for Weather Home screen
+ * ViewModel for Weather Home screen.
  */
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
@@ -55,14 +55,14 @@ class WeatherViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     /**
-     * Single update state method exposed for Ui components
+     * Single update state method exposed for Ui components.
      */
     fun updateUiState(state: WeatherUiState) {
         _uiState.update { state }
     }
 
     /**
-     * Get All Weather by send Repository a CityName
+     * Get All Weather by send Repository a CityName.
      */
     fun getAllWeather(city: String) {
         Log.d(TAG, "getAllWeather() called")
@@ -74,11 +74,9 @@ class WeatherViewModel @Inject constructor(
                     delay(1000)
                     updateErrorState(coordinate.exception)
                 }
-                is Success -> {
-                    when (val weather = weatherRepository.getWeather(coordinate.data)) {
-                        is Error -> updateErrorState(weather.exception)
-                        is Success -> updateWeatherState(weather.data)
-                    }
+                is Success -> when (val weather = weatherRepository.getWeather(coordinate.data)) {
+                    is Error -> updateErrorState(weather.exception)
+                    is Success -> updateWeatherState(weather.data)
                 }
             }
             _uiState.update { uiState.value.copy(isLoading = false) }
@@ -86,7 +84,7 @@ class WeatherViewModel @Inject constructor(
     }
 
     /**
-     * Get All Weather by send Repository the Current Location received from Repository
+     * Get All Weather by send Repository the Current Location received from Repository.
      */
     fun getCurrentCoordinateAllWeather() {
         Log.d(TAG, "getCurrentCoordinateAllWeather() called")
@@ -124,7 +122,7 @@ class WeatherViewModel @Inject constructor(
         val current = allWeather.current
         _uiState.update {
             it.copy(
-                date = (current.timestamp).toDateString(allWeather.timezoneOffset, DATE_PATTERN),
+                date = current.timestamp.toDateString(allWeather.timezoneOffset, DATE_PATTERN),
                 temp = current.temp.roundToInt().toString(),
                 weather = current.weatherItem.first().weatherDescription,
                 listDaily = allWeather.daily.map { dailyItem ->

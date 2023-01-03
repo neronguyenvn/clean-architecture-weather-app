@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 import java.util.*
 
 /**
- * Database Model for Location
+ * Database Model for Location.
  */
 @Entity(tableName = "location")
 data class Location(

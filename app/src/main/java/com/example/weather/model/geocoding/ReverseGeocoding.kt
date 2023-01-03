@@ -3,7 +3,7 @@ package com.example.weather.model.geocoding
 import kotlinx.serialization.Serializable
 
 /**
- * Api Model for Reverse Geocoding api meaning convert Location into CityName
+ * Api Model for Reverse Geocoding api meaning convert Location into CityName.
  */
 @Serializable
 data class ReverseGeocoding(
@@ -11,7 +11,7 @@ data class ReverseGeocoding(
 )
 
 /**
- * Api Model for Reverse Geocoding api
+ * Api Model for Reverse Geocoding api.
  */
 @Serializable
 data class ReverseGeocodingResult(
@@ -19,7 +19,7 @@ data class ReverseGeocodingResult(
 )
 
 /**
- * Api Model for Reverse Geocoding api
+ * Api Model for Reverse Geocoding api.
  */
 @Serializable
 data class Components(

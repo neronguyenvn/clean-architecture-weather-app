@@ -11,7 +11,7 @@ import com.example.weather.utils.hasPermission
 
 /**
  * Ui component for displaying Permission Request dialog with Custom permission and handled by Custom
- * Permission Action lambda passed in
+ * Permission Action lambda passed in.
  */
 @Composable
 fun PermissionScreen(
@@ -22,7 +22,7 @@ fun PermissionScreen(
     val isPermissionGranted = activity.hasPermission(permission)
 
     if (isPermissionGranted) {
-        (permissionAction(PermissionAction.OnPermissionGranted))
+        permissionAction(PermissionAction.OnPermissionGranted)
         return
     }
 

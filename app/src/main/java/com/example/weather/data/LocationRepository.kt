@@ -19,32 +19,32 @@ import kotlinx.coroutines.withContext
 import java.net.UnknownHostException
 
 /**
- * Interface for Repository of Location DataType
+ * Interface for Repository of Location DataType.
  */
 interface LocationRepository {
 
     /**
      * Get Coordinate by call Remote Data Source to update Local Data Source if needed then
-     * call Local Data Source to get result
-     * @param city CityName will be converted to get Coordinate
+     * call Local Data Source to get result.
+     * @param city CityName will be converted to get Coordinate.
      */
     suspend fun getCoordinateByCity(city: String): Result<Coordinate>
 
     /**
      * Get CityName by call Remote Data Source to update Local Data Source if needed then
-     * call Local Data Source to get result
-     * @param coordinate Location will be converted to get CityName
+     * call Local Data Source to get result.
+     * @param coordinate Location will be converted to get CityName.
      */
     suspend fun getCityByCoordinate(coordinate: Coordinate): Result<String>
 
     /**
-     * Get the Current Location of the Device
+     * Get the Current Location of the Device.
      */
     suspend fun getCurrentCoordinate(): Coordinate
 }
 
 /**
- * Implementation for Repository of Location DataType
+ * Implementation for Repository of Location DataType.
  */
 class DefaultLocationRepository(
     private val locationLocalDataSource: LocationDataSource,

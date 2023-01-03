@@ -11,7 +11,7 @@ const val DATE_PATTERN = "HH:mm EEE, MMM dd"
 private const val DAY_NAME_IN_WEEK_PATTERN = "EEE"
 
 /**
- * Convert a Timestamp to Date string with Custom Pattern param
+ * Convert a Timestamp to Date string with Custom Pattern param.
  */
 fun Long.toDateString(timezoneOffset: Int, pattern: String): String {
     val zoneOffset = ZoneOffset.ofTotalSeconds(timezoneOffset)

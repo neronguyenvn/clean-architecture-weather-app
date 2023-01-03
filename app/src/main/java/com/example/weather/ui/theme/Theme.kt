@@ -11,7 +11,7 @@ private val DayRainColorPalette = lightColors(
 )
 
 /**
- * Material Theme component for the entire App
+ * Material Theme component for the entire App.
  */
 @Composable
 fun WeatherTheme(content: @Composable () -> Unit) {

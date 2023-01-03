@@ -59,7 +59,7 @@ import com.example.weather.ui.theme.Poppins
 import com.example.weather.utils.PermissionAction
 
 /**
- * Ui component for Weather Home screen
+ * Ui component for Weather Home screen.
  */
 @OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -149,7 +149,7 @@ fun HomeScreen(
 }
 
 /**
- * Ui component for input CityName then tap Done button to search for All Weather of that city
+ * Ui component for input CityName then tap Done button to search for All Weather of that city.
  */
 @Composable
 fun SearchField(
@@ -192,7 +192,7 @@ fun SearchField(
 }
 
 /**
- * Ui component for Current Weather info
+ * Ui component for Current Weather info.
  */
 @Composable
 fun CurrentWeatherContent(
@@ -212,7 +212,7 @@ fun CurrentWeatherContent(
 }
 
 /**
- * Ui component for all Daily Weather info
+ * Ui component for all Daily Weather info.
  */
 @Composable
 fun DailyWeatherContent(listDaily: List<DailyWeather>) {
@@ -224,7 +224,7 @@ fun DailyWeatherContent(listDaily: List<DailyWeather>) {
 }
 
 /**
- * Ui component for one Daily Weather item
+ * Ui component for one Daily Weather item.
  */
 @Composable
 fun DailyWeatherItem(

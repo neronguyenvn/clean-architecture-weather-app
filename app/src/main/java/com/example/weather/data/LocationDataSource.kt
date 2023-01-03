@@ -10,28 +10,28 @@ import com.example.weather.utils.toCoordinate
 import java.net.UnknownHostException
 
 /**
- * Interface for Data Source of Location DataType
+ * Interface for Data Source of Location DataType.
  */
 interface LocationDataSource {
 
     /**
-     * Get Coordinate by call Api or query Local Data Source
+     * Get Coordinate by call Api or query Local Data Source.
      */
     suspend fun getCoordinate(city: String): Result<Coordinate>
 
     /**
-     * Get CityName by call Api or query Local Data Source
+     * Get CityName by call Api or query Local Data Source.
      */
     suspend fun getCityName(coordinate: Coordinate): Result<String>
 
     /**
-     * Save Location in Local Data Source
+     * Save Location in Local Data Source.
      */
     suspend fun saveLocation(location: Location)
 }
 
 /**
- * Implementation for Remote Data Source of Location DataType
+ * Implementation for Remote Data Source of Location DataType.
  */
 class LocationRemoteDataSource(private val apiService: ApiService) : LocationDataSource {
     override suspend fun getCoordinate(city: String): Result<Coordinate> {
@@ -62,7 +62,7 @@ class LocationRemoteDataSource(private val apiService: ApiService) : LocationDat
 }
 
 /**
- * Implementation for Local Data Source of Location DataType
+ * Implementation for Local Data Source of Location DataType.
  */
 class LocationLocalDataSource(private val locationDao: LocationDao) : LocationDataSource {
     override suspend fun getCoordinate(city: String): Result<Coordinate> {

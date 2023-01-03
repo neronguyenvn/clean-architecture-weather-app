@@ -18,14 +18,14 @@ import retrofit2.Retrofit
 import javax.inject.Singleton
 
 /**
- * Module for injecting Network Services
+ * Module for injecting Network Services.
  */
 @InstallIn(SingletonComponent::class)
 @Module
 class NetworkModules {
 
     /**
-     *  Inject Api Service used to handle Api Requests
+     *  Inject Api Service used to handle Api Requests.
      */
     @Provides
     @Singleton
@@ -34,7 +34,7 @@ class NetworkModules {
     }
 
     /**
-     *  Inject and configure Retrofit instance
+     *  Inject and configure Retrofit instance.
      */
     @Provides
     fun provideRetrofit(
@@ -49,7 +49,7 @@ class NetworkModules {
     }
 
     /**
-     * Inject and configure Converter Factory instance
+     * Inject and configure Converter Factory instance.
      */
     @OptIn(ExperimentalSerializationApi::class)
     @Provides
@@ -63,7 +63,7 @@ class NetworkModules {
     }
 
     /**
-     *  Inject and configure OkHttpClient instance
+     *  Inject and configure OkHttpClient instance.
      */
     @Provides
     fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
@@ -73,7 +73,7 @@ class NetworkModules {
     }
 
     /**
-     * Inject and configure HttpLoggingInterceptor instance
+     * Inject and configure HttpLoggingInterceptor instance.
      */
     @Provides
     fun provideHTTPLoggingInterceptor(): HttpLoggingInterceptor =

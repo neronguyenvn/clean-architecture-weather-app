@@ -11,7 +11,7 @@ import com.example.weather.model.database.Location
 abstract class AppDatabase : RoomDatabase() {
 
     /**
-     * Data Access Object for Location entities
+     * Data Access Object for Location entities.
      */
     abstract fun locationDao(): LocationDao
 }

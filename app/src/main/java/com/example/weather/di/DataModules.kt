@@ -23,26 +23,26 @@ import javax.inject.Qualifier
 import javax.inject.Singleton
 
 /**
- * Annotation for Location Data Source, used to clarify Remote source will be injected
+ * Annotation for Location Data Source, used to clarify Remote source will be injected.
  */
 @Qualifier
 annotation class RemoteLocationDataSource
 
 /**
- * Annotation for Location Data Source, used to clarify Local source will be injected
+ * Annotation for Location Data Source, used to clarify Local source will be injected.
  */
 @Qualifier
 annotation class LocalLocationDataSource
 
 /**
- * Module for injecting Repositories
+ * Module for injecting Repositories.
  */
 @Module
 @InstallIn(SingletonComponent::class)
 class RepositoryModule {
 
     /**
-     *  Inject Weather DataType Repository
+     *  Inject Weather DataType Repository.
      */
     @Singleton
     @Provides
@@ -54,7 +54,7 @@ class RepositoryModule {
     }
 
     /**
-     * Inject Location DataType Repository
+     * Inject Location DataType Repository.
      */
     @Singleton
     @Provides
@@ -76,14 +76,14 @@ class RepositoryModule {
 }
 
 /**
- * Module for inject Data Sources
+ * Module for inject Data Sources.
  */
 @InstallIn(SingletonComponent::class)
 @Module
 class DataSourceModule {
 
     /**
-     * Inject Location Remote Data Source
+     * Inject Location Remote Data Source.
      */
     @Singleton
     @RemoteLocationDataSource
@@ -93,7 +93,7 @@ class DataSourceModule {
     }
 
     /**
-     * Inject Location Local Data Source
+     * Inject Location Local Data Source.
      */
     @Singleton
     @LocalLocationDataSource
@@ -104,14 +104,14 @@ class DataSourceModule {
 }
 
 /**
- * Module for injecting Room Database instance
+ * Module for injecting Room Database instance.
  */
 @InstallIn(SingletonComponent::class)
 @Module
 class DatabaseModule {
 
     /**
-     * Inject Room database
+     * Inject Room database.
      */
     @Singleton
     @Provides
@@ -125,14 +125,14 @@ class DatabaseModule {
 }
 
 /**
- * Module for injecting Location Services
+ * Module for injecting Location Services.
  */
 @InstallIn(SingletonComponent::class)
 @Module
 class LocationModule {
 
     /**
-     *  Inject FusedLocationProviderClient used to get Current Location
+     *  Inject FusedLocationProviderClient used to get Current Location.
      */
     @Singleton
     @Provides
