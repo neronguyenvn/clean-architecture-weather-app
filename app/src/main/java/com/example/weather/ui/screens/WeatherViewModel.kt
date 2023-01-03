@@ -11,6 +11,7 @@ import com.example.weather.model.weather.AllWeather
 import com.example.weather.model.weather.CurrentWeather
 import com.example.weather.model.weather.DailyWeather
 import com.example.weather.utils.DATE_PATTERN
+import com.example.weather.utils.REAL_LOADING_DELAY_TIME
 import com.example.weather.utils.Result.Error
 import com.example.weather.utils.Result.Success
 import com.example.weather.utils.toDateString
@@ -71,7 +72,7 @@ class WeatherViewModel @Inject constructor(
             when (val coordinate = locationRepository.getCoordinateByCity(city)) {
                 is Error -> {
                     // Delay 1 second to make the reload more real
-                    delay(1000)
+                    delay(REAL_LOADING_DELAY_TIME)
                     updateErrorState(coordinate.exception)
                 }
                 is Success -> when (val weather = weatherRepository.getWeather(coordinate.data)) {

@@ -6,6 +6,8 @@ import com.example.weather.model.weather.DailyWeather
 import com.example.weather.model.weather.DailyWeatherApiModel
 import kotlin.math.roundToInt
 
+private const val DECIMAL_DEGREE_PRECISION = 3
+
 /**
  * Convert Daily Weather Api Model into Ui Model one.
  */
@@ -45,5 +47,8 @@ fun Coordinate.toLocation(city: String): Location {
  * Object that can be unambiguously recognized at this scale (3): neighborhood, street.
  */
 fun Coordinate.toUnifiedCoordinate(): Coordinate {
-    return Coordinate(latitude = latitude.roundTo(3), longitude = longitude.roundTo(3))
+    return Coordinate(
+        latitude = latitude.roundTo(DECIMAL_DEGREE_PRECISION),
+        longitude = longitude.roundTo(DECIMAL_DEGREE_PRECISION)
+    )
 }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import com.example.weather.di.DefaultDispatcher
 import com.example.weather.di.IoDispatcher
 import com.example.weather.model.geocoding.Coordinate
+import com.example.weather.utils.REAL_LOADING_DELAY_TIME
 import com.example.weather.utils.Result
 import com.example.weather.utils.Result.Error
 import com.example.weather.utils.Result.Success
@@ -59,12 +60,12 @@ class DefaultLocationRepository(
             when (val coordinate = locationLocalDataSource.getCoordinate(city)) {
                 is Success -> {
                     // Delay 1 second to make the reload more real
-                    delay(1000)
+                    delay(REAL_LOADING_DELAY_TIME)
                     coordinate
                 }
                 is Error -> {
                     try {
-                        updateLocationFromRemoteDataSource(city)
+                        updateLocationFromRemote(city)
                     } catch (ex: UnknownHostException) {
                         return@withContext Error(ex)
                     } catch (ex: NoSuchElementException) {
@@ -84,12 +85,12 @@ class DefaultLocationRepository(
             ) {
                 is Success -> {
                     // Delay 1 second to make the reload more real
-                    delay(1000)
+                    delay(REAL_LOADING_DELAY_TIME)
                     city
                 }
                 is Error -> {
                     try {
-                        updateLocationFromRemoteDataSource(coordinate)
+                        updateLocationFromRemote(coordinate)
                     } catch (ex: UnknownHostException) {
                         return@withContext Error(ex)
                     }
@@ -105,7 +106,7 @@ class DefaultLocationRepository(
         await(locationTask).toCoordinate()
     }
 
-    private suspend fun updateLocationFromRemoteDataSource(city: String) {
+    private suspend fun updateLocationFromRemote(city: String) {
         when (val coordinate = locationRemoteDataSource.getCoordinate(city)) {
             is Success -> locationLocalDataSource.saveLocation(
                 coordinate.data.toUnifiedCoordinate().toLocation(city)
@@ -114,7 +115,7 @@ class DefaultLocationRepository(
         }
     }
 
-    private suspend fun updateLocationFromRemoteDataSource(coordinate: Coordinate) {
+    private suspend fun updateLocationFromRemote(coordinate: Coordinate) {
         when (val city = locationRemoteDataSource.getCityName(coordinate)) {
             is Success -> locationLocalDataSource.saveLocation(
                 coordinate.toUnifiedCoordinate().toLocation(city.data)

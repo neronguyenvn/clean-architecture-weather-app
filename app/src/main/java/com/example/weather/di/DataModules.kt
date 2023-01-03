@@ -88,7 +88,7 @@ class DataSourceModule {
     @Singleton
     @RemoteLocationDataSource
     @Provides
-    fun provideLocationRemoteDataSource(apiService: ApiService): LocationDataSource {
+    fun provideLocationRemoteSource(apiService: ApiService): LocationDataSource {
         return LocationRemoteDataSource(apiService)
     }
 
@@ -98,7 +98,7 @@ class DataSourceModule {
     @Singleton
     @LocalLocationDataSource
     @Provides
-    fun provideLocationLocalDataSource(database: AppDatabase): LocationDataSource {
+    fun provideLocationLocalSource(database: AppDatabase): LocationDataSource {
         return LocationLocalDataSource(database.locationDao())
     }
 }

@@ -5,10 +5,11 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Locale
 
 const val DATE_PATTERN = "HH:mm EEE, MMM dd"
 private const val DAY_NAME_IN_WEEK_PATTERN = "EEE"
+private const val SECOND_IN_MILLIS = 1000
 
 /**
  * Convert a Timestamp to Date string with Custom Pattern param.
@@ -29,8 +30,8 @@ fun Long.toDayNameInWeek(timezoneOffset: Int): String {
     val zoneOffset = ZoneOffset.ofTotalSeconds(timezoneOffset)
     val today: LocalDate = LocalDate.now(zoneOffset)
     val timestampStart = today.atStartOfDay(zoneOffset).toEpochSecond()
-    val timestampStop = timestampStart + DateUtils.DAY_IN_MILLIS / 1000
-    val timestampTomorrowStop = timestampStop + DateUtils.DAY_IN_MILLIS / 1000
+    val timestampStop = timestampStart + DateUtils.DAY_IN_MILLIS / SECOND_IN_MILLIS
+    val timestampTomorrowStop = timestampStop + DateUtils.DAY_IN_MILLIS / SECOND_IN_MILLIS
     return when (this) {
         in timestampStart until timestampStop -> "Today"
         in timestampStop until timestampTomorrowStop -> "Tomorrow"
