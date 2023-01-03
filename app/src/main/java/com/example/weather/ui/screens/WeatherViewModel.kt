@@ -107,7 +107,7 @@ class WeatherViewModel @Inject constructor(
             val job = launch {
                 when (val city = locationRepository.getCityByCoordinate(coordinate)) {
                     is Error -> throw city.exception
-                    is Success -> _uiState.update { uiState.value }
+                    is Success -> _uiState.update { uiState.value.copy(city = city.data) }
                 }
             }
             when (val weather = weatherRepository.getWeather(coordinate)) {
