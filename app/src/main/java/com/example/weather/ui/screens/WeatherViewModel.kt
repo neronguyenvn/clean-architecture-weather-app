@@ -7,21 +7,19 @@ import androidx.lifecycle.viewModelScope
 import com.example.weather.R
 import com.example.weather.data.LocationRepository
 import com.example.weather.data.WeatherRepository
-import com.example.weather.model.geocoding.Coordinate
 import com.example.weather.model.weather.AllWeather
 import com.example.weather.model.weather.CurrentWeather
 import com.example.weather.model.weather.DailyWeather
 import com.example.weather.utils.DATE_PATTERN
+import com.example.weather.utils.Result.Error
 import com.example.weather.utils.Result.Success
 import com.example.weather.utils.toCoordinate
 import com.example.weather.utils.toDateString
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -63,11 +61,28 @@ class WeatherViewModel @Inject constructor(
      */
     fun getAllWeather(city: String) {
         Log.d(TAG, "getAllWeather() called")
-        loadRequest {
-            val coordinate = locationRepository.getCoordinateByCity(city, true) as Success
-            val weather = weatherRepository.getWeather(coordinate.data)
-            if (weather is Success) {
-                updateWeatherState(weather.data)
+        viewModelScope.launch {
+            _uiState.update { uiState.value.copy(isRefreshing = true) }
+            when (val coordinate = locationRepository.getCoordinateByCity(city)) {
+                is Error -> {
+                    // Delay 1 second to make the reload more real
+                    delay(1000)
+                    _uiState.update {
+                        uiState.value.copy(
+                            error = coordinate.exception.message ?: "Something went wrong"
+                        )
+                    }
+                }
+                is Success -> {
+                    when (val weather = weatherRepository.getWeather(coordinate.data)) {
+                        is Error -> _uiState.update {
+                            uiState.value.copy(
+                                error = weather.exception.message ?: "Something went wrong"
+                            )
+                        }
+                        is Success -> updateWeatherState(weather.data)
+                    }
+                }
             }
             _uiState.update { uiState.value.copy(isRefreshing = false) }
         }
@@ -78,29 +93,29 @@ class WeatherViewModel @Inject constructor(
      */
     fun getCurrentCoordinateAllWeather() {
         Log.d(TAG, "getCurrentCoordinateAllWeather() called")
-        loadRequest {
-            val location = locationRepository.getCurrentCoordinate()
-            val job = viewModelScope.async { getCityName(location) }
-            val weather = weatherRepository.getWeather(location)
-            if (weather is Success) {
-                updateWeatherState(weather.data)
+        val handler = CoroutineExceptionHandler { _, ex ->
+            _uiState.update {
+                uiState.value.copy(
+                    error = ex.message ?: "Something went wrong",
+                    isRefreshing = false
+                )
             }
-            job.await()
         }
-    }
-
-    private fun loadRequest(block: suspend () -> Unit): Job {
-        return viewModelScope.launch {
+        viewModelScope.launch(handler) {
             _uiState.update { uiState.value.copy(isRefreshing = true) }
-            block()
+            val coordinate = locationRepository.getCurrentCoordinate()
+            val job = launch {
+                when (val city = locationRepository.getCityByCoordinate(coordinate)) {
+                    is Error -> throw city.exception
+                    is Success -> _uiState.update { uiState.value }
+                }
+            }
+            when (val weather = weatherRepository.getWeather(coordinate)) {
+                is Error -> throw weather.exception
+                is Success -> updateWeatherState(weather.data)
+            }
+            job.join()
             _uiState.update { uiState.value.copy(isRefreshing = false) }
-        }
-    }
-
-    private suspend fun getCityName(coordinate: Coordinate) {
-        val city = locationRepository.getCityByCoordinate(coordinate, true)
-        if (city is Success) {
-            _uiState.update { it.copy(city = city.data) }
         }
     }
 

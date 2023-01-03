@@ -7,6 +7,7 @@ import com.example.weather.utils.Result
 import com.example.weather.utils.Result.Error
 import com.example.weather.utils.Result.Success
 import com.example.weather.utils.toCoordinate
+import java.net.UnknownHostException
 
 /**
  * Interface for Data Source of Location DataType
@@ -21,7 +22,7 @@ interface LocationDataSource {
     /**
      * Get CityName by call Api or query Local Data Source
      */
-    suspend fun getCity(coordinate: Coordinate): Result<String>
+    suspend fun getCityName(coordinate: Coordinate): Result<String>
 
     /**
      * Save Location in Local Data Source
@@ -37,18 +38,20 @@ class LocationRemoteDataSource(private val apiService: ApiService) : LocationDat
         return try {
             val result = apiService.getForwardGeocoding(city)
             Success(result.results.first().coordinate)
-        } catch (ex: Exception) {
+        } catch (ex: UnknownHostException) {
             Error(ex)
+        } catch (ex: NoSuchElementException) {
+            Error(NoSuchElementException("Invalid location"))
         }
     }
 
-    override suspend fun getCity(coordinate: Coordinate): Result<String> {
+    override suspend fun getCityName(coordinate: Coordinate): Result<String> {
         return try {
             val result = apiService.getReverseGeocoding(
                 "${coordinate.latitude}+${coordinate.longitude}"
             )
             Success(result.results.first().components.city)
-        } catch (ex: Exception) {
+        } catch (ex: UnknownHostException) {
             Error(ex)
         }
     }
@@ -63,29 +66,21 @@ class LocationRemoteDataSource(private val apiService: ApiService) : LocationDat
  */
 class LocationLocalDataSource(private val locationDao: LocationDao) : LocationDataSource {
     override suspend fun getCoordinate(city: String): Result<Coordinate> {
-        return try {
-            val location = locationDao.getLocationByCity(city)
-            if (location != null) {
-                Success(location.toCoordinate())
-            } else {
-                Error(Exception("Location not found"))
-            }
-        } catch (ex: Exception) {
-            Error(ex)
+        val location = locationDao.getLocationByCity(city)
+        return if (location != null) {
+            Success(location.toCoordinate())
+        } else {
+            Error(Exception("Location not found"))
         }
     }
 
-    override suspend fun getCity(coordinate: Coordinate): Result<String> {
-        return try {
-            val location =
-                locationDao.getLocationByCoordinate(coordinate.latitude, coordinate.longitude)
-            if (location != null) {
-                Success(location.city)
-            } else {
-                Error(Exception("City not found"))
-            }
-        } catch (ex: Exception) {
-            Error(ex)
+    override suspend fun getCityName(coordinate: Coordinate): Result<String> {
+        val location =
+            locationDao.getLocationByCoordinate(coordinate.latitude, coordinate.longitude)
+        return if (location != null) {
+            Success(location.city)
+        } else {
+            Error(Exception("City not found"))
         }
     }
 

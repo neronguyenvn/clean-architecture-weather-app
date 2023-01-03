@@ -74,7 +74,7 @@ fun HomeScreen(
     )
 
     if (uiState.error != "") {
-        Toast.makeText(LocalContext.current, uiState.error, Toast.LENGTH_LONG).show()
+        Toast.makeText(LocalContext.current, uiState.error, Toast.LENGTH_SHORT).show()
     }
 
     Scaffold(
@@ -116,7 +116,7 @@ fun HomeScreen(
                 SearchField(
                     value = uiState.city,
                     onValueChange = { city ->
-                        weatherViewModel.updateUiState(uiState.copy(city = city))
+                        weatherViewModel.updateUiState(uiState.copy(city = city, error = ""))
                     },
                     keyboardActions = KeyboardActions(
                         onSearch = {
@@ -124,7 +124,14 @@ fun HomeScreen(
                             focusManager.clearFocus()
                         }
                     ),
-                    onValueClear = { weatherViewModel.updateUiState(uiState.copy(city = "")) }
+                    onValueClear = {
+                        weatherViewModel.updateUiState(
+                            uiState.copy(
+                                city = "",
+                                error = ""
+                            )
+                        )
+                    }
                 )
                 Spacer(modifier = Modifier.height(48.dp))
                 CurrentWeatherContent(uiState)

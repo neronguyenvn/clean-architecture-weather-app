@@ -27,6 +27,6 @@ interface LocationDao {
     /**
      * Insert a Location in the database. If the Location already exists, replace it.
      */
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLocation(location: Location)
 }

@@ -9,6 +9,7 @@ import com.example.weather.utils.Result.Error
 import com.example.weather.utils.Result.Success
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import java.net.UnknownHostException
 
 /**
  * Interface for Repository of Weather DataType
@@ -32,13 +33,12 @@ class DefaultWeatherRepository(
     override suspend fun getWeather(coordinate: Coordinate): Result<AllWeather> {
         return withContext(dispatcher) {
             try {
-                Success(
-                    apiService.getAllWeather(
-                        latitude = coordinate.latitude,
-                        longitude = coordinate.longitude
-                    )
+                val result = apiService.getAllWeather(
+                    latitude = coordinate.latitude,
+                    longitude = coordinate.longitude
                 )
-            } catch (ex: Exception) {
+                Success(result)
+            } catch (ex: UnknownHostException) {
                 Error(ex)
             }
         }

@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.Tasks.await
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.net.UnknownHostException
 
 /**
  * Interface for Repository of Location DataType
@@ -27,14 +28,14 @@ interface LocationRepository {
      * call Local Data Source to get result
      * @param city CityName will be converted to get Coordinate
      */
-    suspend fun getCoordinateByCity(city: String, forceUpdate: Boolean): Result<Coordinate>
+    suspend fun getCoordinateByCity(city: String): Result<Coordinate>
 
     /**
      * Get CityName by call Remote Data Source to update Local Data Source if needed then
      * call Local Data Source to get result
      * @param coordinate Location will be converted to get CityName
      */
-    suspend fun getCityByCoordinate(coordinate: Coordinate, forceUpdate: Boolean): Result<String>
+    suspend fun getCityByCoordinate(coordinate: Coordinate): Result<String>
 
     /**
      * Get the Current Location of the Device
@@ -53,10 +54,7 @@ class DefaultLocationRepository(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : LocationRepository {
 
-    override suspend fun getCoordinateByCity(
-        city: String,
-        forceUpdate: Boolean
-    ): Result<Coordinate> {
+    override suspend fun getCoordinateByCity(city: String): Result<Coordinate> {
         return withContext(ioDispatcher) {
             when (val coordinate = locationLocalDataSource.getCoordinate(city)) {
                 is Success -> {
@@ -67,8 +65,10 @@ class DefaultLocationRepository(
                 is Error -> {
                     try {
                         updateLocationFromRemoteDataSource(city)
-                    } catch (ex: Exception) {
-                        Error(ex)
+                    } catch (ex: UnknownHostException) {
+                        return@withContext Error(ex)
+                    } catch (ex: NoSuchElementException) {
+                        return@withContext Error(ex)
                     }
                     locationLocalDataSource.getCoordinate(city)
                 }
@@ -76,19 +76,26 @@ class DefaultLocationRepository(
         }
     }
 
-    override suspend fun getCityByCoordinate(
-        coordinate: Coordinate,
-        forceUpdate: Boolean
-    ): Result<String> {
+    override suspend fun getCityByCoordinate(coordinate: Coordinate): Result<String> {
         return withContext(ioDispatcher) {
-            if (forceUpdate) {
-                try {
-                    updateLocationFromRemoteDataSource(coordinate)
-                } catch (ex: Exception) {
-                    Error(ex)
+            when (
+                val city =
+                    locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
+            ) {
+                is Success -> {
+                    // Delay 1 second to make the reload more real
+                    delay(1000)
+                    city
+                }
+                is Error -> {
+                    try {
+                        updateLocationFromRemoteDataSource(coordinate)
+                    } catch (ex: UnknownHostException) {
+                        return@withContext Error(ex)
+                    }
+                    locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
                 }
             }
-            locationLocalDataSource.getCity(coordinate.toUnifiedCoordinate())
         }
     }
 
@@ -100,22 +107,18 @@ class DefaultLocationRepository(
 
     private suspend fun updateLocationFromRemoteDataSource(city: String) {
         when (val coordinate = locationRemoteDataSource.getCoordinate(city)) {
-            is Success -> {
-                locationLocalDataSource.saveLocation(
-                    coordinate.data.toUnifiedCoordinate().toLocation(city)
-                )
-            }
+            is Success -> locationLocalDataSource.saveLocation(
+                coordinate.data.toUnifiedCoordinate().toLocation(city)
+            )
             is Error -> throw coordinate.exception
         }
     }
 
     private suspend fun updateLocationFromRemoteDataSource(coordinate: Coordinate) {
-        when (val city = locationRemoteDataSource.getCity(coordinate)) {
-            is Success -> {
-                locationLocalDataSource.saveLocation(
-                    coordinate.toUnifiedCoordinate().toLocation(city.data)
-                )
-            }
+        when (val city = locationRemoteDataSource.getCityName(coordinate)) {
+            is Success -> locationLocalDataSource.saveLocation(
+                coordinate.toUnifiedCoordinate().toLocation(city.data)
+            )
             is Error -> throw city.exception
         }
     }
