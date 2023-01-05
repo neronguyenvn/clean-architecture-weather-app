@@ -54,6 +54,7 @@ import coil.imageLoader
 import coil.request.ImageRequest
 import coil.util.DebugLogger
 import com.example.weather.R
+import com.example.weather.model.weather.CurrentWeather
 import com.example.weather.model.weather.DailyWeather
 import com.example.weather.ui.theme.Poppins
 import com.example.weather.utils.PermissionAction
@@ -95,7 +96,7 @@ fun HomeScreen(
         ) {
             Image(
                 modifier = Modifier.fillMaxSize(),
-                painter = painterResource(id = uiState.bgImg),
+                painter = painterResource(id = uiState.current?.bgImg ?: R.drawable.day_rain),
                 contentDescription = null,
                 contentScale = ContentScale.FillHeight
             )
@@ -106,7 +107,7 @@ fun HomeScreen(
                 ) { permissionAction ->
                     weatherViewModel.updateUiState(uiState.copy(shouldDoLocationAction = false))
                     if (permissionAction is PermissionAction.OnPermissionGranted) {
-                        weatherViewModel.getCurrentCoordinateAllWeather()
+                        weatherViewModel.getAllWeather("Saigon")
                     }
                 }
             }
@@ -134,7 +135,7 @@ fun HomeScreen(
                     }
                 )
                 Spacer(modifier = Modifier.height(48.dp))
-                CurrentWeatherContent(uiState)
+                CurrentWeatherContent(uiState.current)
                 Spacer(modifier = Modifier.height(48.dp))
                 DailyWeatherContent(listDaily = uiState.listDaily)
             }
@@ -196,18 +197,19 @@ fun SearchField(
  */
 @Composable
 fun CurrentWeatherContent(
-    weatherUiState: WeatherUiState,
+    current: CurrentWeather?,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(start = 24.dp)) {
-        Text(text = weatherUiState.date, style = typography.body2)
-        if (weatherUiState.temp != "") {
+        current?.let {
+            Text(text = current.date, style = typography.body2)
             Text(
-                text = stringResource(id = R.string.temperature, weatherUiState.temp),
+                text = stringResource(id = R.string.temperature, current.temp),
                 style = typography.h2
             )
+
+            Text(text = current.weather, style = typography.h5)
         }
-        Text(text = weatherUiState.weather, style = typography.h5)
     }
 }
 

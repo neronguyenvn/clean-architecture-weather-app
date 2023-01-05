@@ -1,30 +1,25 @@
 package com.example.weather.ui.screens
 
 import android.util.Log
-import androidx.annotation.DrawableRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weather.R
 import com.example.weather.data.LocationRepository
 import com.example.weather.data.WeatherRepository
 import com.example.weather.model.weather.AllWeather
 import com.example.weather.model.weather.CurrentWeather
 import com.example.weather.model.weather.DailyWeather
-import com.example.weather.utils.DATE_PATTERN
 import com.example.weather.utils.REAL_LOADING_DELAY_TIME
 import com.example.weather.utils.Result.Error
 import com.example.weather.utils.Result.Success
-import com.example.weather.utils.toDateString
 import com.example.weather.utils.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 private const val TAG = "WeatherViewModel"
 
@@ -33,11 +28,8 @@ private const val TAG = "WeatherViewModel"
  */
 data class WeatherUiState(
     val city: String = "",
-    val date: String = "",
-    val temp: String = "",
-    val weather: String = "",
+    val current: CurrentWeather? = null,
     val listDaily: List<DailyWeather> = emptyList(),
-    @DrawableRes val bgImg: Int = R.drawable.day_rain,
     val shouldDoLocationAction: Boolean = true,
     val isLoading: Boolean = false,
     val error: String = ""
@@ -53,7 +45,7 @@ class WeatherViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WeatherUiState())
-    val uiState = _uiState.asStateFlow()
+    val uiState: StateFlow<WeatherUiState> = _uiState
 
     /**
      * Single update state method exposed for Ui components.
@@ -67,8 +59,9 @@ class WeatherViewModel @Inject constructor(
      */
     fun getAllWeather(city: String) {
         Log.d(TAG, "getAllWeather() called")
+        _uiState.update { uiState.value.copy(isLoading = true) }
+
         viewModelScope.launch {
-            _uiState.update { uiState.value.copy(isLoading = true) }
             when (val coordinate = locationRepository.getCoordinateByCity(city)) {
                 is Error -> {
                     // Delay 1 second to make the reload more real
@@ -92,8 +85,8 @@ class WeatherViewModel @Inject constructor(
         val handler = CoroutineExceptionHandler { _, ex ->
             updateErrorState(ex as Exception, true)
         }
+        _uiState.update { uiState.value.copy(isLoading = true) }
         viewModelScope.launch(handler) {
-            _uiState.update { uiState.value.copy(isLoading = true) }
             val coordinate = locationRepository.getCurrentCoordinate()
             val job = launch {
                 when (val city = locationRepository.getCityByCoordinate(coordinate)) {
@@ -119,50 +112,13 @@ class WeatherViewModel @Inject constructor(
         }
     }
 
-    private fun updateWeatherState(allWeather: AllWeather) {
-        val current = allWeather.current
+    private fun updateWeatherState(weather: AllWeather) {
+        val timezoneOffset = weather.timezoneOffset
         _uiState.update {
-            it.copy(
-                date = current.timestamp.toDateString(allWeather.timezoneOffset, DATE_PATTERN),
-                temp = current.temp.roundToInt().toString(),
-                weather = current.weatherItem.first().weatherDescription,
-                listDaily = allWeather.daily.map { dailyItem ->
-                    dailyItem.toUiModel(allWeather.timezoneOffset)
-                },
-                bgImg = selectBackgroundImage(current)
+            uiState.value.copy(
+                current = weather.current.toUiModel(timezoneOffset),
+                listDaily = weather.daily.map { dailyItem -> dailyItem.toUiModel(timezoneOffset) }
             )
-        }
-    }
-
-    private fun selectBackgroundImage(current: CurrentWeather): Int {
-        current.apply {
-            val weatherDescription = weatherItem.first().weatherDescription
-
-            return if (sunriseTimestamp != null && sunsetTimestamp != null) {
-                if (timestamp in sunriseTimestamp..sunsetTimestamp) {
-                    when (weatherDescription) {
-                        "Thunderstorm", "Drizzle", "Rain" -> R.drawable.day_rain
-                        "Snow" -> R.drawable.day_snow
-                        "Clear" -> R.drawable.day_clearsky
-                        "Cloud" -> R.drawable.day_cloudy
-                        else -> R.drawable.day_other_atmosphere
-                    }
-                } else {
-                    when (weatherDescription) {
-                        "Thunderstorm", "Drizzle", "Rain" -> R.drawable.night_rain
-                        "Snow" -> R.drawable.night_snow
-                        "Clear" -> R.drawable.night_clearsky
-                        "Clouds" -> R.drawable.night_cloudy
-                        else -> R.drawable.night_other_atmosphere
-                    }
-                }
-            } else {
-                when (weatherDescription) {
-                    "Clouds" -> R.drawable.night_cloudy
-                    "Snow" -> R.drawable.night_snow
-                    else -> R.drawable.night_snow
-                }
-            }
         }
     }
 }
