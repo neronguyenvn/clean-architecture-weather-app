@@ -107,7 +107,7 @@ fun HomeScreen(
                 ) { permissionAction ->
                     weatherViewModel.updateUiState(uiState.copy(shouldDoLocationAction = false))
                     if (permissionAction is PermissionAction.OnPermissionGranted) {
-                        weatherViewModel.getAllWeather("Saigon")
+                        weatherViewModel.getCurrentCoordinateAllWeather()
                     }
                 }
             }
