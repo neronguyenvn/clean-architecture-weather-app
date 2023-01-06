@@ -1,13 +1,13 @@
 package com.example.weather.ui
 
 import app.cash.turbine.test
-import com.example.weather.util.allWeather1
-import com.example.weather.util.city1
 import com.example.weather.fake.data.FakeLocationRepository
 import com.example.weather.fake.data.FakeWeatherRepository
 import com.example.weather.ui.screens.WeatherUiState
 import com.example.weather.ui.screens.WeatherViewModel
 import com.example.weather.util.CoroutineRule
+import com.example.weather.util.allWeather1
+import com.example.weather.util.city1
 import com.example.weather.utils.toUiModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
