@@ -45,6 +45,7 @@ class WeatherViewModelTest {
 
     @Test
     fun weatherViewModel_ValidCitySearched_CityWeatherReceived() = runTest {
+        // Assert
         assertFalse(viewModel.uiState.value.isLoading)
 
         launch {
@@ -65,13 +66,17 @@ class WeatherViewModelTest {
             }
         }
 
+        // Act
         viewModel.getAllWeather("")
         runCurrent()
     }
 
     @Test
     fun weatherViewModel_ValidCitySavedSearchedWithoutInternet_ErrorRetrieved() = runTest {
+        // Arrange
         weatherRepository.isSuccess = false
+
+        // Assert
         assertFalse(viewModel.uiState.value.isLoading)
 
         launch {
@@ -82,13 +87,17 @@ class WeatherViewModelTest {
             }
         }
 
+        // Act
         viewModel.getAllWeather("")
         runCurrent()
     }
 
     @Test
     fun weatherViewModel_InvalidCitySearched_ErrorRetrieved() = runTest {
+        // Arrange
         locationRepository.isGetCoordinateSuccess = false
+
+        // Assert
         assertFalse(viewModel.uiState.value.isLoading)
 
         launch {
@@ -99,6 +108,7 @@ class WeatherViewModelTest {
             }
         }
 
+        // Act
         viewModel.getAllWeather("")
         runCurrent()
     }
@@ -106,6 +116,7 @@ class WeatherViewModelTest {
     @Test
     fun weatherViewModel_LocationPermissionAllowedAndFloatButtonTappedOrAtStart_LocationWeatherRetrieved() =
         runTest {
+            // Assert
             assertFalse(viewModel.uiState.value.isLoading)
 
             launch {
@@ -127,6 +138,7 @@ class WeatherViewModelTest {
                 }
             }
 
+            // Act
             viewModel.getCurrentCoordinateAllWeather()
             runCurrent()
         }
@@ -134,7 +146,10 @@ class WeatherViewModelTest {
     @Test
     fun weatherViewModel_LocationPermissionAllowedAndFloatButtonTappedOrAtStartWithoutInternet_ErrorRetrieved() =
         runTest {
+            // Arrange
             weatherRepository.isSuccess = false
+
+            // Assert
             assertFalse(viewModel.uiState.value.isLoading)
 
             launch {
@@ -145,28 +160,35 @@ class WeatherViewModelTest {
                 }
             }
 
+            // Act
             viewModel.getCurrentCoordinateAllWeather()
             runCurrent()
         }
 
     @Test
     fun weatherViewModel_CityInputted_UiStateUpdated() {
+        // Arrange
         val expectedState = WeatherUiState(city = city1, error = "")
 
+        // Act
         viewModel.updateUiState(viewModel.uiState.value.copy(city = city1, error = ""))
         coroutineRule.testDispatcher.scheduler.runCurrent()
 
+        // Assert
         val actualState = viewModel.uiState.value
         assertEquals(actualState, expectedState)
     }
 
     @Test
     fun weatherViewModel_CityCleared_UiStateUpdated() {
+        // Arrange
         val expectedState = WeatherUiState(city = "", error = "")
 
+        // Act
         viewModel.updateUiState(viewModel.uiState.value.copy(city = "", error = ""))
         coroutineRule.testDispatcher.scheduler.runCurrent()
 
+        // Assert
         val actualState = viewModel.uiState.value
         assertEquals(actualState, expectedState)
     }
