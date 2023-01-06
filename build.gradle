@@ -24,7 +24,7 @@ ext {
     coilComposeVersion = '2.2.2'
     hiltVersion = '2.44.2'
     composeCompilerVersion = '1.4.0-alpha02'
-    loggingInterceptorVersion = '5.0.0-alpha.2'
+    okhttpVersion = '5.0.0-alpha.2'
     playServicesLocation = '21.0.1'
     roomVersion = '2.4.3'
     junitVersion = '4.13.2'

@@ -1,6 +1,6 @@
 package com.example.weather.fake.data
 
-import com.example.weather.allWeather1
+import com.example.weather.util.allWeather1
 import com.example.weather.data.WeatherRepository
 import com.example.weather.model.geocoding.Coordinate
 import com.example.weather.model.weather.AllWeather

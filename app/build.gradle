@@ -70,7 +70,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationJsonVersion"
     implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$serializationConverterVersion"
     implementation "io.coil-kt:coil-compose:$coilComposeVersion"
-    implementation "com.squareup.okhttp3:logging-interceptor:$loggingInterceptorVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$hiltVersion"
@@ -88,7 +88,9 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
     testImplementation "app.cash.turbine:turbine:$turbineVersion"
+    testImplementation "com.squareup.okhttp3:mockwebserver:$okhttpVersion"
 
     // Android Test
+    testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$composeVersion"
 }

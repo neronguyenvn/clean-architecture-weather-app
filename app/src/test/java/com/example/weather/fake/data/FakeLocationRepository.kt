@@ -1,7 +1,7 @@
 package com.example.weather.fake.data
 
-import com.example.weather.city1
-import com.example.weather.coordinate1
+import com.example.weather.util.city1
+import com.example.weather.util.coordinate1
 import com.example.weather.data.LocationRepository
 import com.example.weather.model.geocoding.Coordinate
 import com.example.weather.util.checkResult

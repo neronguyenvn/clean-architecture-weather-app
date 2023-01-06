@@ -1,4 +1,4 @@
-package com.example.weather
+package com.example.weather.util
 
 import com.example.weather.model.geocoding.Coordinate
 import com.example.weather.model.weather.AllWeather
