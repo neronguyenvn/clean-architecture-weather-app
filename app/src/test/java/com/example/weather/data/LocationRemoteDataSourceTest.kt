@@ -1,7 +1,12 @@
 package com.example.weather.data
 
 import com.example.weather.network.ApiService
-import com.example.weather.util.*
+import com.example.weather.util.city1
+import com.example.weather.util.coordinate1
+import com.example.weather.util.emptyResultForwardGeocodingResponse
+import com.example.weather.util.errorResponse
+import com.example.weather.util.successfulForwardGeocodingResponse
+import com.example.weather.util.successfulReverseGeocodingResponse
 import com.example.weather.utils.Result.Error
 import com.example.weather.utils.Result.Success
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
