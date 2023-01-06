@@ -1,6 +1,5 @@
 package com.example.weather.ui
 
-import android.util.Log
 import app.cash.turbine.test
 import com.example.weather.allWeather1
 import com.example.weather.city1
@@ -20,8 +19,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-
-private val TAG = "WeatherViewModelTest"
 
 /**
  * Unit tests for the implementation of [WeatherViewModel].
@@ -193,4 +190,3 @@ class WeatherViewModelTest {
         assertEquals(actualState, expectedState)
     }
 }
-

@@ -2,7 +2,6 @@ package com.example.weather.fake.data
 
 import com.example.weather.city1
 import com.example.weather.coordinate1
-import com.example.weather.coordinate2
 import com.example.weather.data.LocationRepository
 import com.example.weather.model.geocoding.Coordinate
 import com.example.weather.util.checkResult
@@ -21,6 +20,6 @@ class FakeLocationRepository(
     }
 
     override suspend fun getCurrentCoordinate(): Coordinate {
-        return coordinate2
+        return coordinate1
     }
 }

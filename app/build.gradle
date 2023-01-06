@@ -84,8 +84,11 @@ dependencies {
     implementation "androidx.room:room-ktx:$roomVersion"
     ksp "androidx.room:room-compiler:$roomVersion"
 
-    // Unit test
+    // Local Test
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
     testImplementation "app.cash.turbine:turbine:$turbineVersion"
+
+    // Android Test
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$composeVersion"
 }
