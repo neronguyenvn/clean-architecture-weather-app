@@ -70,7 +70,7 @@ class LocationLocalDataSource(private val locationDao: LocationDao) : LocationDa
         return if (location != null) {
             Success(location.toCoordinate())
         } else {
-            Error(Exception("Location not found"))
+            Error(NullPointerException("Couldn't find any coordinate with input city"))
         }
     }
 
@@ -80,7 +80,7 @@ class LocationLocalDataSource(private val locationDao: LocationDao) : LocationDa
         return if (location != null) {
             Success(location.city)
         } else {
-            Error(Exception("City not found"))
+            Error(NullPointerException("Couldn't find any city with input coordinate"))
         }
     }
 

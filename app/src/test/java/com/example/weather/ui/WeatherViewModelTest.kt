@@ -182,6 +182,7 @@ class WeatherViewModelTest {
         val expectedState = WeatherUiState(city = "", error = "")
 
         // Act
+        viewModel.updateUiState(viewModel.uiState.value.copy(city = "st", error = "st"))
         viewModel.updateUiState(viewModel.uiState.value.copy(city = "", error = ""))
         coroutineRule.testDispatcher.scheduler.runCurrent()
 
