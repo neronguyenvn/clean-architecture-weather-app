@@ -67,10 +67,10 @@ dependencies {
 
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinXSerializationJsonVersion"
-    implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$kotlinXSerializationConverterVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationJsonVersion"
+    implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$serializationConverterVersion"
     implementation "io.coil-kt:coil-compose:$coilComposeVersion"
-    implementation "com.squareup.okhttp3:logging-interceptor:$loggingInterceptorVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$hiltVersion"
@@ -83,4 +83,14 @@ dependencies {
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
     ksp "androidx.room:room-compiler:$roomVersion"
+
+    // Local Test
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
+    testImplementation "app.cash.turbine:turbine:$turbineVersion"
+    testImplementation "com.squareup.okhttp3:mockwebserver:$okhttpVersion"
+
+    // Android Test
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$composeVersion"
 }

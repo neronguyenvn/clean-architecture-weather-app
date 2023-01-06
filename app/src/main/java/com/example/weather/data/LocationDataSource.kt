@@ -7,6 +7,8 @@ import com.example.weather.utils.Result
 import com.example.weather.utils.Result.Error
 import com.example.weather.utils.Result.Success
 import com.example.weather.utils.toCoordinate
+import kotlinx.serialization.SerializationException
+import retrofit2.HttpException
 import java.net.UnknownHostException
 
 /**
@@ -39,9 +41,13 @@ class LocationRemoteDataSource(private val apiService: ApiService) : LocationDat
             val result = apiService.getForwardGeocoding(city)
             Success(result.results.first().coordinate)
         } catch (ex: UnknownHostException) {
-            Error(ex)
+            Error(UnknownHostException("No internet connection"))
         } catch (ex: NoSuchElementException) {
             Error(NoSuchElementException("Invalid location"))
+        } catch (ex: SerializationException) {
+            Error(SerializationException("Json response is malformed"))
+        } catch (ex: HttpException) {
+            Error(ex)
         }
     }
 
@@ -52,7 +58,9 @@ class LocationRemoteDataSource(private val apiService: ApiService) : LocationDat
             )
             Success(result.results.first().components.city)
         } catch (ex: UnknownHostException) {
-            Error(ex)
+            Error(UnknownHostException("No internet connection"))
+        } catch (ex: SerializationException) {
+            Error(SerializationException("Json response is malformed"))
         }
     }
 
@@ -70,7 +78,7 @@ class LocationLocalDataSource(private val locationDao: LocationDao) : LocationDa
         return if (location != null) {
             Success(location.toCoordinate())
         } else {
-            Error(Exception("Location not found"))
+            Error(NullPointerException("Couldn't find any coordinate with input city"))
         }
     }
 
@@ -80,7 +88,7 @@ class LocationLocalDataSource(private val locationDao: LocationDao) : LocationDa
         return if (location != null) {
             Success(location.city)
         } else {
-            Error(Exception("City not found"))
+            Error(NullPointerException("Couldn't find any city with input coordinate"))
         }
     }
 
