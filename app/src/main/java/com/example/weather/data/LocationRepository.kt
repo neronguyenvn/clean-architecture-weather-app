@@ -2,7 +2,6 @@ package com.example.weather.data
 
 import android.annotation.SuppressLint
 import com.example.weather.di.DefaultDispatcher
-import com.example.weather.di.IoDispatcher
 import com.example.weather.model.geocoding.Coordinate
 import com.example.weather.utils.REAL_LOADING_DELAY_TIME
 import com.example.weather.utils.Result
@@ -17,6 +16,8 @@ import com.google.android.gms.tasks.Tasks.await
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
+import retrofit2.HttpException
 import java.net.UnknownHostException
 
 /**
@@ -51,51 +52,50 @@ class DefaultLocationRepository(
     private val locationLocalDataSource: LocationDataSource,
     private val locationRemoteDataSource: LocationDataSource,
     private val client: FusedLocationProviderClient,
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : LocationRepository {
 
     override suspend fun getCoordinateByCity(city: String): Result<Coordinate> {
-        return withContext(ioDispatcher) {
-            when (val coordinate = locationLocalDataSource.getCoordinate(city)) {
-                is Success -> {
-                    // Delay 1 second to make the reload more real
-                    delay(REAL_LOADING_DELAY_TIME)
-                    coordinate
-                }
-                is Error -> {
-                    try {
-                        updateLocationFromRemote(city)
-                    } catch (ex: UnknownHostException) {
-                        return@withContext Error(ex)
-                    } catch (ex: NoSuchElementException) {
-                        return@withContext Error(ex)
+        return when (val coordinate = locationLocalDataSource.getCoordinate(city)) {
+            is Success -> {
+                // Delay 1 second to make the reload more real
+                delay(REAL_LOADING_DELAY_TIME)
+                coordinate
+            }
+            is Error -> {
+                try {
+                    updateLocationFromRemote(city)
+                } catch (ex: Exception) {
+                    when (ex) {
+                        is UnknownHostException, is NoSuchElementException, is HttpException, is SerializationException -> Error(
+                            ex
+                        )
                     }
-                    locationLocalDataSource.getCoordinate(city)
                 }
+                locationLocalDataSource.getCoordinate(city)
             }
         }
     }
 
     override suspend fun getCityByCoordinate(coordinate: Coordinate): Result<String> {
-        return withContext(ioDispatcher) {
-            when (
-                val city =
-                    locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
-            ) {
-                is Success -> {
-                    // Delay 1 second to make the reload more real
-                    delay(REAL_LOADING_DELAY_TIME)
-                    city
-                }
-                is Error -> {
-                    try {
-                        updateLocationFromRemote(coordinate)
-                    } catch (ex: UnknownHostException) {
-                        return@withContext Error(ex)
+        return when (
+            val city =
+                locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
+        ) {
+            is Success -> {
+                // Delay 1 second to make the reload more real
+                delay(REAL_LOADING_DELAY_TIME)
+                city
+            }
+            is Error -> {
+                try {
+                    updateLocationFromRemote(coordinate)
+                } catch (ex: Exception) {
+                    when (ex) {
+                        is UnknownHostException, is SerializationException -> Error(ex)
                     }
-                    locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
                 }
+                locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
             }
         }
     }

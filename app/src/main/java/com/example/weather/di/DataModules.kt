@@ -46,12 +46,8 @@ class RepositoryModule {
      */
     @Singleton
     @Provides
-    fun provideWeatherRepository(
-        apiService: ApiService,
-        @IoDispatcher dispatcher: CoroutineDispatcher
-    ): WeatherRepository {
-        return DefaultWeatherRepository(apiService, dispatcher)
-    }
+    fun provideWeatherRepository(apiService: ApiService): WeatherRepository =
+        DefaultWeatherRepository(apiService)
 
     /**
      * Inject Location DataType Repository.
@@ -62,83 +58,79 @@ class RepositoryModule {
         @RemoteLocationDataSource remoteDataSource: LocationDataSource,
         @LocalLocationDataSource localDataSource: LocationDataSource,
         client: FusedLocationProviderClient,
-        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
-        @IoDispatcher ioDispatcher: CoroutineDispatcher
-    ): LocationRepository {
-        return DefaultLocationRepository(
-            locationRemoteDataSource = remoteDataSource,
-            locationLocalDataSource = localDataSource,
-            client = client,
-            defaultDispatcher = defaultDispatcher,
-            ioDispatcher = ioDispatcher
-        )
-    }
-}
-
-/**
- * Module for inject Data Sources.
- */
-@InstallIn(SingletonComponent::class)
-@Module
-class DataSourceModule {
+        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
+    ): LocationRepository = DefaultLocationRepository(
+        locationRemoteDataSource = remoteDataSource,
+        locationLocalDataSource = localDataSource,
+        client = client,
+        defaultDispatcher = defaultDispatcher
+    )
 
     /**
-     * Inject Location Remote Data Source.
+     * Module for inject Data Sources.
      */
-    @Singleton
-    @RemoteLocationDataSource
-    @Provides
-    fun provideLocationRemoteSource(apiService: ApiService): LocationDataSource {
-        return LocationRemoteDataSource(apiService)
+    @InstallIn(SingletonComponent::class)
+    @Module
+    class DataSourceModule {
+
+        /**
+         * Inject Location Remote Data Source.
+         */
+        @Singleton
+        @RemoteLocationDataSource
+        @Provides
+        fun provideLocationRemoteSource(apiService: ApiService): LocationDataSource {
+            return LocationRemoteDataSource(apiService)
+        }
+
+        /**
+         * Inject Location Local Data Source.
+         */
+        @Singleton
+        @LocalLocationDataSource
+        @Provides
+        fun provideLocationLocalSource(database: AppDatabase): LocationDataSource {
+            return LocationLocalDataSource(database.locationDao())
+        }
     }
 
     /**
-     * Inject Location Local Data Source.
+     * Module for injecting Room Database instance.
      */
-    @Singleton
-    @LocalLocationDataSource
-    @Provides
-    fun provideLocationLocalSource(database: AppDatabase): LocationDataSource {
-        return LocationLocalDataSource(database.locationDao())
-    }
-}
+    @InstallIn(SingletonComponent::class)
+    @Module
+    class DatabaseModule {
 
-/**
- * Module for injecting Room Database instance.
- */
-@InstallIn(SingletonComponent::class)
-@Module
-class DatabaseModule {
+        /**
+         * Inject Room database.
+         */
+        @Singleton
+        @Provides
+        fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
+            return Room.databaseBuilder(
+                context.applicationContext,
+                AppDatabase::class.java,
+                "WeatherApp.db"
+            ).build()
+        }
+    }
 
     /**
-     * Inject Room database.
+     * Module for injecting Location Services.
      */
-    @Singleton
-    @Provides
-    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context.applicationContext,
-            AppDatabase::class.java,
-            "WeatherApp.db"
-        ).build()
-    }
-}
+    @InstallIn(SingletonComponent::class)
+    @Module
+    class LocationModule {
 
-/**
- * Module for injecting Location Services.
- */
-@InstallIn(SingletonComponent::class)
-@Module
-class LocationModule {
-
-    /**
-     *  Inject FusedLocationProviderClient used to get Current Location.
-     */
-    @Singleton
-    @Provides
-    fun provideFusedLocationProviderClient(
-        @ApplicationContext context: Context
-    ): FusedLocationProviderClient {
-        return LocationServices.getFusedLocationProviderClient(context)
+        /**
+         *  Inject FusedLocationProviderClient used to get Current Location.
+         */
+        @Singleton
+        @Provides
+        fun provideFusedLocationProviderClient(
+            @ApplicationContext context: Context
+        ): FusedLocationProviderClient {
+            return LocationServices.getFusedLocationProviderClient(context)
+        }
     }
 }
