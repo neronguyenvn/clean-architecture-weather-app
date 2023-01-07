@@ -1,4 +1,4 @@
-package com.example.weather.utils
+package com.example.weather.model.utils
 
 /**
  * Sealed class for result of Permission Action.

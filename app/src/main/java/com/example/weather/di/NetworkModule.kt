@@ -22,7 +22,7 @@ import javax.inject.Singleton
  */
 @InstallIn(SingletonComponent::class)
 @Module
-class NetworkModules {
+class NetworkModule {
 
     /**
      *  Inject Api Service used to handle Api Requests.

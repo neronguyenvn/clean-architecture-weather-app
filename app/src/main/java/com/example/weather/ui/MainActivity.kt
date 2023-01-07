@@ -1,11 +1,10 @@
-package com.example.weather
+package com.example.weather.ui
 
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.example.weather.ui.WeatherApp
 import com.example.weather.ui.theme.WeatherTheme
 import dagger.hilt.android.AndroidEntryPoint
 

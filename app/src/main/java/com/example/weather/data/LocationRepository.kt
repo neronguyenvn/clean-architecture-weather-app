@@ -1,11 +1,10 @@
 package com.example.weather.data
 
-import android.annotation.SuppressLint
 import com.example.weather.di.DefaultDispatcher
 import com.example.weather.model.geocoding.Coordinate
-import com.example.weather.utils.Result
-import com.example.weather.utils.Result.Error
-import com.example.weather.utils.Result.Success
+import com.example.weather.model.utils.Result
+import com.example.weather.model.utils.Result.Error
+import com.example.weather.model.utils.Result.Success
 import com.example.weather.utils.toCoordinate
 import com.example.weather.utils.toLocation
 import com.example.weather.utils.toUnifiedCoordinate
@@ -17,6 +16,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import retrofit2.HttpException
 import java.net.UnknownHostException
+import java.util.concurrent.ExecutionException
 
 /**
  * Interface for Repository of Location DataType.
@@ -40,7 +40,7 @@ interface LocationRepository {
     /**
      * Get the Current Location of the Device.
      */
-    suspend fun getCurrentCoordinate(): Coordinate
+    suspend fun getCurrentCoordinate(): Result<Coordinate>
 }
 
 /**
@@ -55,14 +55,12 @@ class DefaultLocationRepository(
 
     override suspend fun getCoordinateByCity(city: String): Result<Coordinate> {
         return when (val coordinate = locationLocalDataSource.getCoordinate(city)) {
-            is Success -> {
-                coordinate
-            }
+            is Success -> coordinate
             is Error -> {
                 try {
                     updateLocationFromRemote(city)
                 } catch (ex: Exception) {
-                    when (ex) {
+                    return when (ex) {
                         is UnknownHostException, is NoSuchElementException,
                         is HttpException, is SerializationException -> Error(ex)
                         else -> throw ex
@@ -78,14 +76,12 @@ class DefaultLocationRepository(
             val city =
                 locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
         ) {
-            is Success -> {
-                city
-            }
+            is Success -> city
             is Error -> {
                 try {
                     updateLocationFromRemote(coordinate)
                 } catch (ex: Exception) {
-                    when (ex) {
+                    return when (ex) {
                         is UnknownHostException, is SerializationException -> Error(ex)
                         else -> throw ex
                     }
@@ -95,11 +91,17 @@ class DefaultLocationRepository(
         }
     }
 
-    @SuppressLint("MissingPermission")
-    override suspend fun getCurrentCoordinate(): Coordinate = withContext(defaultDispatcher) {
-        val locationTask = client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-        await(locationTask).toCoordinate()
-    }
+    override suspend fun getCurrentCoordinate(): Result<Coordinate> =
+        withContext(defaultDispatcher) {
+            try {
+                val locationTask = client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                Success(await(locationTask).toCoordinate())
+            } catch (ex: ExecutionException) {
+                Error(ex)
+            } catch (ex: SecurityException) {
+                Error(ex)
+            }
+        }
 
     private suspend fun updateLocationFromRemote(city: String) {
         when (val coordinate = locationRemoteDataSource.getCoordinate(city)) {

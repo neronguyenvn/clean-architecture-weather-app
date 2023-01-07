@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name">Weather</string>
+    <string name="get_current_location_weather">Get current location weather</string>
+    <string name="clear_city">Clear City</string>
+    <string name="location_permission_error">Location permission is not provided</string>
+    <string name="no_internet_error">No internet connection</string>
+    <string name="invalid_location_error">Invalid location</string>
+    <string name="malformed_json_error">Json response is malformed</string>
+    <string name="empty_location_error">Location can\'t be empty</string>
+    <string name="unknown_error">Something went wrong</string>
     <string name="temperature">%s\u00B0</string>
     <string name="daily_weather">%1$s\u00B7%2$s</string>
     <string name="max_min_temperature">%1$d\u00B0 / %2$d\u00B0</string>

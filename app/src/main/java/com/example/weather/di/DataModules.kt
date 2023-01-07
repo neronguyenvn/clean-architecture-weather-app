@@ -1,15 +1,17 @@
 package com.example.weather.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.example.weather.data.AppDatabase
-import com.example.weather.data.DefaultLocationRepository
-import com.example.weather.data.DefaultWeatherRepository
 import com.example.weather.data.LocationDataSource
 import com.example.weather.data.LocationLocalDataSource
 import com.example.weather.data.LocationRemoteDataSource
-import com.example.weather.data.LocationRepository
-import com.example.weather.data.WeatherRepository
 import com.example.weather.network.ApiService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -18,7 +20,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -34,103 +35,91 @@ annotation class RemoteLocationDataSource
 @Qualifier
 annotation class LocalLocationDataSource
 
+private const val USER_PREFERENCES = "user_preferences"
+
 /**
- * Module for injecting Repositories.
+ * Module for inject Data Sources.
  */
-@Module
 @InstallIn(SingletonComponent::class)
-class RepositoryModule {
+@Module
+class DataSourceModule {
 
     /**
-     *  Inject Weather DataType Repository.
+     * Inject Location Remote Data Source.
+     */
+    @Singleton
+    @RemoteLocationDataSource
+    @Provides
+    fun provideLocationRemoteSource(apiService: ApiService): LocationDataSource {
+        return LocationRemoteDataSource(apiService)
+    }
+
+    /**
+     * Inject Location Local Data Source.
+     */
+    @Singleton
+    @LocalLocationDataSource
+    @Provides
+    fun provideLocationLocalSource(database: AppDatabase): LocationDataSource {
+        return LocationLocalDataSource(database.locationDao())
+    }
+}
+
+/**
+ * Module for injecting Room Database instance.
+ */
+@InstallIn(SingletonComponent::class)
+@Module
+class DatabaseModule {
+
+    /**
+     * Inject Room database.
      */
     @Singleton
     @Provides
-    fun provideWeatherRepository(apiService: ApiService): WeatherRepository =
-        DefaultWeatherRepository(apiService)
+    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context.applicationContext,
+            AppDatabase::class.java,
+            "WeatherApp.db"
+        ).build()
+    }
+}
+
+/**
+ * Module for injecting Location Services.
+ */
+@InstallIn(SingletonComponent::class)
+@Module
+class LocationModule {
 
     /**
-     * Inject Location DataType Repository.
+     *  Inject FusedLocationProviderClient used to get Current Location.
      */
     @Singleton
     @Provides
-    fun provideLocationRepository(
-        @RemoteLocationDataSource remoteDataSource: LocationDataSource,
-        @LocalLocationDataSource localDataSource: LocationDataSource,
-        client: FusedLocationProviderClient,
-        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
-    ): LocationRepository = DefaultLocationRepository(
-        locationRemoteDataSource = remoteDataSource,
-        locationLocalDataSource = localDataSource,
-        client = client,
-        defaultDispatcher = defaultDispatcher
-    )
+    fun provideFusedLocationProviderClient(
+        @ApplicationContext context: Context
+    ): FusedLocationProviderClient {
+        return LocationServices.getFusedLocationProviderClient(context)
+    }
+}
+
+/**
+ * Module inject DataStore instances
+ */
+@InstallIn(SingletonComponent::class)
+@Module
+class DataStoreModule {
 
     /**
-     * Module for inject Data Sources.
+     * Inject Preferences DataStore instace
      */
-    @InstallIn(SingletonComponent::class)
-    @Module
-    class DataSourceModule {
-
-        /**
-         * Inject Location Remote Data Source.
-         */
-        @Singleton
-        @RemoteLocationDataSource
-        @Provides
-        fun provideLocationRemoteSource(apiService: ApiService): LocationDataSource {
-            return LocationRemoteDataSource(apiService)
-        }
-
-        /**
-         * Inject Location Local Data Source.
-         */
-        @Singleton
-        @LocalLocationDataSource
-        @Provides
-        fun provideLocationLocalSource(database: AppDatabase): LocationDataSource {
-            return LocationLocalDataSource(database.locationDao())
-        }
-    }
-
-    /**
-     * Module for injecting Room Database instance.
-     */
-    @InstallIn(SingletonComponent::class)
-    @Module
-    class DatabaseModule {
-
-        /**
-         * Inject Room database.
-         */
-        @Singleton
-        @Provides
-        fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
-            return Room.databaseBuilder(
-                context.applicationContext,
-                AppDatabase::class.java,
-                "WeatherApp.db"
-            ).build()
-        }
-    }
-
-    /**
-     * Module for injecting Location Services.
-     */
-    @InstallIn(SingletonComponent::class)
-    @Module
-    class LocationModule {
-
-        /**
-         *  Inject FusedLocationProviderClient used to get Current Location.
-         */
-        @Singleton
-        @Provides
-        fun provideFusedLocationProviderClient(
-            @ApplicationContext context: Context
-        ): FusedLocationProviderClient {
-            return LocationServices.getFusedLocationProviderClient(context)
-        }
-    }
+    @Singleton
+    @Provides
+    fun providePreferencesDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create(
+            corruptionHandler = ReplaceFileCorruptionHandler(produceNewData = { emptyPreferences() }),
+            produceFile = { context.preferencesDataStoreFile(USER_PREFERENCES) }
+        )
 }

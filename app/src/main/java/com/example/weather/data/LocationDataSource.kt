@@ -2,10 +2,10 @@ package com.example.weather.data
 
 import com.example.weather.model.database.Location
 import com.example.weather.model.geocoding.Coordinate
+import com.example.weather.model.utils.Result
+import com.example.weather.model.utils.Result.Error
+import com.example.weather.model.utils.Result.Success
 import com.example.weather.network.ApiService
-import com.example.weather.utils.Result
-import com.example.weather.utils.Result.Error
-import com.example.weather.utils.Result.Success
 import com.example.weather.utils.toCoordinate
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.SerializationException
@@ -41,14 +41,12 @@ class LocationRemoteDataSource(private val apiService: ApiService) : LocationDat
         return try {
             val result = apiService.getForwardGeocoding(city)
             Success(result.results.first().coordinate)
-        } catch (ex: UnknownHostException) {
-            Error(UnknownHostException("No internet connection"))
-        } catch (ex: NoSuchElementException) {
-            Error(NoSuchElementException("Invalid location"))
-        } catch (ex: SerializationException) {
-            Error(SerializationException("Json response is malformed"))
-        } catch (ex: HttpException) {
-            Error(ex)
+        } catch (ex: Exception) {
+            when (ex) {
+                is UnknownHostException, is NoSuchElementException,
+                is HttpException, is SerializationException -> Error(ex)
+                else -> throw ex
+            }
         }
     }
 
@@ -58,10 +56,11 @@ class LocationRemoteDataSource(private val apiService: ApiService) : LocationDat
                 "${coordinate.latitude}+${coordinate.longitude}"
             )
             Success(result.results.first().components.city)
-        } catch (ex: UnknownHostException) {
-            Error(UnknownHostException("No internet connection"))
-        } catch (ex: SerializationException) {
-            Error(SerializationException("Json response is malformed"))
+        } catch (ex: Exception) {
+            when (ex) {
+                is UnknownHostException, is SerializationException -> Error(ex)
+                else -> throw ex
+            }
         }
     }
 
@@ -79,7 +78,7 @@ class LocationLocalDataSource(private val locationDao: LocationDao) : LocationDa
         return try {
             Success(location.toCoordinate())
         } catch (ex: NullPointerException) {
-            Error(NullPointerException("Couldn't find any coordinate with input city"))
+            return Error(ex)
         }
     }
 
@@ -89,7 +88,7 @@ class LocationLocalDataSource(private val locationDao: LocationDao) : LocationDa
         return try {
             Success(location.city)
         } catch (ex: NullPointerException) {
-            Error(NullPointerException("Couldn't find any city with input coordinate"))
+            Error(ex)
         }
     }
 

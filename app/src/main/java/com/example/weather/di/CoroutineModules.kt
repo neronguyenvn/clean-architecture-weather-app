@@ -19,7 +19,7 @@ annotation class DefaultDispatcher
  */
 @InstallIn(SingletonComponent::class)
 @Module
-class CoroutineDispatcherModule {
+class CoroutineDispatcherModules {
 
     /**
      * Inject Default Dispatcher.

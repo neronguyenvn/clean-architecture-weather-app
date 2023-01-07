@@ -30,4 +30,5 @@ ext {
     junitVersion = '4.13.2'
     coroutinesVersion = '1.6.4'
     turbineVersion = '0.12.1'
+    dataStoreVersion = '1.0.0'
 }

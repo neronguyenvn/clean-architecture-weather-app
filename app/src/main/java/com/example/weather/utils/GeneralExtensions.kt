@@ -1,6 +1,10 @@
 package com.example.weather.utils
 
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.text.format.DateUtils
+import androidx.core.app.ActivityCompat
+import com.example.weather.model.geocoding.Coordinate
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -10,6 +14,21 @@ import java.util.Locale
 const val DATE_PATTERN = "HH:mm EEE, MMM dd"
 private const val DAY_NAME_IN_WEEK_PATTERN = "EEE"
 private const val SECOND_IN_MILLIS = 1000
+
+/**
+ * Check this activity having the permission passed in or not.
+ */
+fun Activity.hasPermission(permission: String): Boolean {
+    return ActivityCompat.checkSelfPermission(
+        this,
+        permission
+    ) == PackageManager.PERMISSION_GRANTED
+}
+
+/**
+ * Round a Double number to make it has a certain number of digits after decimal point.
+ */
+fun Double.roundTo(n: Int): Double = "%.${n}f".format(Locale.US, this).toDouble()
 
 /**
  * Convert a Timestamp to Date string with Custom Pattern param.
@@ -38,3 +57,5 @@ fun Long.toDayNameInWeek(timezoneOffset: Int): String {
         else -> this.toDateString(timezoneOffset, DAY_NAME_IN_WEEK_PATTERN)
     }
 }
+
+fun Coordinate.isValid(): Boolean = latitude != 0.0 && longitude != 0.0

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.weather.utils
+package com.example.weather.model.utils
 
 /**
  * A generic class that holds a value or error.
