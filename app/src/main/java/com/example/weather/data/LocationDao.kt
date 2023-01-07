@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.weather.model.database.Location
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Data Access Object for Location.
@@ -16,13 +17,13 @@ interface LocationDao {
      * Get LocationDbModel by CityName.
      */
     @Query("SELECT * FROM location WHERE city = :city")
-    fun getLocationByCity(city: String): Location?
+    fun getLocationByCity(city: String): Flow<Location>
 
     /**
      * Get LocationDbModel by Location.
      */
     @Query("SELECT * FROM location WHERE latitude = :latitude AND longitude = :longitude")
-    fun getLocationByCoordinate(latitude: Double, longitude: Double): Location?
+    fun getLocationByCoordinate(latitude: Double, longitude: Double): Flow<Location>
 
     /**
      * Insert a Location in the database. If the Location already exists, replace it.

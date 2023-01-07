@@ -7,6 +7,7 @@ import com.example.weather.utils.Result
 import com.example.weather.utils.Result.Error
 import com.example.weather.utils.Result.Success
 import com.example.weather.utils.toCoordinate
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.SerializationException
 import retrofit2.HttpException
 import java.net.UnknownHostException
@@ -74,20 +75,20 @@ class LocationRemoteDataSource(private val apiService: ApiService) : LocationDat
  */
 class LocationLocalDataSource(private val locationDao: LocationDao) : LocationDataSource {
     override suspend fun getCoordinate(city: String): Result<Coordinate> {
-        val location = locationDao.getLocationByCity(city)
-        return if (location != null) {
+        val location = locationDao.getLocationByCity(city).first()
+        return try {
             Success(location.toCoordinate())
-        } else {
+        } catch (ex: NullPointerException) {
             Error(NullPointerException("Couldn't find any coordinate with input city"))
         }
     }
 
     override suspend fun getCityName(coordinate: Coordinate): Result<String> {
         val location =
-            locationDao.getLocationByCoordinate(coordinate.latitude, coordinate.longitude)
-        return if (location != null) {
+            locationDao.getLocationByCoordinate(coordinate.latitude, coordinate.longitude).first()
+        return try {
             Success(location.city)
-        } else {
+        } catch (ex: NullPointerException) {
             Error(NullPointerException("Couldn't find any city with input coordinate"))
         }
     }

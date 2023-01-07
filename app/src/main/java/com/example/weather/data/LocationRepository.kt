@@ -3,7 +3,6 @@ package com.example.weather.data
 import android.annotation.SuppressLint
 import com.example.weather.di.DefaultDispatcher
 import com.example.weather.model.geocoding.Coordinate
-import com.example.weather.utils.REAL_LOADING_DELAY_TIME
 import com.example.weather.utils.Result
 import com.example.weather.utils.Result.Error
 import com.example.weather.utils.Result.Success
@@ -14,7 +13,6 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.Tasks.await
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import retrofit2.HttpException
@@ -58,8 +56,6 @@ class DefaultLocationRepository(
     override suspend fun getCoordinateByCity(city: String): Result<Coordinate> {
         return when (val coordinate = locationLocalDataSource.getCoordinate(city)) {
             is Success -> {
-                // Delay 1 second to make the reload more real
-                delay(REAL_LOADING_DELAY_TIME)
                 coordinate
             }
             is Error -> {
@@ -67,9 +63,9 @@ class DefaultLocationRepository(
                     updateLocationFromRemote(city)
                 } catch (ex: Exception) {
                     when (ex) {
-                        is UnknownHostException, is NoSuchElementException, is HttpException, is SerializationException -> Error(
-                            ex
-                        )
+                        is UnknownHostException, is NoSuchElementException,
+                        is HttpException, is SerializationException -> Error(ex)
+                        else -> throw ex
                     }
                 }
                 locationLocalDataSource.getCoordinate(city)
@@ -83,8 +79,6 @@ class DefaultLocationRepository(
                 locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
         ) {
             is Success -> {
-                // Delay 1 second to make the reload more real
-                delay(REAL_LOADING_DELAY_TIME)
                 city
             }
             is Error -> {
@@ -93,6 +87,7 @@ class DefaultLocationRepository(
                 } catch (ex: Exception) {
                     when (ex) {
                         is UnknownHostException, is SerializationException -> Error(ex)
+                        else -> throw ex
                     }
                 }
                 locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
