@@ -1,4 +1,4 @@
-package com.example.weather.utils
+package com.example.weather.util
 
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -13,7 +13,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.example.weather.model.utils.PermissionAction
 
 /**
  * Ui component for displaying Permission Request dialog with Custom permission and handled by Custom

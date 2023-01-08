@@ -1,19 +1,16 @@
-package com.example.weather.utils
+package com.example.weather.util
 
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.text.format.DateUtils
+import android.text.format.DateUtils.SECOND_IN_MILLIS
 import androidx.core.app.ActivityCompat
-import com.example.weather.model.geocoding.Coordinate
+import com.example.weather.model.data.Coordinate
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-
-const val DATE_PATTERN = "HH:mm EEE, MMM dd"
-private const val DAY_NAME_IN_WEEK_PATTERN = "EEE"
-private const val SECOND_IN_MILLIS = 1000
 
 /**
  * Check this activity having the permission passed in or not.

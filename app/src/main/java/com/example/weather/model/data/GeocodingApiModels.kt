@@ -1,4 +1,4 @@
-package com.example.weather.model.geocoding
+package com.example.weather.model.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -16,7 +16,8 @@ data class ForwardGeocoding(
  */
 @Serializable
 data class ForwardGeocodingResult(
-    @SerialName("geometry") val coordinate: Coordinate
+    @SerialName("geometry") val coordinate: Coordinate,
+    @SerialName("formatted") val address: String
 )
 
 /**
@@ -26,4 +27,28 @@ data class ForwardGeocodingResult(
 data class Coordinate(
     @SerialName("lat") val latitude: Double,
     @SerialName("lng") val longitude: Double
+)
+
+/**
+ * Api Model for Reverse Geocoding api meaning convert Location into CityName.
+ */
+@Serializable
+data class ReverseGeocoding(
+    val results: List<ReverseGeocodingResult>
+)
+
+/**
+ * Api Model for Reverse Geocoding api.
+ */
+@Serializable
+data class ReverseGeocodingResult(
+    val components: Components
+)
+
+/**
+ * Api Model for Reverse Geocoding api.
+ */
+@Serializable
+data class Components(
+    val city: String
 )

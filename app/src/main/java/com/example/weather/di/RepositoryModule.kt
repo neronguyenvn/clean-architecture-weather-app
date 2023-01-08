@@ -2,6 +2,7 @@ package com.example.weather.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.example.weather.data.ApiService
 import com.example.weather.data.DefaultLocationRepository
 import com.example.weather.data.DefaultPreferenceRepository
 import com.example.weather.data.DefaultWeatherRepository
@@ -9,7 +10,6 @@ import com.example.weather.data.LocationDataSource
 import com.example.weather.data.LocationRepository
 import com.example.weather.data.PreferenceRepository
 import com.example.weather.data.WeatherRepository
-import com.example.weather.network.ApiService
 import com.google.android.gms.location.FusedLocationProviderClient
 import dagger.Module
 import dagger.Provides

@@ -8,11 +8,11 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
+import com.example.weather.data.ApiService
 import com.example.weather.data.AppDatabase
 import com.example.weather.data.LocationDataSource
 import com.example.weather.data.LocationLocalDataSource
 import com.example.weather.data.LocationRemoteDataSource
-import com.example.weather.network.ApiService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.Module

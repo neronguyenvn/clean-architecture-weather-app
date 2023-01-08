@@ -1,7 +1,7 @@
 package com.example.weather.di
 
-import com.example.weather.network.ApiService
-import com.example.weather.utils.OPENCAGE_BASE_URL
+import com.example.weather.data.ApiService
+import com.example.weather.util.OPENCAGE_BASE_URL
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides

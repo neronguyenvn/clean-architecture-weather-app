@@ -15,8 +15,8 @@ android {
         applicationId "com.example.weather"
         minSdk rootProject.minSdkVersion
         targetSdk rootProject.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "0.2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -63,7 +63,8 @@ dependencies {
     implementation "androidx.activity:activity-compose:$activityComposeVersion"
     implementation "androidx.compose.material:material:$composeVersion"
     implementation "androidx.lifecycle:lifecycle-runtime-compose:$archLifecycleVersion"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$archLifecycleVersion"
+    implementation "androidx.navigation:navigation-compose:$navigationVersion"
+    implementation "com.google.accompanist:accompanist-systemuicontroller:$uiControllerVersion"
 
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
@@ -74,6 +75,7 @@ dependencies {
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$hiltVersion"
+    implementation "androidx.hilt:hilt-navigation-compose:$hiltAndroidXVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
 
     // Location

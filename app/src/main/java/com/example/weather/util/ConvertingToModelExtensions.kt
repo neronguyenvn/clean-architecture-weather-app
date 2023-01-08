@@ -1,15 +1,13 @@
-package com.example.weather.utils
+package com.example.weather.util
 
 import com.example.weather.R
-import com.example.weather.model.database.Location
-import com.example.weather.model.geocoding.Coordinate
-import com.example.weather.model.weather.CurrentWeather
-import com.example.weather.model.weather.CurrentWeatherApiModel
-import com.example.weather.model.weather.DailyWeather
-import com.example.weather.model.weather.DailyWeatherApiModel
+import com.example.weather.model.data.Coordinate
+import com.example.weather.model.data.CurrentWeatherApiModel
+import com.example.weather.model.data.DailyWeatherApiModel
+import com.example.weather.model.data.Location
+import com.example.weather.model.ui.CurrentWeather
+import com.example.weather.model.ui.DailyWeather
 import kotlin.math.roundToInt
-
-private const val DECIMAL_DEGREE_PRECISION = 3
 
 /**
  * Convert Daily Weather Api Model into Ui Model one.
