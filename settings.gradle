@@ -12,5 +12,10 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+includeBuild("androidx-compose-material3-pullrefresh-2023.01.00") {
+    dependencySubstitution {
+        substitute(module("me.omico.lux:lux-androidx-compose-material3-pullrefresh")).using(project(":library"))
+    }
+}
 rootProject.name = "Weather"
 include ':app'

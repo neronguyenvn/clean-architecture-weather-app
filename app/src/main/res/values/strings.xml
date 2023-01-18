@@ -1,14 +1,31 @@
 <resources>
     <string name="app_name">Weather</string>
-    <string name="get_current_location_weather">Get current location weather</string>
-    <string name="clear_city">Clear City</string>
+    <string name="search_city">Search for city</string>
+    <string name="setting">Setting</string>
+
     <string name="location_permission_error">Location permission is not provided</string>
     <string name="no_internet_error">No internet connection</string>
     <string name="invalid_location_error">Invalid location</string>
     <string name="malformed_json_error">Json response is malformed</string>
     <string name="empty_location_error">Location can\'t be empty</string>
     <string name="unknown_error">Something went wrong</string>
+
     <string name="temperature">%s\u00B0</string>
-    <string name="daily_weather">%1$s\u00B7%2$s</string>
-    <string name="max_min_temperature">%1$d\u00B0 / %2$d\u00B0</string>
+    <string name="celsius_symbol">\u2103</string>
+    <string name="daily_weather">%s%n%s</string>
+    <string name="max_min_temperature">%d\u00B0 / %d\u00B0</string>
+
+    <string name="real_feel">Real feel</string>
+    <string name="humidity">Humidity</string>
+    <string name="chance_of_rain">Chance of rain</string>
+    <string name="pressure">Pressure</string>
+    <string name="visibility">Visibility</string>
+    <string name="uv_index">UV index</string>
+
+    <string name="percent">%d%%</string>
+    <string name="hpa">%dhPa</string>
+    <string name="meter">%dm</string>
+    <string name="number">%d</string>
+    <string name="meter_per_second">%sm/s</string>
+
 </resources>
