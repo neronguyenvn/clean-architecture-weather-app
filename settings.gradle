@@ -1,8 +1,8 @@
 pluginManagement {
     repositories {
-        gradlePluginPortal()
         google()
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 dependencyResolutionManagement {
@@ -17,5 +17,5 @@ includeBuild("androidx-compose-material3-pullrefresh-2023.01.00") {
         substitute(module("me.omico.lux:lux-androidx-compose-material3-pullrefresh")).using(project(":library"))
     }
 }
-rootProject.name = "Weather"
+rootProject.name = "Weather Journey"
 include ':app'
