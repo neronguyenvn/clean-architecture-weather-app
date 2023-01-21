@@ -3,5 +3,6 @@
 
     <style name="Theme.Weather" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@android:color/white</item>
     </style>
 </resources>

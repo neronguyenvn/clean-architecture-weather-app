@@ -1,4 +1,4 @@
-package com.example.weatherjourney.ui.theme
+package com.example.weatherjourney.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.SpanStyle
@@ -9,5 +9,5 @@ val typography = Typography()
 
 val superscript = SpanStyle(
     baselineShift = BaselineShift.Superscript,
-    fontSize = 26.sp
+    fontSize = 24.sp
 )

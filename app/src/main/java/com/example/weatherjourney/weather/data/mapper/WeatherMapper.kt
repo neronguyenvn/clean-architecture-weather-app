@@ -50,4 +50,4 @@ fun HourlyWeatherDto.toHourlyWeather(timezoneOffset: Int): HourlyWeather {
     )
 }
 
-private fun getImageUrl(uri: String) = "${ApiService.OPENWEATHER_IMAGE_BASE_URL}$uri@4x.png"
+private fun getImageUrl(uri: String) = "${ApiService.OPENWEATHER_IMAGE_BASE_URL}$uri@2x.png"

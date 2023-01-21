@@ -1,4 +1,4 @@
-package com.example.weatherjourney.weather.presentation.weatherinfo
+package com.example.weatherjourney.weather.presentation.info
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val TAG = "WeatherViewModel"
+private const val TAG = "WeatherInfoViewModel"
 
 @HiltViewModel
 class WeatherInfoViewModel @Inject constructor(
@@ -38,6 +38,10 @@ class WeatherInfoViewModel @Inject constructor(
     private val preferenceRepository: PreferenceRepository
 ) : ViewModel() {
 
+    init {
+        Log.d(TAG, "$TAG init")
+    }
+
     var uiState by mutableStateOf(WeatherInfoUiState())
         private set
 
@@ -45,7 +49,6 @@ class WeatherInfoViewModel @Inject constructor(
     val uiEvent = _uiEvent.receiveAsFlow()
 
     val isLastWeatherInfoLoading = MutableStateFlow(true)
-    private val locationPermissionState = MutableStateFlow(false)
 
     private val lastCoordinate: StateFlow<Coordinate> = preferenceRepository.coordinateFlow.stateIn(
         scope = viewModelScope,
@@ -55,24 +58,20 @@ class WeatherInfoViewModel @Inject constructor(
 
     fun onEvent(event: WeatherInfoEvent) {
         when (event) {
-            is WeatherInfoEvent.OnLocationPermissionUpdate ->
-                locationPermissionState.value =
-                    event.value
-
             is WeatherInfoEvent.OnRefresh -> fetchWeather(lastCoordinate.value)
 
-            is WeatherInfoEvent.OnActivityCreate -> fetchLastWeatherInfo()
+            is WeatherInfoEvent.OnStateInit -> fetchLastWeatherInfo(event.isLocationPermissionGranted)
 
             is WeatherInfoEvent.OnSearchClick -> Unit // TODO: Implement later
             is WeatherInfoEvent.OnSettingClick -> Unit // TODO: Implement later
         }
     }
 
-    private fun fetchLastWeatherInfo() {
+    private fun fetchLastWeatherInfo(isLocationPermissionGranted: Boolean) {
         if (lastCoordinate.value.isValid()) {
             fetchWeather(lastCoordinate.value)
         } else {
-            if (locationPermissionState.value) {
+            if (isLocationPermissionGranted) {
                 fetchCurrentLocationWeather()
             } else {
                 // TODO: Navigate to search
@@ -89,6 +88,7 @@ class WeatherInfoViewModel @Inject constructor(
                     getAndUpdateCityByCoordinate(coordinate.data)
                     fetchWeather(coordinate.data)
                 }
+
                 is Result.Error -> {
                     val message = coordinate.toString()
                     _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString(message)))
@@ -118,6 +118,7 @@ class WeatherInfoViewModel @Inject constructor(
                     updateWeatherState(weather.data)
                     updateCachedCoordinate(coordinate)
                 }
+
                 is Result.Error -> {
                     val message = weather.toString()
                     _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString(message)))

@@ -1,4 +1,4 @@
-package com.example.weatherjourney.weather.presentation.weatherinfo
+package com.example.weatherjourney.weather.presentation.info
 
 import com.example.weatherjourney.weather.domain.model.CurrentWeather
 import com.example.weatherjourney.weather.domain.model.DailyWeather

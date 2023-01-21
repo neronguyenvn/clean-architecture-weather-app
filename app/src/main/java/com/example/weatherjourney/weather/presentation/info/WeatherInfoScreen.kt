@@ -1,4 +1,4 @@
-package com.example.weatherjourney.weather.presentation.weatherinfo
+package com.example.weatherjourney.weather.presentation.info
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,11 +37,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.weatherjourney.R
-import com.example.weatherjourney.ui.theme.superscript
+import com.example.weatherjourney.presentation.theme.superscript
 import com.example.weatherjourney.util.LoadingContent
 import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.weather.domain.model.CurrentWeather
@@ -48,8 +51,11 @@ import com.example.weatherjourney.weather.domain.model.HourlyWeather
 
 @Composable
 fun WeatherInfoScreen(
+    onSearchClick: () -> Unit,
+    onSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: WeatherInfoViewModel = viewModel()
+    viewModel: WeatherInfoViewModel = LocalView.current.findViewTreeViewModelStoreOwner()
+        .let { hiltViewModel(it!!) }
 ) {
     val uiState = viewModel.uiState
     val context = LocalContext.current
@@ -58,7 +64,13 @@ fun WeatherInfoScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = { TopBar(uiState.city) },
+        topBar = {
+            TopBar(
+                city = uiState.city,
+                onSearchClick = onSearchClick,
+                onSettingClick = onSettingClick
+            )
+        },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
 
@@ -74,10 +86,11 @@ fun WeatherInfoScreen(
         LaunchedEffect(true) {
             viewModel.uiEvent.collect { event ->
                 when (event) {
-                    is UiEvent.ShowSnackbar -> {
-                        snackbarHostState.showSnackbar(event.message.asString(context))
-                    }
-                    else -> Unit
+                    is UiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(
+                        event.message.asString(
+                            context
+                        )
+                    )
                 }
             }
         }
@@ -104,7 +117,6 @@ fun WeatherInfoScreenContent(
             Modifier.fillMaxWidth(),
             contentPadding = screenPadding
         ) {
-            item { Spacer(Modifier.height(32.dp)) }
             item { CurrentWeatherContent(current) }
             item { Spacer(Modifier.height(32.dp)) }
             item { DailyWeatherContent(listDaily) }
@@ -121,42 +133,43 @@ fun WeatherInfoScreenContent(
 @Composable
 fun TopBar(
     city: String,
+    onSearchClick: () -> Unit,
+    onSettingClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val topBarPadding = PaddingValues(
-        start = dimensionResource(R.dimen.horizontal_margin),
-        end = dimensionResource(R.dimen.horizontal_margin),
-        top = 30.dp
+        start = dimensionResource(R.dimen.horizontal_margin) / 2,
+        end = dimensionResource(R.dimen.horizontal_margin) / 2,
+        top = 12.dp
     )
 
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(topBarPadding),
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.Top
-    ) {
-        IconButton({}) {
-            Icon(
-                painter = painterResource(R.drawable.ic_search),
-                contentDescription = stringResource(R.string.search_city)
+    CenterAlignedTopAppBar(
+        navigationIcon = {
+            IconButton(onSearchClick) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_search),
+                    contentDescription = stringResource(R.string.search_city)
+                )
+            }
+        },
+        title = {
+            Text(
+                city,
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 12.dp)
             )
-        }
-        Text(
-            city,
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .weight(1f)
-                .padding(top = 12.dp)
-        )
-        IconButton({}) {
-            Icon(
-                painter = painterResource(R.drawable.ic_setting),
-                contentDescription = stringResource(R.string.setting)
-            )
-        }
-    }
+        },
+        actions = {
+            IconButton({}) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_setting),
+                    contentDescription = stringResource(R.string.setting)
+                )
+            }
+        },
+        modifier = modifier.padding(topBarPadding)
+    )
 }
 
 @Composable
@@ -208,7 +221,7 @@ fun DailyWeatherItem(
     ) {
         Text(
             text = stringResource(R.string.daily_weather, daily.date, daily.weather),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleSmall,
             textAlign = TextAlign.Center
         )
         AsyncImage(
