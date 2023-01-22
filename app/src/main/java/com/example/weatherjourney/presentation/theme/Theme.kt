@@ -8,10 +8,14 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val AppDarkColorScheme = darkColorScheme()
-private val AppLightColorScheme = lightColorScheme()
+private val AppLightColorScheme = lightColorScheme().copy(
+    background = Color.White,
+    onBackground = Color.Black
+)
 
 @Composable
 fun WeatherTheme(

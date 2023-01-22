@@ -31,7 +31,7 @@ fun WeatherNavGraph(
             )
         }
         composable(WeatherScreens.SEARCH_SCREEN) {
-            WeatherSearchScreen(onItemClick = {})
+            WeatherSearchScreen(onBackClick = { navController.popBackStack() }, onItemClick = {})
         }
     }
 }

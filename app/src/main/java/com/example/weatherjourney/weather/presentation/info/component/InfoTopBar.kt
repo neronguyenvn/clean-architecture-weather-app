@@ -1,0 +1,47 @@
+package com.example.weatherjourney.weather.presentation.info.component
+
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import com.example.weatherjourney.R
+
+@Composable
+fun InfoTopBar(
+    city: String,
+    onSearchClick: () -> Unit,
+    onSettingClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    CenterAlignedTopAppBar(
+        modifier = modifier,
+        navigationIcon = {
+            IconButton(onSearchClick) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_search),
+                    contentDescription = stringResource(R.string.search_city)
+                )
+            }
+        },
+        title = {
+            Text(
+                city,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1
+            )
+        },
+        actions = {
+            IconButton(onSettingClick) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_setting),
+                    contentDescription = stringResource(R.string.setting)
+                )
+            }
+        }
+    )
+}

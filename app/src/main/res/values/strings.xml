@@ -1,7 +1,11 @@
 <resources>
     <string name="app_name">Weather</string>
+
     <string name="search_city">Search for city</string>
+    <string name="delete_city">Delete city input</string>
     <string name="setting">Setting</string>
+    <string name="back">Back</string>
+    <string name="enter_location">Enter location</string>
 
     <string name="location_permission_error">Location permission is not provided</string>
     <string name="no_internet_error">No internet connection</string>

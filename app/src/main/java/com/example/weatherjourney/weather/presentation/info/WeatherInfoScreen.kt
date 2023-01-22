@@ -14,9 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -42,12 +39,14 @@ import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.weatherjourney.R
+import com.example.weatherjourney.presentation.theme.Black70
 import com.example.weatherjourney.presentation.theme.superscript
 import com.example.weatherjourney.util.LoadingContent
 import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.weather.domain.model.CurrentWeather
 import com.example.weatherjourney.weather.domain.model.DailyWeather
 import com.example.weatherjourney.weather.domain.model.HourlyWeather
+import com.example.weatherjourney.weather.presentation.info.component.InfoTopBar
 
 @Composable
 fun WeatherInfoScreen(
@@ -65,7 +64,7 @@ fun WeatherInfoScreen(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopBar(
+            InfoTopBar(
                 city = uiState.city,
                 onSearchClick = onSearchClick,
                 onSettingClick = onSettingClick
@@ -128,48 +127,6 @@ fun WeatherInfoScreenContent(
             }
         }
     }
-}
-
-@Composable
-fun TopBar(
-    city: String,
-    onSearchClick: () -> Unit,
-    onSettingClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val topBarPadding = PaddingValues(
-        start = dimensionResource(R.dimen.horizontal_margin) / 2,
-        end = dimensionResource(R.dimen.horizontal_margin) / 2,
-        top = 12.dp
-    )
-
-    CenterAlignedTopAppBar(
-        navigationIcon = {
-            IconButton(onSearchClick) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_search),
-                    contentDescription = stringResource(R.string.search_city)
-                )
-            }
-        },
-        title = {
-            Text(
-                city,
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 12.dp)
-            )
-        },
-        actions = {
-            IconButton({}) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_setting),
-                    contentDescription = stringResource(R.string.setting)
-                )
-            }
-        },
-        modifier = modifier.padding(topBarPadding)
-    )
 }
 
 @Composable
@@ -295,7 +252,7 @@ fun DetailItem(
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
-        Text(label, style = MaterialTheme.typography.labelMedium, color = Color.Black.copy(0.7f))
+        Text(label, style = MaterialTheme.typography.labelMedium, color = Black70)
         Text(detail, style = MaterialTheme.typography.bodyMedium)
     }
 }
