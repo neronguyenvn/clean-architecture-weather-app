@@ -43,13 +43,17 @@ import com.example.weatherjourney.presentation.theme.Black70
 import com.example.weatherjourney.presentation.theme.superscript
 import com.example.weatherjourney.util.LoadingContent
 import com.example.weatherjourney.util.UiEvent
+import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.CurrentWeather
 import com.example.weatherjourney.weather.domain.model.DailyWeather
 import com.example.weatherjourney.weather.domain.model.HourlyWeather
 import com.example.weatherjourney.weather.presentation.info.component.InfoTopBar
+import com.example.weatherjourney.weather.util.isValid
 
 @Composable
 fun WeatherInfoScreen(
+    city: String,
+    coordinate: Coordinate,
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -83,6 +87,10 @@ fun WeatherInfoScreen(
         )
 
         LaunchedEffect(true) {
+            if (coordinate.isValid()) {
+                viewModel.onEvent(WeatherInfoEvent.OnWeatherFetch(city, coordinate))
+            }
+
             viewModel.uiEvent.collect { event ->
                 when (event) {
                     is UiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(

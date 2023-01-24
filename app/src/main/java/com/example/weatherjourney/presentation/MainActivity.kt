@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
         val permissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
-            viewModel.onEvent(WeatherInfoEvent.OnStateInit(isGranted))
+            viewModel.onEvent(WeatherInfoEvent.OnAppInit(isGranted))
         }
         permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }

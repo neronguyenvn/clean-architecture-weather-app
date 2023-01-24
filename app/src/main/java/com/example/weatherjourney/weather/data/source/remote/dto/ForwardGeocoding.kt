@@ -14,5 +14,7 @@ data class ForwardGeocodingResult(
     val admin1: String = "",
     val admin2: String = "",
     val country: String,
-    @SerialName("country_code") val countryCode: String
+    @SerialName("country_code") val countryCode: String,
+    val latitude: Double,
+    val longitude: Double
 )

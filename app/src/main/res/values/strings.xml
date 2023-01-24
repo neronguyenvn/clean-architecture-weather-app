@@ -16,8 +16,8 @@
 
     <string name="temperature">%s\u00B0</string>
     <string name="celsius_symbol">\u2103</string>
-    <string name="daily_weather">%s%n%s</string>
-    <string name="max_min_temperature">%d\u00B0 / %d\u00B0</string>
+    <string name="daily_weather" formatted="false">%1$s%n%2$s</string>
+    <string name="max_min_temperature">%1$d\u00B0 / %2$d\u00B0</string>
 
     <string name="real_feel">Real feel</string>
     <string name="humidity">Humidity</string>

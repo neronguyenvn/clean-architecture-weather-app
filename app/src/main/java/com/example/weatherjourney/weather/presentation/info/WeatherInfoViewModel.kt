@@ -56,11 +56,18 @@ class WeatherInfoViewModel @Inject constructor(
         initialValue = Coordinate()
     )
 
+    init {
+        Log.d(TAG, "$TAG init")
+    }
+
     fun onEvent(event: WeatherInfoEvent) {
         when (event) {
             is WeatherInfoEvent.OnRefresh -> fetchWeather(lastCoordinate.value)
-
-            is WeatherInfoEvent.OnStateInit -> fetchLastWeatherInfo(event.isLocationPermissionGranted)
+            is WeatherInfoEvent.OnAppInit -> fetchLastWeatherInfo(event.isLocationPermissionGranted)
+            is WeatherInfoEvent.OnWeatherFetch -> {
+                uiState = uiState.copy(city = event.city)
+                fetchWeather(event.coordinate)
+            }
 
             is WeatherInfoEvent.OnSearchClick -> Unit // TODO: Implement later
             is WeatherInfoEvent.OnSettingClick -> Unit // TODO: Implement later
