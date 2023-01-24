@@ -3,11 +3,13 @@ package com.example.weatherjourney.weather.presentation.search
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -17,18 +19,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.weatherjourney.presentation.theme.Black30
 import com.example.weatherjourney.util.UiEvent
+import com.example.weatherjourney.weather.domain.model.SuggestionCity
 import com.example.weatherjourney.weather.presentation.search.component.SearchBar
 
 @Composable
 fun WeatherSearchScreen(
     onBackClick: () -> Unit,
-    onItemClick: (String) -> Unit,
+    onItemClick: (SuggestionCity) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WeatherSearchViewModel = hiltViewModel()
 ) {
@@ -69,8 +73,8 @@ fun WeatherSearchScreen(
 
 @Composable
 fun WeatherSearchScreenContent(
-    suggestionCities: List<String>,
-    onCityClick: (String) -> Unit,
+    suggestionCities: List<SuggestionCity>,
+    onCityClick: (SuggestionCity) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -80,19 +84,16 @@ fun WeatherSearchScreenContent(
             // TODO:  Show saved location
         } else {
             items(suggestionCities) { city ->
-                SuggestionCityItem(
-                    city = city,
-                    onCityClick = { selectedCountry ->
-                        onCityClick(selectedCountry)
-                    }
-                )
+                SuggestionCityItem(city = city) { selectedCity ->
+                    onCityClick(selectedCity)
+                }
             }
         }
     }
 }
 
 @Composable
-fun SuggestionCityItem(city: String, onCityClick: (String) -> Unit) {
+fun SuggestionCityItem(city: SuggestionCity, onCityClick: (SuggestionCity) -> Unit) {
     Column(
         modifier = Modifier
             .clickable(onClick = { onCityClick(city) })
@@ -100,7 +101,11 @@ fun SuggestionCityItem(city: String, onCityClick: (String) -> Unit) {
             .padding(horizontal = 16.dp)
     ) {
         Spacer(Modifier.height(12.dp))
-        Text(city, style = MaterialTheme.typography.bodyLarge)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(city.countryFlag, style = MaterialTheme.typography.bodyLarge)
+            Spacer(Modifier.width(8.dp))
+            Text(city.formattedLocationString, style = MaterialTheme.typography.bodyMedium)
+        }
         Spacer(Modifier.height(12.dp))
         Spacer(
             Modifier

@@ -40,10 +40,9 @@ class WeatherSearchViewModel @Inject constructor(
         if (city.isNotBlank()) {
             viewModelScope.launch {
                 when (val suggestionCities = repository.fetchSuggestionLocations(city)) {
-                    is Result.Success -> {
+                    is Result.Success ->
                         uiState =
-                            uiState.copy(suggestionCities = suggestionCities.data.results.map { it.getFormattedLocationString() })
-                    }
+                            uiState.copy(suggestionCities = suggestionCities.data)
 
                     is Result.Error -> {
                         val message = suggestionCities.toString()

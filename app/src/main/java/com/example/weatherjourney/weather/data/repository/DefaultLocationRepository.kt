@@ -4,10 +4,11 @@ import com.example.weatherjourney.di.DefaultDispatcher
 import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.weather.data.mapper.toCoordinate
 import com.example.weatherjourney.weather.data.mapper.toLocation
+import com.example.weatherjourney.weather.data.mapper.toSuggestionCity
 import com.example.weatherjourney.weather.data.mapper.toUnifiedCoordinate
 import com.example.weatherjourney.weather.data.source.LocationDataSource
-import com.example.weatherjourney.weather.data.source.remote.dto.ForwardGeocoding
 import com.example.weatherjourney.weather.domain.model.Coordinate
+import com.example.weatherjourney.weather.domain.model.SuggestionCity
 import com.example.weatherjourney.weather.domain.repository.LocationRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
@@ -51,8 +52,11 @@ class DefaultLocationRepository(
             }
         }
 
-    override suspend fun fetchSuggestionLocations(city: String): Result<ForwardGeocoding> =
-        locationRemoteDataSource.fetchSuggestionLocations(city)
+    override suspend fun fetchSuggestionLocations(city: String): Result<List<SuggestionCity>> =
+        when (val suggestions = locationRemoteDataSource.fetchSuggestionLocations(city)) {
+            is Result.Success -> Result.Success(suggestions.data.results.map { it.toSuggestionCity() })
+            is Result.Error -> suggestions
+        }
 
     private suspend fun updateLocationFromRemote(coordinate: Coordinate) {
         when (val city = locationRemoteDataSource.getCityName(coordinate)) {
