@@ -12,12 +12,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.weatherjourney.presentation.theme.Black30
+import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.weather.presentation.search.component.SearchBar
 
 @Composable
@@ -25,9 +30,11 @@ fun WeatherSearchScreen(
     onBackClick: () -> Unit,
     onItemClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: WeatherSearchViewModel = viewModel()
+    viewModel: WeatherSearchViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -45,15 +52,23 @@ fun WeatherSearchScreen(
         WeatherSearchScreenContent(
             suggestionCities = uiState.suggestionCities,
             onCityClick = onItemClick,
-            modifier = Modifier.padding(paddingValues),
-            isSearching = uiState.isSearching
+            modifier = Modifier.padding(paddingValues)
         )
+
+        LaunchedEffect(true) {
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    is UiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(
+                        event.message.asString(context)
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
 fun WeatherSearchScreenContent(
-    isSearching: Boolean,
     suggestionCities: List<String>,
     onCityClick: (String) -> Unit,
     modifier: Modifier = Modifier

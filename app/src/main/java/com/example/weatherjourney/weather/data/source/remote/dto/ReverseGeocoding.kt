@@ -19,5 +19,6 @@ data class Components(
     val region: String = "",
     val country: String = ""
 ) {
-    fun getData() = listOf(county, city, region, country)
+    fun getFormattedLocationString() =
+        listOf(county, city, region, country).filter { it.isNotBlank() }.joinToString(", ")
 }

@@ -5,17 +5,27 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.weatherjourney.util.Result
+import com.example.weatherjourney.util.UiEvent
+import com.example.weatherjourney.util.UiText
+import com.example.weatherjourney.weather.domain.repository.LocationRepository
 import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.OnCityUpdate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class WeatherSearchViewModel @Inject constructor() : ViewModel() {
+class WeatherSearchViewModel @Inject constructor(
+    private val repository: LocationRepository
+) : ViewModel() {
 
     var uiState by mutableStateOf(WeatherSearchUiState())
         private set
+
+    private val _uiEvent = Channel<UiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     fun onEvent(event: WeatherSearchEvent) {
         when (event) {
@@ -27,21 +37,20 @@ class WeatherSearchViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun fetchSuggestionCities(city: String) {
-        viewModelScope.launch {
-            uiState = uiState.copy(isSearching = true)
-            delay(500)
-            uiState = uiState.copy(
-                suggestionCities = if (city.isNotBlank()) {
-                    listOf(
-                        "\uD83C\uDDFA\uD83C\uDDF8  United States",
-                        "\uD83C\uDDFA\uD83C\uDDF8  United States",
-                        "\uD83C\uDDFA\uD83C\uDDF8  United States"
-                    )
-                } else {
-                    emptyList()
+        if (city.isNotBlank()) {
+            viewModelScope.launch {
+                when (val suggestionCities = repository.fetchSuggestionLocations(city)) {
+                    is Result.Success -> {
+                        uiState =
+                            uiState.copy(suggestionCities = suggestionCities.data.results.map { it.getFormattedLocationString() })
+                    }
+
+                    is Result.Error -> {
+                        val message = suggestionCities.toString()
+                        _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString(message)))
+                    }
                 }
-            )
-            uiState = uiState.copy(isSearching = false)
+            }
         }
     }
 }

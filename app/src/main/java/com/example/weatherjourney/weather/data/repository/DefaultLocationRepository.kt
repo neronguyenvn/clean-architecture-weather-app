@@ -6,6 +6,7 @@ import com.example.weatherjourney.weather.data.mapper.toCoordinate
 import com.example.weatherjourney.weather.data.mapper.toLocation
 import com.example.weatherjourney.weather.data.mapper.toUnifiedCoordinate
 import com.example.weatherjourney.weather.data.source.LocationDataSource
+import com.example.weatherjourney.weather.data.source.remote.dto.ForwardGeocoding
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.repository.LocationRepository
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -20,22 +21,6 @@ class DefaultLocationRepository(
     private val client: FusedLocationProviderClient,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : LocationRepository {
-
-    override suspend fun getCoordinateByCity(city: String): Result<Coordinate> {
-/*        return when (val coordinate = locationLocalDataSource.getCoordinate(city)) {
-            is Result.Success -> coordinate
-            is Result.Error -> {
-                try {
-                    updateLocationFromRemote(city)
-                } catch (ex: Exception) {
-                    return Result.Error(ex)
-                }
-                locationLocalDataSource.getCoordinate(city)
-            }
-        }*/
-        // TODO: Fix with new autocomplete api
-        return Result.Success(Coordinate())
-    }
 
     override suspend fun getCityByCoordinate(coordinate: Coordinate): Result<String> {
         return when (
@@ -66,15 +51,8 @@ class DefaultLocationRepository(
             }
         }
 
-/*    private suspend fun updateLocationFromRemote(city: String) {
-        when (val coordinate = locationRemoteDataSource.getCoordinate(city)) {
-            is Result.Success -> locationLocalDataSource.saveLocation(
-                coordinate.data.toUnifiedCoordinate().toLocation(city)
-            )
-            is Result.Error -> throw coordinate.exception
-        }
-        // TODO: Fix with new autocomplete api
-    }*/
+    override suspend fun fetchSuggestionLocations(city: String): Result<ForwardGeocoding> =
+        locationRemoteDataSource.fetchSuggestionLocations(city)
 
     private suspend fun updateLocationFromRemote(coordinate: Coordinate) {
         when (val city = locationRemoteDataSource.getCityName(coordinate)) {

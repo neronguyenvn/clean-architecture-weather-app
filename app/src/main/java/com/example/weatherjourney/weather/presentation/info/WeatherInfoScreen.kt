@@ -86,9 +86,7 @@ fun WeatherInfoScreen(
             viewModel.uiEvent.collect { event ->
                 when (event) {
                     is UiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(
-                        event.message.asString(
-                            context
-                        )
+                        event.message.asString(context)
                     )
                 }
             }

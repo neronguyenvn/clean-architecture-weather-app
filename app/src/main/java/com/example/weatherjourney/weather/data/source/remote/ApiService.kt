@@ -2,6 +2,7 @@ package com.example.weatherjourney.weather.data.source.remote
 
 import com.example.weatherjourney.BuildConfig
 import com.example.weatherjourney.weather.data.source.remote.dto.AllWeather
+import com.example.weatherjourney.weather.data.source.remote.dto.ForwardGeocoding
 import com.example.weatherjourney.weather.data.source.remote.dto.ReverseGeocoding
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -26,9 +27,16 @@ interface ApiService {
         @Query("appid") key: String = BuildConfig.OPENWEATHER_API_KEY
     ): AllWeather
 
+    @GET
+    suspend fun getForwardGeocoding(
+        @Url url: String = OPENMETEO_BASE_URL,
+        @Query("name") name: String
+    ): ForwardGeocoding
+
     companion object {
         const val OPENCAGE_BASE_URL = "https://api.opencagedata.com"
         const val OPENWEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5/onecall"
         const val OPENWEATHER_IMAGE_BASE_URL = "https://openweathermap.org/img/wn/"
+        const val OPENMETEO_BASE_URL = "https://geocoding-api.open-meteo.com/v1/search"
     }
 }
