@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -20,9 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,6 +33,7 @@ import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.theme.Black30
 import com.example.weatherjourney.presentation.theme.Gray
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchBar(
     value: String,
@@ -39,6 +43,7 @@ fun SearchBar(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
+    val keyboardManager = LocalSoftwareKeyboardController.current
 
     Column(modifier) {
         Row(
@@ -65,6 +70,9 @@ fun SearchBar(
                     onValueChange = onValueChange,
                     textStyle = MaterialTheme.typography.bodyLarge,
                     singleLine = true,
+                    keyboardActions = KeyboardActions(
+                        onDone = { keyboardManager?.hide() }
+                    ),
                     modifier = Modifier.focusRequester(focusRequester)
                 )
             }
@@ -77,7 +85,12 @@ fun SearchBar(
                 }
             }
         }
-        Spacer(Modifier.fillMaxWidth().height(1.dp).background(Black30))
+        Spacer(
+            Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(Black30)
+        )
     }
 
     LaunchedEffect(true) {

@@ -6,25 +6,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.weatherjourney.R
 import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.util.UiText
-import com.example.weatherjourney.util.WhileUiSubscribed
 import com.example.weatherjourney.weather.data.mapper.toCurrentWeather
 import com.example.weatherjourney.weather.data.mapper.toDailyWeather
 import com.example.weatherjourney.weather.data.mapper.toHourlyWeather
+import com.example.weatherjourney.weather.data.mapper.toUnifiedCoordinate
 import com.example.weatherjourney.weather.data.source.remote.dto.AllWeather
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.repository.LocationRepository
 import com.example.weatherjourney.weather.domain.repository.WeatherRepository
 import com.example.weatherjourney.weather.util.isValid
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,10 +39,6 @@ class WeatherInfoViewModel @Inject constructor(
     private val preferenceRepository: PreferenceRepository
 ) : ViewModel() {
 
-    init {
-        Log.d(TAG, "$TAG init")
-    }
-
     var uiState by mutableStateOf(WeatherInfoUiState())
         private set
 
@@ -50,41 +47,75 @@ class WeatherInfoViewModel @Inject constructor(
 
     val isLastWeatherInfoLoading = MutableStateFlow(true)
 
-    private val lastCoordinate: StateFlow<Coordinate> = preferenceRepository.coordinateFlow.stateIn(
-        scope = viewModelScope,
-        started = WhileUiSubscribed,
-        initialValue = Coordinate()
-    )
-
     init {
         Log.d(TAG, "$TAG init")
     }
 
     fun onEvent(event: WeatherInfoEvent) {
         when (event) {
-            is WeatherInfoEvent.OnRefresh -> fetchWeather(lastCoordinate.value)
-            is WeatherInfoEvent.OnAppInit -> initApp(event.isLocationPermissionGranted)
-
-            is WeatherInfoEvent.OnWeatherFetch -> {
-                uiState = uiState.copy(city = event.city)
-                fetchWeather(event.coordinate)
+            is WeatherInfoEvent.OnRefresh -> viewModelScope.launch {
+                fetchWeather(preferenceRepository.getLastCoordinate())
             }
 
-            is WeatherInfoEvent.OnSearchClick -> Unit // TODO: Implement later
-            is WeatherInfoEvent.OnSettingClick -> Unit // TODO: Implement later
+            is WeatherInfoEvent.OnAppInit -> initApp(event.isLocationPermissionGranted)
+            is WeatherInfoEvent.OnFetchWeatherFromSearch -> {
+                viewModelScope.launch {
+                    event.apply {
+                        uiState = uiState.copy(city = city)
+                        fetchWeather(coordinate).join()
+                        if (!checkIsLocationSaved(coordinate)) {
+                            _uiEvent.send(
+                                UiEvent.ShowSnackbar(
+                                    message = UiText.StringResource(R.string.add_this_location),
+                                    actionLabel = R.string.add
+                                )
+                            )
+                            _uiEvent.send(
+                                UiEvent.ShowSnackbar(
+                                    message = UiText.StringResource(R.string.add_this_location),
+                                    actionLabel = R.string.add
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+
+            is WeatherInfoEvent.OnCacheInfo -> saveLocation()
         }
     }
 
+    private fun saveLocation() {
+        viewModelScope.launch {
+            val coordinate = preferenceRepository.getLastCoordinate()
+            locationRepository.saveLocation(uiState.city, coordinate)
+            _uiEvent.send(UiEvent.ShowSnackbar(UiText.StringResource(R.string.location_saved)))
+            _uiEvent.send(UiEvent.ShowSnackbar(UiText.StringResource(R.string.location_saved)))
+        }
+    }
+
+    private suspend fun checkIsLocationSaved(coordinate: Coordinate): Boolean {
+        val result = viewModelScope.async {
+            locationRepository.checkIsLocationSaved(coordinate)
+        }
+        return result.await()
+    }
+
     private fun initApp(isLocationPermissionGranted: Boolean) {
-        if (lastCoordinate.value.isValid()) {
-            fetchWeather(lastCoordinate.value)
-        } else {
-            if (isLocationPermissionGranted) {
-                fetchCurrentLocationWeather()
+        viewModelScope.launch {
+            val lastCoordinate = preferenceRepository.getLastCoordinate()
+
+            if (lastCoordinate.isValid()) {
+                getAndUpdateCityByCoordinate(lastCoordinate)
+                fetchWeather(lastCoordinate)
             } else {
-                viewModelScope.launch {
-                    _uiEvent.send(UiEvent.StartWithSearchRoute)
-                    isLastWeatherInfoLoading.value = false
+                if (isLocationPermissionGranted) {
+                    fetchCurrentLocationWeather()
+                } else {
+                    viewModelScope.launch {
+                        _uiEvent.send(UiEvent.StartWithSearchRoute)
+                        isLastWeatherInfoLoading.value = false
+                    }
                 }
             }
         }
@@ -92,7 +123,6 @@ class WeatherInfoViewModel @Inject constructor(
 
     private fun fetchCurrentLocationWeather() {
         Log.d(TAG, "fetchLocationAllWeather() called")
-        uiState = uiState.copy(isLoading = true)
         viewModelScope.launch {
             when (val coordinate = locationRepository.getCurrentCoordinate()) {
                 is Result.Success -> {
@@ -121,9 +151,10 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
-    private fun fetchWeather(coordinate: Coordinate) {
+    private fun fetchWeather(coordinate: Coordinate): Job {
         Log.d(TAG, "fetchWeather() called")
-        viewModelScope.launch {
+        return viewModelScope.launch {
+            uiState = uiState.copy(isLoading = true)
             when (val weather = weatherRepository.fetchAllWeather(coordinate)) {
                 is Result.Success -> {
                     updateWeatherState(weather.data)
@@ -141,22 +172,23 @@ class WeatherInfoViewModel @Inject constructor(
 
     private fun updateWeatherState(weather: AllWeather) {
         val timezoneOffset = weather.timezoneOffset
-        uiState = uiState.copy(
-            weatherState = WeatherInfo(
-                current = weather.current.toCurrentWeather(
-                    timezoneOffset,
-                    weather.hourly.first().precipitationChance
+        uiState =
+            uiState.copy(
+                weatherState = WeatherInfo(
+                    current = weather.current.toCurrentWeather(
+                        timezoneOffset,
+                        weather.hourly.first().precipitationChance
+                    ),
+                    listDaily = weather.daily.map { it.toDailyWeather(timezoneOffset) },
+                    listHourly = weather.hourly.map { it.toHourlyWeather(timezoneOffset) }
                 ),
-                listDaily = weather.daily.map { it.toDailyWeather(timezoneOffset) },
-                listHourly = weather.hourly.map { it.toHourlyWeather(timezoneOffset) }
-            ),
-            isLoading = false
-        )
+                isLoading = false
+            )
     }
 
     private fun updateCachedCoordinate(coordinate: Coordinate) {
         viewModelScope.launch {
-            preferenceRepository.saveCoordinate(coordinate)
+            preferenceRepository.saveCoordinate(coordinate.toUnifiedCoordinate())
         }
     }
 }

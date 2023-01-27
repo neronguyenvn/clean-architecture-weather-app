@@ -14,11 +14,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,6 +31,7 @@ import com.example.weatherjourney.weather.presentation.search.component.SearchBa
 
 @Composable
 fun WeatherSearchScreen(
+    snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     onItemClick: (SuggestionCity) -> Unit,
     modifier: Modifier = Modifier,
@@ -38,11 +39,11 @@ fun WeatherSearchScreen(
 ) {
     val uiState = viewModel.uiState
     val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             SearchBar(
                 value = uiState.city,
@@ -65,6 +66,7 @@ fun WeatherSearchScreen(
                     is UiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(
                         event.message.asString(context)
                     )
+
                     else -> Unit
                 }
             }
@@ -82,7 +84,7 @@ fun WeatherSearchScreenContent(
         modifier = modifier.fillMaxWidth()
     ) {
         if (suggestionCities.isEmpty()) {
-            // TODO:  Show saved location
+            item { }
         } else {
             items(suggestionCities) { city ->
                 SuggestionCityItem(city = city) { selectedCity ->

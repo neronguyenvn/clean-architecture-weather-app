@@ -4,13 +4,12 @@ import com.example.weatherjourney.weather.domain.model.Coordinate
 
 sealed class WeatherInfoEvent {
 
-    object OnSearchClick : WeatherInfoEvent()
-
-    object OnSettingClick : WeatherInfoEvent()
-
     data class OnAppInit(val isLocationPermissionGranted: Boolean) : WeatherInfoEvent()
 
-    data class OnWeatherFetch(val city: String, val coordinate: Coordinate) : WeatherInfoEvent()
+    data class OnFetchWeatherFromSearch(val city: String, val coordinate: Coordinate) :
+        WeatherInfoEvent()
+
+    object OnCacheInfo : WeatherInfoEvent()
 
     object OnRefresh : WeatherInfoEvent()
 }

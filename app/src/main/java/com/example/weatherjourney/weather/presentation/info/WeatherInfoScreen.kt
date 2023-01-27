@@ -16,12 +16,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,6 +55,7 @@ import com.example.weatherjourney.weather.util.isValid
 fun WeatherInfoScreen(
     city: String,
     coordinate: Coordinate,
+    snackbarHostState: SnackbarHostState,
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -62,7 +64,6 @@ fun WeatherInfoScreen(
 ) {
     val uiState = viewModel.uiState
     val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -88,14 +89,29 @@ fun WeatherInfoScreen(
 
         LaunchedEffect(true) {
             if (coordinate.isValid()) {
-                viewModel.onEvent(WeatherInfoEvent.OnWeatherFetch(city, coordinate))
+                viewModel.onEvent(WeatherInfoEvent.OnFetchWeatherFromSearch(city, coordinate))
             }
 
             viewModel.uiEvent.collect { event ->
                 when (event) {
-                    is UiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(
-                        event.message.asString(context)
-                    )
+                    is UiEvent.ShowSnackbar -> {
+                        val result = snackbarHostState.showSnackbar(
+                            message = event.message.asString(context),
+                            actionLabel = if (event.actionLabel == 0) {
+                                null
+                            } else {
+                                context.getString(
+                                    event.actionLabel
+                                )
+                            },
+                            duration = SnackbarDuration.Short
+                        )
+                        if (result == SnackbarResult.ActionPerformed) {
+                            when (event.actionLabel) {
+                                R.string.add -> viewModel.onEvent(WeatherInfoEvent.OnCacheInfo)
+                            }
+                        }
+                    }
 
                     else -> Unit
                 }

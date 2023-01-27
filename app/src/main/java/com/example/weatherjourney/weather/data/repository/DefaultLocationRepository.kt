@@ -23,20 +23,27 @@ class DefaultLocationRepository(
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : LocationRepository {
 
-    override suspend fun getCityByCoordinate(coordinate: Coordinate): Result<String> {
-        return when (
-            val city =
-                locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
-        ) {
-            is Result.Success -> city
-            is Result.Error -> {
-                try {
-                    updateLocationFromRemote(coordinate)
-                } catch (ex: Exception) {
-                    return Result.Error(ex)
+    override suspend fun getCityByCoordinate(
+        coordinate: Coordinate,
+        forceCache: Boolean
+    ): Result<String> {
+        return if (forceCache) {
+            when (
+                val city =
+                    locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
+            ) {
+                is Result.Success -> city
+                is Result.Error -> {
+                    try {
+                        updateLocationFromRemote(coordinate)
+                    } catch (ex: Exception) {
+                        return Result.Error(ex)
+                    }
+                    locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
                 }
-                locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
             }
+        } else {
+            locationRemoteDataSource.getCityName(coordinate)
         }
     }
 
@@ -58,11 +65,22 @@ class DefaultLocationRepository(
             is Result.Error -> suggestions
         }
 
+    override suspend fun checkIsLocationSaved(coordinate: Coordinate): Boolean =
+        when (locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())) {
+            is Result.Success -> true
+            is Result.Error -> false
+        }
+
+    override suspend fun saveLocation(city: String, coordinate: Coordinate) {
+        locationLocalDataSource.saveLocation(coordinate.toUnifiedCoordinate().toLocation(city))
+    }
+
     private suspend fun updateLocationFromRemote(coordinate: Coordinate) {
         when (val city = locationRemoteDataSource.getCityName(coordinate)) {
             is Result.Success -> locationLocalDataSource.saveLocation(
                 coordinate.toUnifiedCoordinate().toLocation(city.data)
             )
+
             is Result.Error -> throw city.exception
         }
     }

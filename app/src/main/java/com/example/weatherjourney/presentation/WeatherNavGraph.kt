@@ -1,5 +1,6 @@
 package com.example.weatherjourney.presentation
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -25,6 +26,8 @@ fun WeatherNavGraph(
         WeatherNavigationActions(navController)
     }
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -45,12 +48,14 @@ fun WeatherNavGraph(
             WeatherInfoScreen(
                 city = city,
                 coordinate = Coordinate(latitude.toDouble(), longitude.toDouble()),
+                snackbarHostState = snackbarHostState,
                 onSearchClick = { navActions.navigateToSearch() },
-                onSettingClick = {}
+                onSettingClick = {} // TODO: Implement later
             )
         }
         composable(WeatherDestinations.SEARCH_ROUTE) {
             WeatherSearchScreen(
+                snackbarHostState = snackbarHostState,
                 onBackClick = { navController.popBackStack() },
                 onItemClick = {
                     navActions.navigateToInfo(
