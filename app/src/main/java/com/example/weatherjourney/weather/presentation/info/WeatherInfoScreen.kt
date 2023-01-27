@@ -96,6 +96,8 @@ fun WeatherInfoScreen(
                     is UiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(
                         event.message.asString(context)
                     )
+
+                    else -> Unit
                 }
             }
         }

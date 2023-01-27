@@ -7,10 +7,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.example.weatherjourney.presentation.theme.WeatherTheme
+import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.weather.presentation.info.WeatherInfoEvent
 import com.example.weatherjourney.weather.presentation.info.WeatherInfoViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -18,13 +22,28 @@ class MainActivity : ComponentActivity() {
     private val viewModel: WeatherInfoViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        installSplashScreen().setKeepOnScreenCondition {
+            viewModel.isLastWeatherInfoLoading.value
+        }
 
         checkAndInitWeatherState()
 
-        splashScreen.setKeepOnScreenCondition {
-            viewModel.isLastWeatherInfoLoading.value
+        lifecycleScope.launch {
+            viewModel.uiEvent.flowWithLifecycle(lifecycle).collect { event ->
+                when (event) {
+                    is UiEvent.StartWithSearchRoute -> {
+                        setContent {
+                            WeatherTheme {
+                                WeatherNavGraph(startDestination = WeatherDestinations.SEARCH_ROUTE)
+                            }
+                        }
+                    }
+
+                    else -> Unit
+                }
+            }
         }
 
         setContent {

@@ -63,7 +63,8 @@ class WeatherInfoViewModel @Inject constructor(
     fun onEvent(event: WeatherInfoEvent) {
         when (event) {
             is WeatherInfoEvent.OnRefresh -> fetchWeather(lastCoordinate.value)
-            is WeatherInfoEvent.OnAppInit -> fetchLastWeatherInfo(event.isLocationPermissionGranted)
+            is WeatherInfoEvent.OnAppInit -> initApp(event.isLocationPermissionGranted)
+
             is WeatherInfoEvent.OnWeatherFetch -> {
                 uiState = uiState.copy(city = event.city)
                 fetchWeather(event.coordinate)
@@ -74,14 +75,17 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
-    private fun fetchLastWeatherInfo(isLocationPermissionGranted: Boolean) {
+    private fun initApp(isLocationPermissionGranted: Boolean) {
         if (lastCoordinate.value.isValid()) {
             fetchWeather(lastCoordinate.value)
         } else {
             if (isLocationPermissionGranted) {
                 fetchCurrentLocationWeather()
             } else {
-                // TODO: Navigate to search
+                viewModelScope.launch {
+                    _uiEvent.send(UiEvent.StartWithSearchRoute)
+                    isLastWeatherInfoLoading.value = false
+                }
             }
         }
     }

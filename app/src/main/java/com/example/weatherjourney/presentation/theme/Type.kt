@@ -9,5 +9,5 @@ val typography = Typography()
 
 val superscript = SpanStyle(
     baselineShift = BaselineShift.Superscript,
-    fontSize = 24.sp
+    fontSize = 20.sp
 )
