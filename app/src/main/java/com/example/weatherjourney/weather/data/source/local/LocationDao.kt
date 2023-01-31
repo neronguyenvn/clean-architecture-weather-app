@@ -15,4 +15,7 @@ interface LocationDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(location: LocationEntity)
+
+    @Query("SELECT * FROM location")
+    fun getLocations(): Flow<List<LocationEntity>>
 }

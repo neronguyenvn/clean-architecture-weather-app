@@ -32,6 +32,7 @@ fun CurrentWeatherDto.toCurrentWeather(
         date = timestamp.toDateString(timezoneOffset, DATE_PATTERN),
         temp = temp.roundToInt(),
         weather = weatherItem.first().description.capitalizeByWord(),
+        imageUrl = getImageUrl(weatherItem.first().imageUri),
         realFeelTemp = realFeelTemp.roundToInt(),
         humidity = humidity,
         rainChance = (precipitationChance * 100).toInt(),

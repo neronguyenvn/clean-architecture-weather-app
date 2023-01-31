@@ -1,6 +1,7 @@
 package com.example.weatherjourney.weather.domain.repository
 
 import com.example.weatherjourney.util.Result
+import com.example.weatherjourney.weather.data.source.local.entity.LocationEntity
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.SuggestionCity
 
@@ -13,5 +14,8 @@ interface LocationRepository {
     suspend fun checkIsLocationSaved(coordinate: Coordinate): Boolean
 
     suspend fun getCityByCoordinate(coordinate: Coordinate, forceCache: Boolean = false): Result<String>
+
     suspend fun saveLocation(city: String, coordinate: Coordinate)
+
+    suspend fun getLocations(): List<LocationEntity>
 }

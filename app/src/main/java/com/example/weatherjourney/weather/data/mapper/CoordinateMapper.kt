@@ -21,6 +21,7 @@ fun Coordinate.toUnifiedCoordinate(): Coordinate {
     )
 }
 
-fun Coordinate.toLocation(city: String): LocationEntity {
-    return LocationEntity(city = city, latitude = latitude, longitude = longitude)
-}
+fun Coordinate.toLocation(city: String): LocationEntity =
+    LocationEntity(city = city, latitude = latitude, longitude = longitude)
+
+fun LocationEntity.toCoordinate(): Coordinate = Coordinate(latitude, longitude)

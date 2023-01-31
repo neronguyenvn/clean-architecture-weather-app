@@ -57,13 +57,7 @@ fun WeatherNavGraph(
             WeatherSearchScreen(
                 snackbarHostState = snackbarHostState,
                 onBackClick = { navController.popBackStack() },
-                onItemClick = {
-                    navActions.navigateToInfo(
-                        it.formattedLocationString,
-                        it.latitude,
-                        it.longitude
-                    )
-                }
+                onItemClick = { navActions.navigateToInfo(it.location, it.coordinate) }
             )
         }
     }

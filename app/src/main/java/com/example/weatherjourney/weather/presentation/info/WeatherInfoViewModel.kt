@@ -172,18 +172,17 @@ class WeatherInfoViewModel @Inject constructor(
 
     private fun updateWeatherState(weather: AllWeather) {
         val timezoneOffset = weather.timezoneOffset
-        uiState =
-            uiState.copy(
-                weatherState = WeatherInfo(
-                    current = weather.current.toCurrentWeather(
-                        timezoneOffset,
-                        weather.hourly.first().precipitationChance
-                    ),
-                    listDaily = weather.daily.map { it.toDailyWeather(timezoneOffset) },
-                    listHourly = weather.hourly.map { it.toHourlyWeather(timezoneOffset) }
+        uiState = uiState.copy(
+            weatherState = WeatherInfo(
+                current = weather.current.toCurrentWeather(
+                    timezoneOffset,
+                    weather.hourly.first().precipitationChance
                 ),
-                isLoading = false
-            )
+                listDaily = weather.daily.map { it.toDailyWeather(timezoneOffset) },
+                listHourly = weather.hourly.map { it.toHourlyWeather(timezoneOffset) }
+            ),
+            isLoading = false
+        )
     }
 
     private fun updateCachedCoordinate(coordinate: Coordinate) {

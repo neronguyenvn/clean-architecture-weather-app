@@ -22,10 +22,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.theme.Black30
 import com.example.weatherjourney.util.UiEvent
+import com.example.weatherjourney.weather.domain.model.CityUiModel
+import com.example.weatherjourney.weather.domain.model.SavedCity
 import com.example.weatherjourney.weather.domain.model.SuggestionCity
 import com.example.weatherjourney.weather.presentation.search.component.SearchBar
 
@@ -33,7 +41,7 @@ import com.example.weatherjourney.weather.presentation.search.component.SearchBa
 fun WeatherSearchScreen(
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
-    onItemClick: (SuggestionCity) -> Unit,
+    onItemClick: (CityUiModel) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WeatherSearchViewModel = hiltViewModel()
 ) {
@@ -55,12 +63,16 @@ fun WeatherSearchScreen(
         }
     ) { paddingValues ->
         WeatherSearchScreenContent(
+            city = uiState.city,
+            savedCities = uiState.savedCities,
             suggestionCities = uiState.suggestionCities,
             onCityClick = onItemClick,
             modifier = Modifier.padding(paddingValues)
         )
 
         LaunchedEffect(true) {
+            viewModel.onEvent(WeatherSearchEvent.OnFetchWeatherOfSavedLocations)
+
             viewModel.uiEvent.collect { event ->
                 when (event) {
                     is UiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(
@@ -76,19 +88,36 @@ fun WeatherSearchScreen(
 
 @Composable
 fun WeatherSearchScreenContent(
+    city: String,
+    savedCities: List<SavedCity>,
     suggestionCities: List<SuggestionCity>,
-    onCityClick: (SuggestionCity) -> Unit,
+    onCityClick: (CityUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
         modifier = modifier.fillMaxWidth()
     ) {
-        if (suggestionCities.isEmpty()) {
-            item { }
-        } else {
-            items(suggestionCities) { city ->
-                SuggestionCityItem(city = city) { selectedCity ->
+        if (city.isBlank()) {
+            items(savedCities) { city ->
+                SavedCityItem(city = city) { selectedCity ->
                     onCityClick(selectedCity)
+                }
+            }
+        } else {
+            if (suggestionCities.isEmpty()) {
+                item {
+                    Text(
+                        stringResource(R.string.no_result),
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                    )
+                }
+            } else {
+                items(suggestionCities) { city ->
+                    SuggestionCityItem(city = city) { selectedCity ->
+                        onCityClick(selectedCity)
+                    }
                 }
             }
         }
@@ -96,18 +125,22 @@ fun WeatherSearchScreenContent(
 }
 
 @Composable
-fun SuggestionCityItem(city: SuggestionCity, onCityClick: (SuggestionCity) -> Unit) {
+fun SuggestionCityItem(
+    city: SuggestionCity,
+    modifier: Modifier = Modifier,
+    onCityClick: (SuggestionCity) -> Unit
+) {
     Column(
-        modifier = Modifier
-            .clickable(onClick = { onCityClick(city) })
+        modifier = modifier
+            .clickable { onCityClick(city) }
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
         Spacer(Modifier.height(12.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(city.countryFlag, style = MaterialTheme.typography.bodyLarge)
+            Text(city.countryFlag, style = MaterialTheme.typography.bodyMedium)
             Spacer(Modifier.width(8.dp))
-            Text(city.formattedLocationString, style = MaterialTheme.typography.bodyMedium)
+            Text(city.location, style = MaterialTheme.typography.bodyMedium)
         }
         Spacer(Modifier.height(12.dp))
         Spacer(
@@ -115,6 +148,42 @@ fun SuggestionCityItem(city: SuggestionCity, onCityClick: (SuggestionCity) -> Un
                 .fillMaxWidth()
                 .height(1.dp)
                 .background(Black30)
+        )
+    }
+}
+
+@Composable
+fun SavedCityItem(
+    city: SavedCity,
+    modifier: Modifier = Modifier,
+    onCityClick: (SavedCity) -> Unit
+) {
+    Row(
+        modifier = modifier
+            .clickable { onCityClick(city) }
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.daily_weather, city.location, city.weather),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(10f)
+        )
+        Spacer(Modifier.weight(1f))
+        Text(
+            stringResource(R.string.temperature, city.temp),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(Modifier.width(4.dp))
+        AsyncImage(
+            model = ImageRequest.Builder(context = LocalContext.current)
+                .data(city.imageUrl)
+                .crossfade(true)
+                .build(),
+            placeholder = painterResource(R.drawable.ic_loading),
+            error = painterResource(R.drawable.ic_broken_image),
+            contentDescription = null
         )
     }
 }

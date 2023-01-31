@@ -7,6 +7,7 @@ import com.example.weatherjourney.presentation.WeatherDestinationsArgs.LATITUDE_
 import com.example.weatherjourney.presentation.WeatherDestinationsArgs.LONGITUDE_ARG
 import com.example.weatherjourney.presentation.WeatherScreens.INFO_SCREEN
 import com.example.weatherjourney.presentation.WeatherScreens.SEARCH_SCREEN
+import com.example.weatherjourney.weather.domain.model.Coordinate
 
 object WeatherScreens {
     const val INFO_SCREEN = "infoScreen"
@@ -27,10 +28,10 @@ object WeatherDestinations {
 
 class WeatherNavigationActions(private val navController: NavController) {
 
-    fun navigateToInfo(city: String, latitude: Double, longitude: Double) {
+    fun navigateToInfo(city: String, coordinate: Coordinate) {
         navController.navigate(
             INFO_SCREEN.let {
-                "$it?$CITY_ARG=$city&$LATITUDE_ARG=$latitude&$LONGITUDE_ARG=$longitude"
+                "$it?$CITY_ARG=$city&$LATITUDE_ARG=${coordinate.latitude}&$LONGITUDE_ARG=${coordinate.longitude}"
             }
         ) {
             popUpTo(navController.graph.findStartDestination().id)

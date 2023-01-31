@@ -12,4 +12,6 @@ interface LocationDataSource {
     suspend fun saveLocation(location: LocationEntity)
 
     suspend fun fetchSuggestionLocations(city: String): Result<ForwardGeocoding>
+
+    suspend fun getLocations(): List<LocationEntity>
 }

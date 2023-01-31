@@ -7,6 +7,7 @@ import com.example.weatherjourney.weather.data.mapper.toLocation
 import com.example.weatherjourney.weather.data.mapper.toSuggestionCity
 import com.example.weatherjourney.weather.data.mapper.toUnifiedCoordinate
 import com.example.weatherjourney.weather.data.source.LocationDataSource
+import com.example.weatherjourney.weather.data.source.local.entity.LocationEntity
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.SuggestionCity
 import com.example.weatherjourney.weather.domain.repository.LocationRepository
@@ -74,6 +75,8 @@ class DefaultLocationRepository(
     override suspend fun saveLocation(city: String, coordinate: Coordinate) {
         locationLocalDataSource.saveLocation(coordinate.toUnifiedCoordinate().toLocation(city))
     }
+
+    override suspend fun getLocations(): List<LocationEntity> = locationLocalDataSource.getLocations()
 
     private suspend fun updateLocationFromRemote(coordinate: Coordinate) {
         when (val city = locationRemoteDataSource.getCityName(coordinate)) {

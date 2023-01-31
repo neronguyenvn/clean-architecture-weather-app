@@ -9,6 +9,7 @@
     <string name="add_this_location">Add this location to your list?</string>
     <string name="add">Add</string>
     <string name="location_saved">Location saved</string>
+    <string name="no_result">No results</string>
 
     <string name="location_permission_error">Location permission is not provided</string>
     <string name="no_internet_error">No internet connection</string>
