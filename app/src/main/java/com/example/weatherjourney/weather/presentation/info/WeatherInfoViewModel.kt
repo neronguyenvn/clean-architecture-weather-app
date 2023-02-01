@@ -141,7 +141,7 @@ class WeatherInfoViewModel @Inject constructor(
 
     private fun getAndUpdateCityByCoordinate(coordinate: Coordinate) {
         viewModelScope.launch {
-            when (val city = locationRepository.getCityByCoordinate(coordinate)) {
+            when (val city = locationRepository.getCityByCoordinate(coordinate, true)) {
                 is Result.Success -> uiState = uiState.copy(city = city.data)
                 is Result.Error -> {
                     val message = city.toString()

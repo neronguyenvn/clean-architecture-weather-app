@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -110,7 +113,9 @@ fun WeatherSearchScreenContent(
                         stringResource(R.string.no_result),
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
                     )
                 }
             } else {
@@ -165,6 +170,10 @@ fun SavedCityItem(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        if (city.isCurrentLocation) {
+            Icon(Icons.Outlined.LocationOn, null)
+            Spacer(Modifier.width(4.dp))
+        }
         Text(
             text = stringResource(R.string.daily_weather, city.location, city.weather),
             style = MaterialTheme.typography.bodyMedium,

@@ -1,6 +1,7 @@
 package com.example.weatherjourney.weather.data.source.local
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -18,4 +19,7 @@ interface LocationDao {
 
     @Query("SELECT * FROM location")
     fun getLocations(): Flow<List<LocationEntity>>
+
+    @Delete
+    suspend fun delete(location: LocationEntity)
 }

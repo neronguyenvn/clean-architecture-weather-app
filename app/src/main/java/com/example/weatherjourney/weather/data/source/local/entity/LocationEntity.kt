@@ -9,5 +9,6 @@ data class LocationEntity(
     val city: String,
     val latitude: Double,
     val longitude: Double,
+    val isCurrentLocation: Boolean = false,
     @PrimaryKey val id: String = UUID.randomUUID().toString()
 )

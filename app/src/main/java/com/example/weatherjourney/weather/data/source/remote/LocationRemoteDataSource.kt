@@ -27,4 +27,8 @@ class LocationRemoteDataSource(private val apiService: ApiService) : LocationDat
     override suspend fun getLocations(): List<LocationEntity> {
         throw Exception("Not required for the remote data source")
     }
+
+    override suspend fun deleteLocation(location: LocationEntity) {
+        throw Exception("Not required for the remote data source")
+    }
 }

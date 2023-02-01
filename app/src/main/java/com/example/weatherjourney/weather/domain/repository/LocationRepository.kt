@@ -13,9 +13,14 @@ interface LocationRepository {
 
     suspend fun checkIsLocationSaved(coordinate: Coordinate): Boolean
 
-    suspend fun getCityByCoordinate(coordinate: Coordinate, forceCache: Boolean = false): Result<String>
+    suspend fun getCityByCoordinate(
+        coordinate: Coordinate,
+        forceCacheCurrentLocation: Boolean = false
+    ): Result<String>
 
     suspend fun saveLocation(city: String, coordinate: Coordinate)
 
     suspend fun getLocations(): List<LocationEntity>
+
+    suspend fun deleteLocation(location: LocationEntity)
 }

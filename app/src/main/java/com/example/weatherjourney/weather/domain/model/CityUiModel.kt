@@ -15,6 +15,7 @@ class SavedCity(
     val weather: String,
     val temp: Int,
     val imageUrl: String,
+    val isCurrentLocation: Boolean,
     location: String,
     coordinate: Coordinate
 ) : CityUiModel(location, coordinate)

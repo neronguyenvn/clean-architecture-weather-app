@@ -26,9 +26,9 @@ class DefaultLocationRepository(
 
     override suspend fun getCityByCoordinate(
         coordinate: Coordinate,
-        forceCache: Boolean
+        forceCacheCurrentLocation: Boolean
     ): Result<String> {
-        return if (forceCache) {
+        return if (forceCacheCurrentLocation) {
             when (
                 val city =
                     locationLocalDataSource.getCityName(coordinate.toUnifiedCoordinate())
@@ -36,7 +36,7 @@ class DefaultLocationRepository(
                 is Result.Success -> city
                 is Result.Error -> {
                     try {
-                        updateLocationFromRemote(coordinate)
+                        updateCurrentLocationFromRemote(coordinate)
                     } catch (ex: Exception) {
                         return Result.Error(ex)
                     }
@@ -76,12 +76,17 @@ class DefaultLocationRepository(
         locationLocalDataSource.saveLocation(coordinate.toUnifiedCoordinate().toLocation(city))
     }
 
-    override suspend fun getLocations(): List<LocationEntity> = locationLocalDataSource.getLocations()
+    override suspend fun getLocations(): List<LocationEntity> =
+        locationLocalDataSource.getLocations()
 
-    private suspend fun updateLocationFromRemote(coordinate: Coordinate) {
+    override suspend fun deleteLocation(location: LocationEntity) =
+        locationLocalDataSource.deleteLocation(location)
+
+    private suspend fun updateCurrentLocationFromRemote(coordinate: Coordinate) {
         when (val city = locationRemoteDataSource.getCityName(coordinate)) {
             is Result.Success -> locationLocalDataSource.saveLocation(
                 coordinate.toUnifiedCoordinate().toLocation(city.data)
+                    .copy(isCurrentLocation = true)
             )
 
             is Result.Error -> throw city.exception

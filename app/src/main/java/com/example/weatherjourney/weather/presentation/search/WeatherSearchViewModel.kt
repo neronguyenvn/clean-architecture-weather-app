@@ -1,5 +1,6 @@
 package com.example.weatherjourney.weather.presentation.search
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,7 +11,6 @@ import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.util.UiText
 import com.example.weatherjourney.weather.data.mapper.toCoordinate
 import com.example.weatherjourney.weather.data.mapper.toCurrentWeather
-import com.example.weatherjourney.weather.data.source.local.entity.LocationEntity
 import com.example.weatherjourney.weather.domain.mapper.toSavedCity
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.CurrentWeather
@@ -21,6 +21,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private const val TAG = "WeatherSearchViewModel"
 
 @HiltViewModel
 class WeatherSearchViewModel @Inject constructor(
@@ -63,15 +65,31 @@ class WeatherSearchViewModel @Inject constructor(
     }
 
     private fun fetchWeatherOfSavedLocations() {
+        Log.d(TAG, "fetchWeatherOfSavedLocations() called")
         viewModelScope.launch {
-            val locations: List<LocationEntity> = locationRepository.getLocations()
+            var locations = locationRepository.getLocations()
+
+            val currentCoordinate = locationRepository.getCurrentCoordinate()
+            if (currentCoordinate is Result.Success) {
+                val savedCurrentLocation = locations.find { it.isCurrentLocation }
+                if (savedCurrentLocation != null && savedCurrentLocation.toCoordinate() != currentCoordinate.data) {
+                    launch { locationRepository.deleteLocation(savedCurrentLocation) }
+                    locationRepository.getCityByCoordinate(currentCoordinate.data, true)
+                    locations = locationRepository.getLocations()
+                }
+            }
+
             locations.forEach {
-                fetchWeatherOfSavedLocations(it.city, it.toCoordinate())
+                fetchWeatherOfSavedLocation(it.city, it.toCoordinate(), it.isCurrentLocation)
             }
         }
     }
 
-    private fun fetchWeatherOfSavedLocations(city: String, coordinate: Coordinate) {
+    private fun fetchWeatherOfSavedLocation(
+        city: String,
+        coordinate: Coordinate,
+        isCurrentLocation: Boolean
+    ) {
         viewModelScope.launch {
             when (val weather = weatherRepository.fetchAllWeather(coordinate)) {
                 is Result.Success -> {
@@ -86,8 +104,16 @@ class WeatherSearchViewModel @Inject constructor(
                     val newSavedCities = uiState.savedCities.toMutableList()
 
                     when (val index = newSavedCities.indexOfFirst { it.coordinate == coordinate }) {
-                        -1 -> newSavedCities.add(currentWeather.toSavedCity(city, coordinate))
-                        else -> newSavedCities[index] = currentWeather.toSavedCity(city, coordinate)
+                        -1 -> newSavedCities.add(
+                            currentWeather.toSavedCity(
+                                city,
+                                coordinate,
+                                isCurrentLocation
+                            )
+                        )
+
+                        else -> newSavedCities[index] =
+                            currentWeather.toSavedCity(city, coordinate, isCurrentLocation)
                     }
 
                     uiState = uiState.copy(savedCities = newSavedCities)

@@ -21,6 +21,8 @@ class LocationLocalDataSource(private val dao: LocationDao) : LocationDataSource
 
     override suspend fun getLocations(): List<LocationEntity> = dao.getLocations().first()
 
+    override suspend fun deleteLocation(location: LocationEntity) = dao.delete(location)
+
     override suspend fun fetchSuggestionLocations(city: String): Result<ForwardGeocoding> {
         throw Exception("Not required for the remote data source")
     }
