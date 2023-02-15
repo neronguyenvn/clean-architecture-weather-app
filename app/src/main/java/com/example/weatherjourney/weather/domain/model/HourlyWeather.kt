@@ -1,8 +1,10 @@
 package com.example.weatherjourney.weather.domain.model
 
+import com.example.weatherjourney.util.UiText
+
 data class HourlyWeather(
-    val date: String,
-    val imageUrl: String,
-    val temp: Int,
-    val windSpeed: Int
+    val date: UiText,
+    val temp: Double,
+    val windSpeed: Double,
+    val weatherType: WeatherType
 )

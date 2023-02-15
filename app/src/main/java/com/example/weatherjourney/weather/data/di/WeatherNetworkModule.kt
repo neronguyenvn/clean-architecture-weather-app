@@ -1,7 +1,7 @@
 package com.example.weatherjourney.weather.data.di
 
-import com.example.weatherjourney.weather.data.source.remote.ApiService
-import com.example.weatherjourney.weather.data.source.remote.ApiService.Companion.OPENCAGE_BASE_URL
+import com.example.weatherjourney.weather.data.remote.Api
+import com.example.weatherjourney.weather.data.remote.Api.Companion.OPENCAGE_BASE_URL
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -22,7 +22,7 @@ object WeatherNetworkModule {
 
     @Provides
     @Singleton
-    fun provideApiService(client: OkHttpClient): ApiService {
+    fun provideApiService(client: OkHttpClient): Api {
         val json = Json { ignoreUnknownKeys = true }
         val contentType = "application/json".toMediaType()
 

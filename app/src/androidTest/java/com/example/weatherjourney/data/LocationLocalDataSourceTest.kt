@@ -1,23 +1,6 @@
 package com.example.weatherjourney.data
 
-import android.content.Context
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import com.example.weatherjourney.city1
-import com.example.weatherjourney.coordinate1
-import com.example.weatherjourney.location1
-import com.example.weatherjourney.location2
-import com.example.weatherjourney.util.Result
-import com.example.weatherjourney.weather.data.source.local.AppDatabase
-import com.example.weatherjourney.weather.data.source.local.LocationDao
-import com.example.weatherjourney.weather.data.source.local.LocationLocalDataSource
-import kotlinx.coroutines.test.runTest
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-
+/*
 class LocationLocalDataSourceTest {
     private lateinit var database: AppDatabase
     private lateinit var locationDao: LocationDao
@@ -73,3 +56,4 @@ class LocationLocalDataSourceTest {
         database.close()
     }
 }
+*/

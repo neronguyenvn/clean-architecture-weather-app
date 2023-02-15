@@ -25,13 +25,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.weatherjourney.R
-import com.example.weatherjourney.presentation.theme.Black30
-import com.example.weatherjourney.presentation.theme.Gray
+import com.example.weatherjourney.presentation.theme.White70
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -61,14 +61,14 @@ fun SearchBar(
             Box(Modifier.weight(1.0f)) {
                 if (value.isBlank()) {
                     Text(
-                        color = Gray,
+                        color = White70,
                         text = stringResource(R.string.enter_location)
                     )
                 }
                 BasicTextField(
                     value = value,
                     onValueChange = onValueChange,
-                    textStyle = MaterialTheme.typography.bodyLarge,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
                     singleLine = true,
                     keyboardActions = KeyboardActions(
                         onDone = { keyboardManager?.hide() }
@@ -89,7 +89,7 @@ fun SearchBar(
             Modifier
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(Black30)
+                .background(White70)
         )
     }
 

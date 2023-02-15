@@ -1,54 +1,70 @@
 package com.example.weatherjourney.weather.data.mapper
 
 import com.example.weatherjourney.util.DATE_PATTERN
-import com.example.weatherjourney.util.DAY_NAME_IN_WEEK_PATTERN
 import com.example.weatherjourney.util.HOUR_PATTERN
-import com.example.weatherjourney.util.capitalizeByWord
-import com.example.weatherjourney.util.toDateString
-import com.example.weatherjourney.weather.data.source.remote.ApiService
-import com.example.weatherjourney.weather.data.source.remote.dto.CurrentWeatherDto
-import com.example.weatherjourney.weather.data.source.remote.dto.DailyWeatherDto
-import com.example.weatherjourney.weather.data.source.remote.dto.HourlyWeatherDto
+import com.example.weatherjourney.util.filterPastHours
+import com.example.weatherjourney.util.getCurrentDate
+import com.example.weatherjourney.util.toDate
+import com.example.weatherjourney.util.toDayNameInWeek
+import com.example.weatherjourney.weather.data.remote.dto.AllWeather
+import com.example.weatherjourney.weather.data.remote.dto.DailyWeatherDto
+import com.example.weatherjourney.weather.data.remote.dto.HourlyWeatherDto
+import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.CurrentWeather
 import com.example.weatherjourney.weather.domain.model.DailyWeather
 import com.example.weatherjourney.weather.domain.model.HourlyWeather
-import kotlin.math.roundToInt
+import com.example.weatherjourney.weather.domain.model.SavedCity
+import com.example.weatherjourney.weather.domain.model.WeatherType
 
-fun DailyWeatherDto.toDailyWeather(timezoneOffset: Int): DailyWeather {
-    return DailyWeather(
-        date = timestamp.toDateString(timezoneOffset, DAY_NAME_IN_WEEK_PATTERN),
-        weather = weatherItem.first().description.capitalizeByWord(),
-        maxTemp = temp.max.roundToInt(),
-        minTemp = temp.min.roundToInt(),
-        imageUrl = getImageUrl(weatherItem.first().imageUri)
-    )
+fun AllWeather.toCurrentWeather(timeZone: String): CurrentWeather {
+    this.hourly.apply {
+        return CurrentWeather(
+            date = getCurrentDate(timeZone, DATE_PATTERN),
+            temp = temperatures.first(),
+            windSpeed = windSpeeds.first(),
+            humidity = humidities.first(),
+            pressure = pressures.first(),
+            weatherType = WeatherType.fromWMO(weatherCodes.first())
+        )
+    }
 }
 
-fun CurrentWeatherDto.toCurrentWeather(
-    timezoneOffset: Int,
-    precipitationChance: Double
-): CurrentWeather {
-    return CurrentWeather(
-        date = timestamp.toDateString(timezoneOffset, DATE_PATTERN),
-        temp = temp.roundToInt(),
-        weather = weatherItem.first().description.capitalizeByWord(),
-        imageUrl = getImageUrl(weatherItem.first().imageUri),
-        realFeelTemp = realFeelTemp.roundToInt(),
-        humidity = humidity,
-        rainChance = (precipitationChance * 100).toInt(),
-        pressure = pressure,
-        visibility = visibility,
-        uvIndex = uvi.roundToInt()
-    )
+fun DailyWeatherDto.toDailyWeather(timeZone: String): List<DailyWeather> {
+    return time.mapIndexed { index, time ->
+        DailyWeather(
+            date = time.toDayNameInWeek(timeZone),
+            maxTemp = maxTemperatures[index],
+            minTemp = minTemperatures[index],
+            weatherType = WeatherType.fromWMO(weatherCodes[index])
+        )
+    }
 }
 
-fun HourlyWeatherDto.toHourlyWeather(timezoneOffset: Int): HourlyWeather {
-    return HourlyWeather(
-        date = timestamp.toDateString(timezoneOffset, HOUR_PATTERN),
-        temp = temp.roundToInt(),
-        windSpeed = windSpeed.roundToInt(),
-        imageUrl = getImageUrl(weatherItem.first().imageUri)
-    )
+fun HourlyWeatherDto.toHourlyWeather(timeZone: String): List<HourlyWeather> {
+    return time.filterPastHours().mapIndexed { index, time ->
+        HourlyWeather(
+            date = time.toDate(timeZone, HOUR_PATTERN),
+            temp = temperatures[index],
+            windSpeed = windSpeeds[index],
+            weatherType = WeatherType.fromWMO(weatherCodes[index])
+        )
+    }
 }
 
-private fun getImageUrl(uri: String) = "${ApiService.OPENWEATHER_IMAGE_BASE_URL}$uri@2x.png"
+fun AllWeather.toSavedCity(
+    cityAddress: String,
+    coordinate: Coordinate,
+    timeZone: String,
+    isCurrentLocation: Boolean
+): SavedCity {
+    this.hourly.apply {
+        return SavedCity(
+            temp = temperatures.first(),
+            weatherType = WeatherType.fromWMO(weatherCodes.first()),
+            cityAddress = cityAddress,
+            coordinate = coordinate,
+            isCurrentLocation = isCurrentLocation,
+            timeZone = timeZone
+        )
+    }
+}

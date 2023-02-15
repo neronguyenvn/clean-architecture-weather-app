@@ -21,6 +21,9 @@ import javax.inject.Singleton
 @Qualifier
 annotation class DefaultDispatcher
 
+@Qualifier
+annotation class IoDispatcher
+
 private const val USER_PREFERENCES = "user_preferences"
 
 @Module
@@ -42,5 +45,9 @@ object AppModule {
 
     @Provides
     @DefaultDispatcher
-    fun providesDefaultDispatcher() = Dispatchers.Default
+    fun provideDefaultDispatcher() = Dispatchers.Default
+
+    @Provides
+    @IoDispatcher
+    fun provideIoDispatcher() = Dispatchers.IO
 }

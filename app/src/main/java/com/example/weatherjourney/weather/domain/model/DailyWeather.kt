@@ -1,9 +1,10 @@
 package com.example.weatherjourney.weather.domain.model
 
+import com.example.weatherjourney.util.UiText
+
 data class DailyWeather(
-    val date: String,
-    val weather: String,
-    val imageUrl: String,
-    val maxTemp: Int,
-    val minTemp: Int
+    val date: UiText,
+    val maxTemp: Double,
+    val minTemp: Double,
+    val weatherType: WeatherType
 )

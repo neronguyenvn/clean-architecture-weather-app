@@ -10,9 +10,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.weatherjourney.presentation.WeatherDestinationsArgs.CITY_ARG
+import com.example.weatherjourney.presentation.WeatherDestinationsArgs.CITY_ADDRESS_ARG
 import com.example.weatherjourney.presentation.WeatherDestinationsArgs.LATITUDE_ARG
 import com.example.weatherjourney.presentation.WeatherDestinationsArgs.LONGITUDE_ARG
+import com.example.weatherjourney.presentation.WeatherDestinationsArgs.TIMEZONE_ARG
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.presentation.info.WeatherInfoScreen
 import com.example.weatherjourney.weather.presentation.search.WeatherSearchScreen
@@ -36,18 +37,21 @@ fun WeatherNavGraph(
         composable(
             WeatherDestinations.INFO_ROUTE,
             arguments = listOf(
-                navArgument(CITY_ARG) { type = NavType.StringType },
+                navArgument(CITY_ADDRESS_ARG) { type = NavType.StringType },
                 navArgument(LATITUDE_ARG) { type = NavType.FloatType },
-                navArgument(LONGITUDE_ARG) { type = NavType.FloatType }
+                navArgument(LONGITUDE_ARG) { type = NavType.FloatType },
+                navArgument(TIMEZONE_ARG) { type = NavType.StringType }
             )
         ) { entry ->
-            val city = entry.arguments?.getString(CITY_ARG) ?: ""
+            val city = entry.arguments?.getString(CITY_ADDRESS_ARG) ?: ""
             val latitude = entry.arguments?.getFloat(LATITUDE_ARG) ?: 0.0
             val longitude = entry.arguments?.getFloat(LONGITUDE_ARG) ?: 0.0
+            val timeZone = entry.arguments?.getString(TIMEZONE_ARG) ?: ""
 
             WeatherInfoScreen(
                 city = city,
                 coordinate = Coordinate(latitude.toDouble(), longitude.toDouble()),
+                timeZone = timeZone,
                 snackbarHostState = snackbarHostState,
                 onSearchClick = { navActions.navigateToSearch() },
                 onSettingClick = {} // TODO: Implement later
@@ -57,7 +61,13 @@ fun WeatherNavGraph(
             WeatherSearchScreen(
                 snackbarHostState = snackbarHostState,
                 onBackClick = { navController.popBackStack() },
-                onItemClick = { navActions.navigateToInfo(it.location, it.coordinate) }
+                onItemClick = {
+                    navActions.navigateToInfo(
+                        it.cityAddress,
+                        it.coordinate,
+                        it.timeZone
+                    )
+                }
             )
         }
     }

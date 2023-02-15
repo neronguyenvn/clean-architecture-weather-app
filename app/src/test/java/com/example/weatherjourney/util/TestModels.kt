@@ -1,10 +1,10 @@
 package com.example.weatherjourney.util
 
 import com.example.weatherjourney.model.data.Coordinate
-import com.example.weatherjourney.weather.data.source.remote.dto.AllWeather
+import com.example.weatherjourney.weather.data.remote.dto.AllWeather
+import com.example.weatherjourney.weather.data.remote.dto.DailyWeatherDto
+import com.example.weatherjourney.weather.data.remote.dto.HourlyWeatherDto
 import com.example.weatherjourney.weather.data.source.remote.dto.CurrentWeatherDto
-import com.example.weatherjourney.weather.data.source.remote.dto.DailyWeatherDto
-import com.example.weatherjourney.weather.data.source.remote.dto.HourlyWeatherDto
 import com.example.weatherjourney.weather.data.source.remote.dto.Temp
 import com.example.weatherjourney.weather.domain.model.Coordinate
 

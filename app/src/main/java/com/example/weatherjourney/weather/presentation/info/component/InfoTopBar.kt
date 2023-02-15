@@ -14,7 +14,7 @@ import com.example.weatherjourney.R
 
 @Composable
 fun InfoTopBar(
-    city: String,
+    cityAddress: String,
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -31,7 +31,7 @@ fun InfoTopBar(
         },
         title = {
             Text(
-                city,
+                cityAddress,
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 textAlign = TextAlign.Center
@@ -41,7 +41,8 @@ fun InfoTopBar(
             IconButton(onSettingClick) {
                 Icon(
                     painter = painterResource(R.drawable.ic_setting),
-                    contentDescription = stringResource(R.string.setting)
+                    contentDescription = stringResource(R.string.setting),
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }

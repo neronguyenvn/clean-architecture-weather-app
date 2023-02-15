@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         installSplashScreen().setKeepOnScreenCondition {
-            viewModel.isLastWeatherInfoLoading.value
+            viewModel.isInitializing.value
         }
 
         checkAndInitWeatherState()

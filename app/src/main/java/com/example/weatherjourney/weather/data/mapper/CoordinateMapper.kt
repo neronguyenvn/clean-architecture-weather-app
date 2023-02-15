@@ -1,13 +1,13 @@
 package com.example.weatherjourney.weather.data.mapper
 
 import com.example.weatherjourney.util.roundTo
-import com.example.weatherjourney.weather.data.source.local.entity.LocationEntity
+import com.example.weatherjourney.weather.data.local.entity.LocationEntity
 import com.example.weatherjourney.weather.domain.model.Coordinate
 
 private const val DECIMAL_DEGREE_PRECISION = 2
 
 fun android.location.Location.toCoordinate(): Coordinate {
-    return Coordinate(latitude = latitude, longitude = longitude)
+    return Coordinate(lat = latitude, long = longitude)
 }
 
 /**
@@ -16,12 +16,19 @@ fun android.location.Location.toCoordinate(): Coordinate {
  */
 fun Coordinate.toUnifiedCoordinate(): Coordinate {
     return Coordinate(
-        latitude = latitude.roundTo(DECIMAL_DEGREE_PRECISION),
-        longitude = longitude.roundTo(DECIMAL_DEGREE_PRECISION)
+        lat = lat.roundTo(DECIMAL_DEGREE_PRECISION),
+        long = long.roundTo(DECIMAL_DEGREE_PRECISION)
     )
 }
 
-fun Coordinate.toLocation(city: String): LocationEntity =
-    LocationEntity(city = city, latitude = latitude, longitude = longitude)
+fun Coordinate.toLocationEntity(cityAddress: String, timeZone: String): LocationEntity =
+    LocationEntity(
+        cityAddress = cityAddress,
+        lat = lat,
+        long = long,
+        timeZone = timeZone
+    )
 
-fun LocationEntity.toCoordinate(): Coordinate = Coordinate(latitude, longitude)
+fun LocationEntity.toCoordinate(): Coordinate = Coordinate(lat, long)
+
+fun Coordinate.toApiCoordinate(): String = "$lat+$long"

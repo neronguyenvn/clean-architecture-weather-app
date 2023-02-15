@@ -6,7 +6,11 @@ sealed class WeatherInfoEvent {
 
     data class OnAppInit(val isLocationPermissionGranted: Boolean) : WeatherInfoEvent()
 
-    data class OnFetchWeatherFromSearch(val city: String, val coordinate: Coordinate) :
+    data class OnFetchWeatherFromSearch(
+        val cityAddress: String,
+        val coordinate: Coordinate,
+        val timeZone: String
+    ) :
         WeatherInfoEvent()
 
     object OnCacheInfo : WeatherInfoEvent()

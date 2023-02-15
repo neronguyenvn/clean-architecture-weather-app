@@ -1,7 +1,10 @@
 package com.example.weatherjourney.util
 
+import android.text.format.DateUtils
+import com.example.weatherjourney.R
 import java.time.Instant
-import java.time.ZoneOffset
+import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -14,12 +17,18 @@ const val DAY_NAME_IN_WEEK_PATTERN = "EEE"
  */
 fun Double.roundTo(n: Int): Double = "%.${n}f".format(Locale.getDefault(), this).toDouble()
 
-fun Long.toDateString(timezoneOffset: Int, pattern: String): String {
-    val zoneOffset = ZoneOffset.ofTotalSeconds(timezoneOffset)
-    // Get UTC time
+fun getCurrentDate(timeZone: String, pattern: String): String {
+    val instant = Instant.now()
+
+    val formatter = DateTimeFormatter.ofPattern(pattern)
+    return instant.atZone(ZoneId.of(timeZone)).format(formatter)
+}
+
+fun Long.toDate(timeZone: String, pattern: String): UiText {
     val instant = Instant.ofEpochSecond(this)
-    val formatter = DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH)
-    return instant.atOffset(zoneOffset).format(formatter)
+
+    val formatter = DateTimeFormatter.ofPattern(pattern)
+    return UiText.DynamicString(instant.atZone(ZoneId.of(timeZone)).format(formatter))
 }
 
 fun String.toFlagEmoji(): String {
@@ -28,7 +37,8 @@ fun String.toFlagEmoji(): String {
         return this
     }
 
-    val countryCodeCaps = this.uppercase() // upper case is important because we are calculating offset
+    val countryCodeCaps =
+        this.uppercase() // upper case is important because we are calculating offset
     val firstLetter = Character.codePointAt(countryCodeCaps, 0) - 0x41 + 0x1F1E6
     val secondLetter = Character.codePointAt(countryCodeCaps, 1) - 0x41 + 0x1F1E6
 
@@ -40,19 +50,18 @@ fun String.toFlagEmoji(): String {
     return String(Character.toChars(firstLetter)) + String(Character.toChars(secondLetter))
 }
 
-fun String.capitalizeByWord() = this.split(" ")
-    .joinToString(" ") { word -> word.replaceFirstChar { it.uppercase() } }
+@OptIn(ExperimentalStdlibApi::class)
+fun Long.toDayNameInWeek(timeZone: String): UiText {
+    val today = LocalDate.now().atStartOfDay(ZoneId.of(timeZone))
+    val tomorrow = today.plusDays(1)
+    val dayAfterTomorrow = tomorrow.plusDays(1)
 
-// TODO: Only show Today and Tomorrow if this is current location weather
-/*fun Long.toDayNameInWeek(timezoneOffset: Int): String {
-    val zoneOffset = ZoneOffset.ofTotalSeconds(timezoneOffset)
-    val today: LocalDate = LocalDate.now(zoneOffset)
-    val timestampStart = today.atStartOfDay(zoneOffset).toEpochSecond()
-    val timestampStop = timestampStart + DateUtils.DAY_IN_MILLIS / SECOND_IN_MILLIS
-    val timestampTomorrowStop = timestampStop + DateUtils.DAY_IN_MILLIS / SECOND_IN_MILLIS
-    return when (this) {
-        in timestampStart until timestampStop -> "Today"
-        in timestampStop until timestampTomorrowStop -> "Tomorrow"
-        else -> this.toDateString(timezoneOffset, DAY_NAME_IN_WEEK_PATTERN)
+    return when (Instant.ofEpochSecond(this).atZone(ZoneId.of(timeZone))) {
+        in today..<tomorrow -> UiText.StringResource(R.string.today)
+        in tomorrow..<dayAfterTomorrow -> UiText.StringResource(R.string.tomorrow)
+        else -> this.toDate(timeZone, DAY_NAME_IN_WEEK_PATTERN)
     }
-}*/
+}
+
+fun List<Long>.filterPastHours() =
+    this.filter { it > Instant.now().minusMillis(DateUtils.HOUR_IN_MILLIS).epochSecond }

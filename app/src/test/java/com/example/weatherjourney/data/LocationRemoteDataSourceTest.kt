@@ -7,8 +7,7 @@ import com.example.weatherjourney.util.emptyResultForwardGeocodingResponse
 import com.example.weatherjourney.util.errorResponse
 import com.example.weatherjourney.util.successfulForwardGeocodingResponse
 import com.example.weatherjourney.util.successfulReverseGeocodingResponse
-import com.example.weatherjourney.weather.data.source.remote.ApiService
-import com.example.weatherjourney.weather.data.source.remote.LocationRemoteDataSource
+import com.example.weatherjourney.weather.data.remote.Api
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.SerializationException
@@ -28,7 +27,7 @@ import retrofit2.Retrofit
 class LocationRemoteDataSourceTest {
 
     private lateinit var mockWebServer: MockWebServer
-    private lateinit var apiClient: ApiService
+    private lateinit var apiClient: Api
 
     private val client = OkHttpClient.Builder().build()
     private val converterFactory = Json.asConverterFactory("application/json".toMediaType())
@@ -41,7 +40,7 @@ class LocationRemoteDataSourceTest {
             .client(client)
             .addConverterFactory(converterFactory)
             .build()
-            .create(ApiService::class.java)
+            .create(Api::class.java)
     }
 
     @After

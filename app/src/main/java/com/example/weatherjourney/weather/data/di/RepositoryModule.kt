@@ -1,10 +1,12 @@
 package com.example.weatherjourney.weather.data.di
 
 import com.example.weatherjourney.di.DefaultDispatcher
+import com.example.weatherjourney.di.IoDispatcher
+import com.example.weatherjourney.domain.PreferenceRepository
+import com.example.weatherjourney.weather.data.local.AppDatabase
+import com.example.weatherjourney.weather.data.remote.Api
 import com.example.weatherjourney.weather.data.repository.DefaultLocationRepository
 import com.example.weatherjourney.weather.data.repository.DefaultWeatherRepository
-import com.example.weatherjourney.weather.data.source.LocationDataSource
-import com.example.weatherjourney.weather.data.source.remote.ApiService
 import com.example.weatherjourney.weather.domain.repository.LocationRepository
 import com.example.weatherjourney.weather.domain.repository.WeatherRepository
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -21,20 +23,24 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideWeatherRepository(apiService: ApiService): WeatherRepository =
-        DefaultWeatherRepository(apiService)
+    fun provideWeatherRepository(api: Api): WeatherRepository =
+        DefaultWeatherRepository(api)
 
     @Provides
     @Singleton
     fun provideLocationRepository(
-        @RemoteLocationDataSource remoteDataSource: LocationDataSource,
-        @LocalLocationDataSource localDataSource: LocationDataSource,
+        api: Api,
+        db: AppDatabase,
         client: FusedLocationProviderClient,
-        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
+        preferences: PreferenceRepository,
+        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
+        @IoDispatcher ioDispatcher: CoroutineDispatcher
     ): LocationRepository = DefaultLocationRepository(
-        locationRemoteDataSource = remoteDataSource,
-        locationLocalDataSource = localDataSource,
+        api = api,
+        dao = db.locationDao(),
         client = client,
-        defaultDispatcher = defaultDispatcher
+        preferences = preferences,
+        defaultDispatcher = defaultDispatcher,
+        ioDispatcher = ioDispatcher
     )
 }

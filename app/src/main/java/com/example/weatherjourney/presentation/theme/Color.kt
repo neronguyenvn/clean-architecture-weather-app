@@ -2,11 +2,11 @@ package com.example.weatherjourney.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
-// For label
-val Black70 = Color.Black.copy(alpha = 0.7f)
+// For divider, hint
+val White70 = Color.White.copy(alpha = 0.7f)
 
-// For divider
-val Black30 = Color.Black.copy(alpha = 0.3f)
+// For background
+val DarkBlue = Color(0xFF1B3B5A)
 
-// For hint
-val Gray = Color(0xFF757575)
+// For surface
+val DeepBlue = Color(0xFF102840)

@@ -2,7 +2,7 @@ package com.example.weatherjourney.weather.data.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.weatherjourney.weather.data.source.local.AppDatabase
+import com.example.weatherjourney.weather.data.local.AppDatabase
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.Module
