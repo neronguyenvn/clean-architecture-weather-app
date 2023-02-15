@@ -19,4 +19,7 @@ Follow Clean Architecture recommended for building robust, high-quality apps.
 
 ## Screenshot
 
-<img src="./screenshot/home_screen.jpg" alt="Home Screen" height="540"/>
+<img src="./screenshot/weather_info.jpg" height="480"/>
+<img src="./screenshot/saved_locations.jpg" height="480"/>
+<img src="./screenshot/suggestion_locations.jpg" height="480"/>
+
