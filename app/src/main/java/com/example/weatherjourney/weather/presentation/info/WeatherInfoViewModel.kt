@@ -19,6 +19,7 @@ import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -87,10 +88,15 @@ class WeatherInfoViewModel @Inject constructor(
             }
 
             is WeatherInfoEvent.OnRefresh -> viewModelScope.launch {
-                getAndUpdateWeather(
-                    preferences.getLastCoordinate(),
-                    preferences.getLastTimeZone(),
-                    true
+                runSuspend(
+                    getAndUpdateWeather(
+                        preferences.getLastCoordinate(),
+                        preferences.getLastTimeZone(),
+                        true
+                    ),
+                    launch {
+                        delay(1500)
+                    }
                 )
             }
 
@@ -127,7 +133,7 @@ class WeatherInfoViewModel @Inject constructor(
         Log.d(TAG, "getAndUpdateCityByCoordinate() called")
 
         return viewModelScope.launch {
-            when (val address = locationUseCases.getCityAddress(coordinate)) {
+            when (val address = locationUseCases.getCityAddressAndSaveLocation(coordinate)) {
                 is Result.Success -> uiState = uiState.copy(cityAddress = address.data)
 
                 is Result.Error -> handleError(address)

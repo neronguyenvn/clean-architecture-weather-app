@@ -7,6 +7,7 @@ import androidx.compose.material3.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun LoadingContent(
@@ -25,7 +26,8 @@ fun LoadingContent(
         PullRefreshIndicator(
             isLoading,
             pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter)
+            modifier = Modifier.align(Alignment.TopCenter),
+            backgroundColor = Color.Transparent
         )
     }
 }

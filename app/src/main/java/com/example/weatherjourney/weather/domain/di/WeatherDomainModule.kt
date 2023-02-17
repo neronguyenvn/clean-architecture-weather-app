@@ -6,13 +6,15 @@ import com.example.weatherjourney.weather.domain.repository.LocationRepository
 import com.example.weatherjourney.weather.domain.repository.WeatherRepository
 import com.example.weatherjourney.weather.domain.usecase.DeleteLocation
 import com.example.weatherjourney.weather.domain.usecase.GetAllWeather
-import com.example.weatherjourney.weather.domain.usecase.GetCityAddress
+import com.example.weatherjourney.weather.domain.usecase.GetCityAddressAndSaveLocation
 import com.example.weatherjourney.weather.domain.usecase.GetCurrentCoordinate
-import com.example.weatherjourney.weather.domain.usecase.GetLocations
+import com.example.weatherjourney.weather.domain.usecase.GetLocationsStream
 import com.example.weatherjourney.weather.domain.usecase.GetSuggestionCities
 import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.weather.domain.usecase.SaveLocation
 import com.example.weatherjourney.weather.domain.usecase.ShouldSaveLocation
+import com.example.weatherjourney.weather.domain.usecase.ValidateCurrentCoordinate
+import com.example.weatherjourney.weather.domain.usecase.ValidateCurrentLocation
 import com.example.weatherjourney.weather.domain.usecase.ValidateLastInfo
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
 import dagger.Module
@@ -37,10 +39,12 @@ class WeatherDomainModule {
             shouldSaveLocation = ShouldSaveLocation(repository, preferences),
             getCurrentCoordinate = GetCurrentCoordinate(repository),
             validateLastInfo = ValidateLastInfo(),
-            getCityAddress = GetCityAddress(repository),
+            validateCurrentCoordinate = ValidateCurrentCoordinate(repository),
+            getCityAddressAndSaveLocation = GetCityAddressAndSaveLocation(repository),
             getSuggestionCities = GetSuggestionCities(repository),
-            getLocations = GetLocations(repository),
-            deleteLocation = DeleteLocation(repository)
+            getLocationsStream = GetLocationsStream(repository),
+            deleteLocation = DeleteLocation(repository),
+            validateCurrentLocation = ValidateCurrentLocation(repository)
         )
 
     @Provides

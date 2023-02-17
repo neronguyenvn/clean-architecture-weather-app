@@ -4,6 +4,7 @@ import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.weather.data.local.entity.LocationEntity
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.SuggestionCity
+import kotlinx.coroutines.flow.Flow
 
 interface LocationRepository {
 
@@ -11,13 +12,15 @@ interface LocationRepository {
 
     suspend fun getSuggestionLocations(cityAddress: String): Result<List<SuggestionCity>>
 
-    suspend fun fetchCity(coordinate: Coordinate): Result<String>
+    suspend fun fetchLocation(coordinate: Coordinate): Result<LocationEntity>
 
     suspend fun getLocation(coordinate: Coordinate): LocationEntity?
 
-    suspend fun saveLocation(location: LocationEntity)
+    suspend fun getCurrentLocation(): LocationEntity?
 
-    suspend fun getLocations(): List<LocationEntity>?
+    fun getLocationsStream(): Flow<List<LocationEntity>>
+
+    suspend fun saveLocation(location: LocationEntity)
 
     suspend fun deleteLocation(location: LocationEntity)
 }

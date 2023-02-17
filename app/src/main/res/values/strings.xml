@@ -1,23 +1,23 @@
 <resources>
-    <string name="app_name">Weather</string>
-
+    <string name="app_name">Weather Journey</string>
     <string name="search_city">Search for city</string>
     <string name="delete_city">Delete city input</string>
     <string name="setting">Setting</string>
     <string name="back">Back</string>
     <string name="enter_location">Enter location</string>
-    <string name="add_this_location">Add this location to your list?</string>
     <string name="add">Add</string>
+    <string name="add_this_location">Add this location to your list?</string>
     <string name="location_saved">Location saved</string>
+    <string name="delete">Delete</string>
+    <string name="delete_this_location">Delete this location from your list?</string>
+    <string name="location_deleted">Location deleted</string>
     <string name="no_result">No results</string>
-
     <string name="temperature">%s\u00B0</string>
     <string name="celsius_symbol">\u2103</string>
     <string name="daily_weather" formatted="false">%1$s%n%2$s</string>
     <string name="max_min_temperature">%1$d\u00B0 / %2$d\u00B0</string>
-
     <string name="meter_per_second">%sm/s</string>
-
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
+    <string name="your_location">Your location</string>
 </resources>

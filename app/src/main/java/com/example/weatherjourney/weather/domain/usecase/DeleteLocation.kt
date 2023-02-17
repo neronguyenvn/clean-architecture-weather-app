@@ -1,10 +1,10 @@
 package com.example.weatherjourney.weather.domain.usecase
 
-import com.example.weatherjourney.weather.data.local.entity.LocationEntity
+import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.repository.LocationRepository
 
 class DeleteLocation(private val repository: LocationRepository) {
 
-    suspend operator fun invoke(location: LocationEntity) =
-        repository.deleteLocation(location)
+    suspend operator fun invoke(coordinate: Coordinate) =
+        repository.getLocation(coordinate)?.let { repository.deleteLocation(it) }
 }

@@ -2,8 +2,9 @@ package com.example.weatherjourney.weather.domain.usecase
 
 import com.example.weatherjourney.weather.data.local.entity.LocationEntity
 import com.example.weatherjourney.weather.domain.repository.LocationRepository
+import kotlinx.coroutines.flow.Flow
 
-class GetLocations(private val repository: LocationRepository) {
+class GetLocationsStream(private val repository: LocationRepository) {
 
-    suspend operator fun invoke(): List<LocationEntity>? = repository.getLocations()
+    operator fun invoke(): Flow<List<LocationEntity>> = repository.getLocationsStream()
 }

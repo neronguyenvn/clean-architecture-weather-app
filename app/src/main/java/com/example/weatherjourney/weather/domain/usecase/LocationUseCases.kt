@@ -4,9 +4,11 @@ data class LocationUseCases(
     val saveLocation: SaveLocation,
     val shouldSaveLocation: ShouldSaveLocation,
     val getCurrentCoordinate: GetCurrentCoordinate,
+    val validateCurrentCoordinate: ValidateCurrentCoordinate,
     val validateLastInfo: ValidateLastInfo,
-    val getCityAddress: GetCityAddress,
+    val getCityAddressAndSaveLocation: GetCityAddressAndSaveLocation,
     val getSuggestionCities: GetSuggestionCities,
-    val getLocations: GetLocations,
-    val deleteLocation: DeleteLocation
+    val getLocationsStream: GetLocationsStream,
+    val deleteLocation: DeleteLocation,
+    val validateCurrentLocation: ValidateCurrentLocation
 )

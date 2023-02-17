@@ -110,12 +110,11 @@ fun WeatherInfoScreen(
                             actionLabel = if (event.actionLabel == 0) {
                                 null
                             } else {
-                                context.getString(
-                                    event.actionLabel
-                                )
+                                context.getString(event.actionLabel)
                             },
                             duration = SnackbarDuration.Short
                         )
+
                         if (result == SnackbarResult.ActionPerformed) {
                             when (event.actionLabel) {
                                 R.string.add -> viewModel.onEvent(WeatherInfoEvent.OnCacheInfo)

@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,7 +44,7 @@ fun SearchBar(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    val keyboardManager = LocalSoftwareKeyboardController.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(modifier) {
         Row(
@@ -70,9 +71,8 @@ fun SearchBar(
                     onValueChange = onValueChange,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
                     singleLine = true,
-                    keyboardActions = KeyboardActions(
-                        onDone = { keyboardManager?.hide() }
-                    ),
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                    cursorBrush = SolidColor(Color.White),
                     modifier = Modifier.focusRequester(focusRequester)
                 )
             }

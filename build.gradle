@@ -28,24 +28,21 @@ ext {
     composeMaterial3Version = '1.0.1'
     navigationVersion = '2.5.3'
     splashScreenVersion = '1.0.0'
-    coreKtxVersion = '1.9.0'
 
     retrofitVersion = '2.9.0'
     serializationJsonVersion = '1.4.1'
     serializationConverterVersion = '0.8.0'
-    coilComposeVersion = '2.2.2'
     okhttpVersion = '5.0.0-alpha.3'
 
-    hiltVersion = '2.44.2'
+    hiltVersion = '2.45'
     hiltAndroidXVersion = '1.0.0'
 
     locationServiceVersion = '21.0.1'
 
     roomVersion = '2.5.0'
+    dataStoreVersion = '1.0.0'
 
     junitVersion = '4.13.2'
     coroutinesVersion = '1.6.4'
     turbineVersion = '0.12.1'
-
-    dataStoreVersion = '1.0.0'
 }

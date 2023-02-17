@@ -7,7 +7,7 @@ data class ReverseGeocoding(
     val results: List<ReverseGeocodingResult>
 ) {
     fun getCityAddress() = results.first().components.run {
-        listOf(county, city, region, country).filter { it.isNotBlank() }.joinToString(", ")
+        listOf(county, city, region).filter { it.isNotBlank() }.joinToString(", ")
     }
 
     fun getTimeZone() = results.first().annotations.timezone.name
@@ -23,8 +23,7 @@ data class ReverseGeocodingResult(
 data class Component(
     val county: String = "",
     val city: String = "",
-    val region: String = "",
-    val country: String = ""
+    val region: String = ""
 )
 
 @Serializable

@@ -18,7 +18,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.Tasks.await
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,7 +32,7 @@ class DefaultLocationRepository(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : LocationRepository {
 
-    override suspend fun fetchCity(coordinate: Coordinate): Result<String> {
+    override suspend fun fetchLocation(coordinate: Coordinate): Result<LocationEntity> {
         return when (val location = getLocation(coordinate)) {
             null -> {
                 try {
@@ -41,12 +41,10 @@ class DefaultLocationRepository(
                     return Result.Error(ex)
                 }
 
-                Result.Success(
-                    dao.getLocation(coordinate.lat, coordinate.long).first().cityAddress
-                )
+                Result.Success(getLocation(coordinate)!!)
             }
 
-            else -> Result.Success(location.cityAddress)
+            else -> Result.Success(location)
         }
     }
 
@@ -68,14 +66,17 @@ class DefaultLocationRepository(
         }
 
     override suspend fun getLocation(coordinate: Coordinate): LocationEntity? =
-        dao.getLocation(coordinate.lat, coordinate.long).firstOrNull()
+        dao.observeLocation(coordinate.lat, coordinate.long).firstOrNull()
+
+    override suspend fun getCurrentLocation(): LocationEntity? =
+        dao.observeCurrentLocation().firstOrNull()
+
+    override fun getLocationsStream(): Flow<List<LocationEntity>> =
+        dao.observeLocations()
 
     override suspend fun saveLocation(location: LocationEntity) {
         dao.insert(location)
     }
-
-    override suspend fun getLocations(): List<LocationEntity>? =
-        dao.getLocations().firstOrNull()
 
     override suspend fun deleteLocation(location: LocationEntity) =
         dao.delete(location)

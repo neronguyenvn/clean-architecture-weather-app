@@ -30,13 +30,13 @@ fun SuggestionCityItem(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(16.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(city.countryFlag, style = MaterialTheme.typography.bodyMedium)
+            Text(city.countryFlag)
             Spacer(Modifier.width(8.dp))
-            Text(city.cityAddress, style = MaterialTheme.typography.bodyMedium)
+            Text(city.cityAddress, style = MaterialTheme.typography.bodyLarge)
         }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(16.dp))
         Spacer(
             Modifier
                 .fillMaxWidth()

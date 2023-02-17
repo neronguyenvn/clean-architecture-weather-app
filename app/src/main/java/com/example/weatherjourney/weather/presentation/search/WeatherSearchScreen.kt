@@ -7,26 +7,32 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.weatherjourney.R
+import com.example.weatherjourney.util.LoadingContent
 import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.weather.domain.model.CityUiModel
-import com.example.weatherjourney.weather.domain.model.SavedCity
-import com.example.weatherjourney.weather.domain.model.SuggestionCity
 import com.example.weatherjourney.weather.presentation.search.component.SavedCityItem
 import com.example.weatherjourney.weather.presentation.search.component.SearchBar
 import com.example.weatherjourney.weather.presentation.search.component.SuggestionCityItem
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun WeatherSearchScreen(
     snackbarHostState: SnackbarHostState,
@@ -43,7 +49,7 @@ fun WeatherSearchScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             SearchBar(
-                value = uiState.city,
+                value = uiState.cityAddress,
                 onBackClick = onBackClick,
                 onValueChange = { viewModel.onEvent(WeatherSearchEvent.OnCityUpdate(cityAddress = it)) },
                 onValueClear = { viewModel.onEvent(WeatherSearchEvent.OnCityUpdate(cityAddress = "")) },
@@ -52,21 +58,43 @@ fun WeatherSearchScreen(
         }
     ) { paddingValues ->
         WeatherSearchScreenContent(
-            city = uiState.city,
-            savedCities = uiState.savedCities,
-            suggestionCities = uiState.suggestionCities,
+            uiState = uiState,
+            onRefresh = { viewModel.onEvent(WeatherSearchEvent.OnRefresh) },
             onCityClick = onItemClick,
+            onCityLongClick = { viewModel.onEvent(WeatherSearchEvent.OnCityLongClick(it)) },
             modifier = Modifier.padding(paddingValues)
         )
 
-        LaunchedEffect(true) {
-            viewModel.onEvent(WeatherSearchEvent.OnFetchWeatherOfSavedLocations)
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val haptic = LocalHapticFeedback.current
 
+        LaunchedEffect(true) {
             viewModel.uiEvent.collect { event ->
                 when (event) {
-                    is UiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(
-                        event.message.asString(context)
-                    )
+                    is UiEvent.ShowSnackbar -> {
+                        when (event.actionLabel) {
+                            R.string.delete -> {
+                                keyboardController?.hide()
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+                        }
+
+                        val result = snackbarHostState.showSnackbar(
+                            message = event.message.asString(context),
+                            actionLabel = if (event.actionLabel == 0) {
+                                null
+                            } else {
+                                context.getString(event.actionLabel)
+                            },
+                            duration = SnackbarDuration.Short
+                        )
+
+                        if (result == SnackbarResult.ActionPerformed) {
+                            when (event.actionLabel) {
+                                R.string.delete -> viewModel.onEvent(WeatherSearchEvent.DeleteCity)
+                            }
+                        }
+                    }
 
                     else -> Unit
                 }
@@ -77,37 +105,45 @@ fun WeatherSearchScreen(
 
 @Composable
 fun WeatherSearchScreenContent(
-    city: String,
-    savedCities: List<SavedCity>,
-    suggestionCities: List<SuggestionCity>,
+    uiState: WeatherSearchUiState,
+    onRefresh: () -> Unit,
     onCityClick: (CityUiModel) -> Unit,
+    onCityLongClick: (CityUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = modifier.fillMaxWidth()
+    LoadingContent(
+        isLoading = uiState.isLoading,
+        onRefresh = onRefresh,
+        modifier = modifier
     ) {
-        if (city.isBlank()) {
-            items(savedCities) { city ->
-                SavedCityItem(city = city) { selectedCity ->
-                    onCityClick(selectedCity)
-                }
-            }
-        } else {
-            if (suggestionCities.isEmpty()) {
-                item {
-                    Text(
-                        stringResource(R.string.no_result),
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
+        LazyColumn(Modifier.fillMaxWidth()) {
+            if (uiState.cityAddress.isBlank()) {
+                items(uiState.savedCities) { city ->
+                    SavedCityItem(
+                        city = city,
+                        onCityClick = { onCityClick(city) },
+                        onCityLongClick = {
+                            onCityLongClick(city)
+                        }
                     )
                 }
             } else {
-                items(suggestionCities) { city ->
-                    SuggestionCityItem(city = city) { selectedCity ->
-                        onCityClick(selectedCity)
+                if (uiState.suggestionCities.isEmpty()) {
+                    item {
+                        Text(
+                            stringResource(R.string.no_result),
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                        )
+                    }
+                } else {
+                    items(uiState.suggestionCities) { city ->
+                        SuggestionCityItem(city = city) { selectedCity ->
+                            onCityClick(selectedCity)
+                        }
                     }
                 }
             }

@@ -39,7 +39,7 @@ fun HourlyWeatherItem(hourly: HourlyWeather, modifier: Modifier = Modifier) {
         Image(
             painter = painterResource(hourly.weatherType.iconRes),
             contentDescription = null,
-            modifier = Modifier.width(40.dp)
+            modifier = Modifier.width(30.dp)
         )
         Text(
             stringResource(R.string.temperature, hourly.temp),
