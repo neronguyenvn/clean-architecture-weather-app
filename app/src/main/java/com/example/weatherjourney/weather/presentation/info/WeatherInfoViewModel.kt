@@ -149,7 +149,7 @@ class WeatherInfoViewModel @Inject constructor(
         Log.d(TAG, "getAndUpdateWeather() called")
 
         return viewModelScope.launch {
-            when (val weather = weatherUseCases.getAllWeather(coordinate, timeZone, forceCache)) {
+            when (val weather = weatherUseCases.getAllWeatherAndCacheLastInfo(coordinate, timeZone, forceCache)) {
                 is Result.Success -> {
                     uiState = uiState.copy(
                         weatherState = WeatherState(

@@ -17,7 +17,7 @@ interface LocationDao {
     @Query("SELECT * FROM location WHERE isCurrentLocation = 1")
     fun observeCurrentLocation(): Flow<LocationEntity>
 
-    @Query("SELECT * FROM location")
+    @Query("SELECT * FROM location ORDER BY isCurrentLocation DESC")
     fun observeLocations(): Flow<List<LocationEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

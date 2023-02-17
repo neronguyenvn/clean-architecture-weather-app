@@ -20,11 +20,11 @@ fun AllWeather.toCurrentWeather(timeZone: String): CurrentWeather {
     this.hourly.apply {
         return CurrentWeather(
             date = getCurrentDate(timeZone, DATE_PATTERN),
-            temp = temperatures.first(),
-            windSpeed = windSpeeds.first(),
-            humidity = humidities.first(),
-            pressure = pressures.first(),
-            weatherType = WeatherType.fromWMO(weatherCodes.first())
+            temp = temperatures[0],
+            windSpeed = windSpeeds[0],
+            humidity = humidities[0],
+            pressure = pressures[0],
+            weatherType = WeatherType.fromWMO(weatherCodes[0])
         )
     }
 }
@@ -59,8 +59,8 @@ fun AllWeather.toSavedCity(
 ): SavedCity {
     this.hourly.apply {
         return SavedCity(
-            temp = temperatures.first(),
-            weatherType = WeatherType.fromWMO(weatherCodes.first()),
+            temp = temperatures[0],
+            weatherType = WeatherType.fromWMO(weatherCodes[0]),
             cityAddress = cityAddress,
             coordinate = coordinate,
             isCurrentLocation = isCurrentLocation,

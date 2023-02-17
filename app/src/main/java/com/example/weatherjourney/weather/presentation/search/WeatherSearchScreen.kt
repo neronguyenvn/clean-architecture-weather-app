@@ -28,6 +28,7 @@ import com.example.weatherjourney.R
 import com.example.weatherjourney.util.LoadingContent
 import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.weather.domain.model.CityUiModel
+import com.example.weatherjourney.weather.domain.model.SavedCity
 import com.example.weatherjourney.weather.presentation.search.component.SavedCityItem
 import com.example.weatherjourney.weather.presentation.search.component.SearchBar
 import com.example.weatherjourney.weather.presentation.search.component.SuggestionCityItem
@@ -111,41 +112,62 @@ fun WeatherSearchScreenContent(
     onCityLongClick: (CityUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    if (uiState.cityAddress.isBlank()) {
+        SavedCitiesContent(
+            savedCities = uiState.savedCities,
+            isLoading = uiState.isLoading,
+            onRefresh = onRefresh,
+            onCityClick = onCityClick,
+            onCityLongClick = onCityLongClick,
+            modifier
+        )
+    } else {
+        LazyColumn(modifier.fillMaxWidth()) {
+            if (uiState.suggestionCities.isEmpty()) {
+                item {
+                    Text(
+                        stringResource(R.string.no_result),
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                    )
+                }
+            } else {
+                items(uiState.suggestionCities) { city ->
+                    SuggestionCityItem(city = city) { selectedCity ->
+                        onCityClick(selectedCity)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SavedCitiesContent(
+    savedCities: List<SavedCity>,
+    isLoading: Boolean,
+    onRefresh: () -> Unit,
+    onCityClick: (CityUiModel) -> Unit,
+    onCityLongClick: (CityUiModel) -> Unit,
+    modifier: Modifier = Modifier
+) {
     LoadingContent(
-        isLoading = uiState.isLoading,
+        isLoading = isLoading,
         onRefresh = onRefresh,
         modifier = modifier
     ) {
         LazyColumn(Modifier.fillMaxWidth()) {
-            if (uiState.cityAddress.isBlank()) {
-                items(uiState.savedCities) { city ->
-                    SavedCityItem(
-                        city = city,
-                        onCityClick = { onCityClick(city) },
-                        onCityLongClick = {
-                            onCityLongClick(city)
-                        }
-                    )
-                }
-            } else {
-                if (uiState.suggestionCities.isEmpty()) {
-                    item {
-                        Text(
-                            stringResource(R.string.no_result),
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp)
-                        )
+            items(savedCities) { city ->
+                SavedCityItem(
+                    city = city,
+                    onCityClick = { onCityClick(city) },
+                    onCityLongClick = {
+                        onCityLongClick(city)
                     }
-                } else {
-                    items(uiState.suggestionCities) { city ->
-                        SuggestionCityItem(city = city) { selectedCity ->
-                            onCityClick(selectedCity)
-                        }
-                    }
-                }
+                )
             }
         }
     }

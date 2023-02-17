@@ -6,11 +6,11 @@ import kotlinx.serialization.Serializable
 data class ReverseGeocoding(
     val results: List<ReverseGeocodingResult>
 ) {
-    fun getCityAddress() = results.first().components.run {
+    fun getCityAddress() = results[0].components.run {
         listOf(county, city, region).filter { it.isNotBlank() }.joinToString(", ")
     }
 
-    fun getTimeZone() = results.first().annotations.timezone.name
+    fun getTimeZone() = results[0].annotations.timezone.name
 }
 
 @Serializable

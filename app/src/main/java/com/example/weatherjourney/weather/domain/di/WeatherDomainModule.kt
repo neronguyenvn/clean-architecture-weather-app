@@ -6,6 +6,7 @@ import com.example.weatherjourney.weather.domain.repository.LocationRepository
 import com.example.weatherjourney.weather.domain.repository.WeatherRepository
 import com.example.weatherjourney.weather.domain.usecase.DeleteLocation
 import com.example.weatherjourney.weather.domain.usecase.GetAllWeather
+import com.example.weatherjourney.weather.domain.usecase.GetAllWeatherAndCacheLastInfo
 import com.example.weatherjourney.weather.domain.usecase.GetCityAddressAndSaveLocation
 import com.example.weatherjourney.weather.domain.usecase.GetCurrentCoordinate
 import com.example.weatherjourney.weather.domain.usecase.GetLocationsStream
@@ -54,6 +55,11 @@ class WeatherDomainModule {
         preferences: PreferenceRepository,
         @IoDispatcher ioDispatcher: CoroutineDispatcher
     ): WeatherUseCases = WeatherUseCases(
-        getAllWeather = GetAllWeather(repository, preferences, ioDispatcher)
+        getAllWeatherAndCacheLastInfo = GetAllWeatherAndCacheLastInfo(
+            repository,
+            preferences,
+            ioDispatcher
+        ),
+        getAllWeather = GetAllWeather(repository)
     )
 }

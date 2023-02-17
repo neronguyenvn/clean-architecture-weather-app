@@ -7,10 +7,12 @@ import com.example.weatherjourney.weather.domain.repository.LocationRepository
 
 class ValidateCurrentCoordinate(private val repository: LocationRepository) {
 
-    suspend operator fun invoke() {
+    suspend operator fun invoke(): Boolean {
         val currentCoordinateResult = repository.getCurrentCoordinate()
 
-        if (currentCoordinateResult is Result.Error) return
+        if (currentCoordinateResult is Result.Error) {
+            return false
+        }
 
         val currentCoordinate = (currentCoordinateResult as Result.Success).data
 
@@ -18,12 +20,15 @@ class ValidateCurrentCoordinate(private val repository: LocationRepository) {
 
         if (currentLocation == null) {
             repository.fetchLocation(currentCoordinate.toUnifiedCoordinate())
-            return
+            return true
         }
 
-        if (currentLocation.toCoordinate() != currentCoordinate) {
+        if (currentLocation.toCoordinate() != currentCoordinate.toUnifiedCoordinate()) {
             repository.deleteLocation(currentLocation)
             repository.fetchLocation(currentCoordinate.toUnifiedCoordinate())
+            return true
         }
+
+        return false
     }
 }

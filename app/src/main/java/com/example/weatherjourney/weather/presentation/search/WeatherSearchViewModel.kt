@@ -10,18 +10,24 @@ import com.example.weatherjourney.R
 import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.util.UiText
-import com.example.weatherjourney.util.WhileUiSubscribed
 import com.example.weatherjourney.weather.data.mapper.toCoordinate
 import com.example.weatherjourney.weather.data.mapper.toSavedCity
 import com.example.weatherjourney.weather.domain.model.CityUiModel
 import com.example.weatherjourney.weather.domain.model.SavedCity
 import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
+import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.DeleteCity
+import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.OnCityLongClick
+import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.OnCityUpdate
+import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.OnRefresh
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,57 +42,58 @@ class WeatherSearchViewModel @Inject constructor(
     var uiState by mutableStateOf(WeatherSearchUiState())
         private set
 
-    private val _locations = locationUseCases.getLocationsStream()
-        .map { locations ->
-            uiState = uiState.copy(isLoading = true)
-            val savedCities = mutableListOf<SavedCity>()
+    private val _locations = locationUseCases.getLocationsStream().map { locations ->
+        viewModelScope.launch {
+            val channel = Channel<SavedCity>()
+            for (location in locations) {
+                launch {
+                    when (
+                        val weather = weatherUseCases.getAllWeather(
+                            location.toCoordinate(),
+                            location.timeZone
+                        )
+                    ) {
 
-            val job = viewModelScope.launch {
-                locations.forEach {
-                    launch {
-                        when (
-                            val weather =
-                                weatherUseCases.getAllWeather(it.toCoordinate(), it.timeZone, true)
-                        ) {
+                        is Result.Success -> {
+                            val city = weather.data.toSavedCity(
+                                location.cityAddress,
+                                location.toCoordinate(),
+                                location.timeZone,
+                                location.isCurrentLocation
+                            )
 
-                            is Result.Success -> {
-                                val city = weather.data.toSavedCity(
-                                    it.cityAddress,
-                                    it.toCoordinate(),
-                                    it.timeZone,
-                                    it.isCurrentLocation
-                                )
-
-                                if (it.isCurrentLocation) {
-                                    savedCities.add(0, city)
-                                } else {
-                                    savedCities.add(city)
-                                }
-                            }
-
-                            is Result.Error -> handleError(weather)
+                            channel.send(city)
                         }
+
+                        is Result.Error -> handleError(weather)
                     }
                 }
             }
 
-            job.join()
-            uiState = uiState.copy(isLoading = false)
-            savedCities.toList()
-        }.stateIn(
-            scope = viewModelScope,
-            started = WhileUiSubscribed,
-            initialValue = emptyList()
-        )
+            var savedCities = emptyList<SavedCity>()
+
+            repeat(locations.size) {
+                val city = channel.receive()
+                savedCities = if (city.isCurrentLocation) {
+                    savedCities.toMutableList().apply { add(0, city) }
+                } else {
+                    savedCities + city
+                }
+                uiState = uiState.copy(savedCities = savedCities)
+            }
+        }
+    }
 
     init {
         Log.d(TAG, "$TAG init")
-        uiState = uiState.copy(isLoading = true)
 
         viewModelScope.launch {
-            locationUseCases.validateCurrentCoordinate
+            if (locationUseCases.validateCurrentCoordinate()) {
+                return@launch
+            }
+
             _locations.collect {
-                uiState = uiState.copy(savedCities = it)
+                runSuspend(it)
             }
         }
     }
@@ -98,7 +105,7 @@ class WeatherSearchViewModel @Inject constructor(
 
     fun onEvent(event: WeatherSearchEvent) {
         when (event) {
-            is WeatherSearchEvent.OnCityUpdate -> {
+            is OnCityUpdate -> {
                 uiState = uiState.copy(cityAddress = event.cityAddress)
 
                 if (event.cityAddress.isNotBlank()) {
@@ -108,7 +115,8 @@ class WeatherSearchViewModel @Inject constructor(
                                 locationUseCases.getSuggestionCities(event.cityAddress)
                         ) {
                             is Result.Success ->
-                                uiState = uiState.copy(suggestionCities = suggestionCities.data)
+                                uiState =
+                                    uiState.copy(suggestionCities = suggestionCities.data)
 
                             is Result.Error -> handleError(suggestionCities)
                         }
@@ -116,10 +124,11 @@ class WeatherSearchViewModel @Inject constructor(
                 }
             }
 
-            is WeatherSearchEvent.OnRefresh -> { /*TODO*/
+            is OnRefresh -> viewModelScope.launch {
+                runSuspend(_locations.first(), launch { delay(1500) })
             }
 
-            is WeatherSearchEvent.OnCityLongClick -> viewModelScope.launch {
+            is OnCityLongClick -> viewModelScope.launch {
                 if (locationUseCases.validateCurrentLocation(event.city.coordinate)) return@launch
 
                 tempCityUiModel = event.city
@@ -132,10 +141,16 @@ class WeatherSearchViewModel @Inject constructor(
                 )
             }
 
-            is WeatherSearchEvent.DeleteCity -> viewModelScope.launch {
+            is DeleteCity -> viewModelScope.launch {
                 locationUseCases.deleteLocation(tempCityUiModel.coordinate)
             }
         }
+    }
+
+    private suspend fun runSuspend(vararg jobs: Job?) {
+        uiState = uiState.copy(isLoading = true)
+        jobs.forEach { it?.join() }
+        uiState = uiState.copy(isLoading = false)
     }
 
     private suspend fun handleError(error: Result.Error) {
