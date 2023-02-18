@@ -1,12 +1,9 @@
 package com.example.weatherjourney.weather.presentation.search.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -33,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.theme.White70
+import com.example.weatherjourney.weather.presentation.component.HorizontalDivider
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -85,12 +83,7 @@ fun SearchBar(
                 }
             }
         }
-        Spacer(
-            Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(White70)
-        )
+        HorizontalDivider()
     }
 
     LaunchedEffect(true) {

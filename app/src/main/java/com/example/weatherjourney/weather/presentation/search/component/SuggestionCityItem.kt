@@ -1,6 +1,5 @@
 package com.example.weatherjourney.weather.presentation.search.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,8 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.weatherjourney.presentation.theme.White70
 import com.example.weatherjourney.weather.domain.model.SuggestionCity
+import com.example.weatherjourney.weather.presentation.component.HorizontalDivider
 
 @Composable
 fun SuggestionCityItem(
@@ -37,11 +36,6 @@ fun SuggestionCityItem(
             Text(city.cityAddress, style = MaterialTheme.typography.bodyLarge)
         }
         Spacer(Modifier.height(16.dp))
-        Spacer(
-            Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(White70)
-        )
+        HorizontalDivider()
     }
 }

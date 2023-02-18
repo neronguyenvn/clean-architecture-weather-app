@@ -2,7 +2,7 @@ package com.example.weatherjourney.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
-// For divider, hint
+// For hint
 val White70 = Color.White.copy(alpha = 0.7f)
 
 // For background

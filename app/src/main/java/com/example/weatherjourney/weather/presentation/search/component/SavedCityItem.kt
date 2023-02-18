@@ -2,7 +2,6 @@ package com.example.weatherjourney.weather.presentation.search.component
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.theme.White70
 import com.example.weatherjourney.weather.domain.model.SavedCity
+import com.example.weatherjourney.weather.presentation.component.HorizontalDivider
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -77,11 +77,6 @@ fun SavedCityItem(
             )
         }
         Spacer(Modifier.height(16.dp))
-        Spacer(
-            Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(White70)
-        )
+        HorizontalDivider()
     }
 }
