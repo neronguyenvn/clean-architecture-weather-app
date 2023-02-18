@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.weatherjourney.weather.domain.model.SuggestionCity
-import com.example.weatherjourney.weather.presentation.component.HorizontalDivider
+import com.example.weatherjourney.presentation.component.HorizontalDivider
 
 @Composable
 fun SuggestionCityItem(

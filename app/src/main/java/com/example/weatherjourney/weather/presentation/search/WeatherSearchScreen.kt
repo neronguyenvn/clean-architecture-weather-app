@@ -25,7 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.weatherjourney.R
-import com.example.weatherjourney.util.LoadingContent
+import com.example.weatherjourney.presentation.component.LoadingContent
 import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.weather.domain.model.CityUiModel
 import com.example.weatherjourney.weather.domain.model.SavedCity

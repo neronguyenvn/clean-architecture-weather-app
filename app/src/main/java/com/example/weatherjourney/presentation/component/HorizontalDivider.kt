@@ -1,4 +1,4 @@
-package com.example.weatherjourney.weather.presentation.component
+package com.example.weatherjourney.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer

@@ -1,4 +1,4 @@
-package com.example.weatherjourney.util
+package com.example.weatherjourney.presentation.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.pullrefresh.PullRefreshIndicator
