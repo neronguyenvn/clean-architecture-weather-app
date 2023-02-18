@@ -60,6 +60,6 @@ class WeatherDomainModule {
             preferences,
             ioDispatcher
         ),
-        getAllWeather = GetAllWeather(repository)
+        getAllWeather = GetAllWeather(repository, preferences)
     )
 }

@@ -20,4 +20,6 @@
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="your_location">Your location</string>
+    <string name="units">UNITS</string>
+    <string name="temperature_unit">Temperature unit</string>
 </resources>

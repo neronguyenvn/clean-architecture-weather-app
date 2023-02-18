@@ -14,6 +14,7 @@ import com.example.weatherjourney.util.UiText
 import com.example.weatherjourney.weather.data.mapper.toCurrentWeather
 import com.example.weatherjourney.weather.data.mapper.toDailyWeather
 import com.example.weatherjourney.weather.data.mapper.toHourlyWeather
+import com.example.weatherjourney.weather.data.repository.DefaultRefreshRepository
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
@@ -33,7 +34,8 @@ private const val TAG = "WeatherInfoViewModel"
 class WeatherInfoViewModel @Inject constructor(
     private val locationUseCases: LocationUseCases,
     private val weatherUseCases: WeatherUseCases,
-    private val preferences: PreferenceRepository
+    private val preferences: PreferenceRepository,
+    private val refreshRepository: DefaultRefreshRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf(WeatherInfoUiState())
@@ -47,6 +49,15 @@ class WeatherInfoViewModel @Inject constructor(
 
     init {
         Log.d(TAG, "$TAG init")
+        viewModelScope.launch {
+            val temperatureUnit = preferences.getTemperatureUnit()
+            uiState = uiState.copy(temperatureLabel = temperatureUnit.label)
+        }
+        viewModelScope.launch {
+            refreshRepository.refreshFlow.collect {
+                refresh(false)
+            }
+        }
     }
 
     fun onEvent(event: WeatherInfoEvent) {
@@ -87,18 +98,7 @@ class WeatherInfoViewModel @Inject constructor(
                 }
             }
 
-            is WeatherInfoEvent.OnRefresh -> viewModelScope.launch {
-                runSuspend(
-                    getAndUpdateWeather(
-                        preferences.getLastCoordinate(),
-                        preferences.getLastTimeZone(),
-                        true
-                    ),
-                    launch {
-                        delay(1500)
-                    }
-                )
-            }
+            is WeatherInfoEvent.OnRefresh -> refresh(true)
 
             is WeatherInfoEvent.OnFetchWeatherFromSearch -> {
                 viewModelScope.launch {
@@ -149,7 +149,10 @@ class WeatherInfoViewModel @Inject constructor(
         Log.d(TAG, "getAndUpdateWeather() called")
 
         return viewModelScope.launch {
-            when (val weather = weatherUseCases.getAllWeatherAndCacheLastInfo(coordinate, timeZone, forceCache)) {
+            when (
+                val weather =
+                    weatherUseCases.getAllWeatherAndCacheLastInfo(coordinate, timeZone, forceCache)
+            ) {
                 is Result.Success -> {
                     uiState = uiState.copy(
                         weatherState = WeatherState(
@@ -176,5 +179,29 @@ class WeatherInfoViewModel @Inject constructor(
         val message = error.toString()
         Log.e(TAG, message)
         _uiEvent.emit(UiEvent.ShowSnackbar(UiText.DynamicString(message)))
+    }
+
+    private fun refresh(isDelay: Boolean) = viewModelScope.launch {
+        runSuspend(
+            getAndUpdateWeather(
+                preferences.getLastCoordinate(),
+                preferences.getLastTimeZone(),
+                true
+            ),
+
+            launch {
+                uiState = uiState.copy(
+                    temperatureLabel = preferences.getTemperatureUnit().label
+                )
+            },
+
+            if (isDelay) {
+                launch {
+                    delay(1500)
+                }
+            } else {
+                launch { }
+            }
+        )
     }
 }

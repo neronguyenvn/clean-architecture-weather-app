@@ -6,5 +6,10 @@ import com.example.weatherjourney.weather.domain.model.Coordinate
 
 interface WeatherRepository {
 
-    suspend fun fetchAllWeather(coordinate: Coordinate, timeZone: String, forceCache: Boolean): Result<AllWeather>
+    suspend fun fetchAllWeather(
+        coordinate: Coordinate,
+        timeZone: String,
+        temperatureUnit: String,
+        forceCache: Boolean
+    ): Result<AllWeather>
 }

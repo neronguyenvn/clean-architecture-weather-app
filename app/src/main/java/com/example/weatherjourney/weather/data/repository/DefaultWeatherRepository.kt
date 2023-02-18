@@ -14,12 +14,14 @@ class DefaultWeatherRepository(
     override suspend fun fetchAllWeather(
         coordinate: Coordinate,
         timeZone: String,
+        temperatureUnit: String,
         forceCache: Boolean
     ): Result<AllWeather> = runCatching {
         apiService.getAllWeather(
             lat = coordinate.lat,
             long = coordinate.long,
-            timeZone = timeZone
+            timeZone = timeZone,
+            temperatureUnit = temperatureUnit
         )
     }
 }

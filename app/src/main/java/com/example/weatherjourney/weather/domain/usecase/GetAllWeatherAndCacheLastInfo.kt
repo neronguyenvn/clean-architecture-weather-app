@@ -21,7 +21,14 @@ class GetAllWeatherAndCacheLastInfo(
         timeZone: String,
         forceCache: Boolean
     ): Result<AllWeather> =
-        when (val weather = repository.fetchAllWeather(coordinate, timeZone, forceCache)) {
+        when (
+            val weather = repository.fetchAllWeather(
+                coordinate,
+                timeZone,
+                preferences.getTemperatureUnit().apiParam,
+                forceCache
+            )
+        ) {
             is Result.Success -> {
                 withContext(ioDispatcher) {
                     launch {

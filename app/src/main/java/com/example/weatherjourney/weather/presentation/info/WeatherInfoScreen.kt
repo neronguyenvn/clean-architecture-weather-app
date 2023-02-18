@@ -33,7 +33,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -48,7 +47,6 @@ import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.CurrentWeather
 import com.example.weatherjourney.weather.domain.model.DailyWeather
-import com.example.weatherjourney.weather.domain.model.HourlyWeather
 import com.example.weatherjourney.weather.presentation.info.component.DailyWeatherItem
 import com.example.weatherjourney.weather.presentation.info.component.HourlyWeatherItem
 import com.example.weatherjourney.weather.presentation.info.component.InfoTopBar
@@ -83,11 +81,8 @@ fun WeatherInfoScreen(
     ) { paddingValues ->
 
         WeatherInfoScreenContent(
-            isLoading = uiState.isLoading,
+            uiState = uiState,
             onRefresh = { viewModel.onEvent(WeatherInfoEvent.OnRefresh) },
-            current = uiState.weatherState.current,
-            listDaily = uiState.weatherState.listDaily,
-            listHourly = uiState.weatherState.listHourly,
             modifier = Modifier.padding(paddingValues)
         )
 
@@ -131,11 +126,8 @@ fun WeatherInfoScreen(
 
 @Composable
 fun WeatherInfoScreenContent(
-    isLoading: Boolean,
+    uiState: WeatherInfoUiState,
     onRefresh: () -> Unit,
-    current: CurrentWeather?,
-    listDaily: List<DailyWeather>,
-    listHourly: List<HourlyWeather>,
     modifier: Modifier = Modifier
 ) {
     val screenPadding = PaddingValues(
@@ -144,16 +136,16 @@ fun WeatherInfoScreenContent(
         top = dimensionResource(R.dimen.vertical_margin)
     )
 
-    LoadingContent(isLoading, onRefresh, modifier) {
+    LoadingContent(uiState.isLoading, onRefresh, modifier) {
         LazyColumn(
             Modifier.fillMaxWidth(),
             contentPadding = screenPadding
         ) {
-            item { CurrentWeatherContent(current) }
+            item { CurrentWeatherContent(uiState.weatherState.current, uiState.temperatureLabel) }
             item { Spacer(Modifier.height(32.dp)) }
-            item { DailyWeatherContent(listDaily) }
+            item { DailyWeatherContent(uiState.weatherState.listDaily) }
             item { Spacer(Modifier.height(32.dp)) }
-            items(listHourly) { hourly ->
+            items(uiState.weatherState.listHourly) { hourly ->
                 HourlyWeatherItem(hourly)
             }
         }
@@ -163,6 +155,7 @@ fun WeatherInfoScreenContent(
 @Composable
 fun CurrentWeatherContent(
     current: CurrentWeather?,
+    temperatureLabel: String,
     modifier: Modifier = Modifier
 ) {
     current?.let {
@@ -196,7 +189,7 @@ fun CurrentWeatherContent(
                     text = buildAnnotatedString {
                         append("${current.temp}")
                         withStyle(superscript) {
-                            append(stringResource(R.string.celsius_symbol))
+                            append(temperatureLabel)
                         }
                     }
                 )
