@@ -7,6 +7,7 @@ import com.example.weatherjourney.weather.domain.model.HourlyWeather
 data class WeatherInfoUiState(
     val cityAddress: String = "",
     val temperatureLabel: String = "",
+    val windSpeedLabel: String = "",
     val weatherState: WeatherState = WeatherState(),
     val isLoading: Boolean = false
 )

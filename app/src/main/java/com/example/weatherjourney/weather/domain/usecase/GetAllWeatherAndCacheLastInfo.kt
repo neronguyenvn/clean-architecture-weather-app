@@ -26,6 +26,7 @@ class GetAllWeatherAndCacheLastInfo(
                 coordinate,
                 timeZone,
                 preferences.getTemperatureUnit().apiParam,
+                preferences.getWindSpeedUnit().apiParam,
                 forceCache
             )
         ) {

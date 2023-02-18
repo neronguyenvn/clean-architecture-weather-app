@@ -20,7 +20,11 @@ import com.example.weatherjourney.R
 import com.example.weatherjourney.weather.domain.model.HourlyWeather
 
 @Composable
-fun HourlyWeatherItem(hourly: HourlyWeather, modifier: Modifier = Modifier) {
+fun HourlyWeatherItem(
+    hourly: HourlyWeather,
+    windSpeedLabel: String,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
 
     Row(
@@ -47,7 +51,7 @@ fun HourlyWeatherItem(hourly: HourlyWeather, modifier: Modifier = Modifier) {
             modifier = Modifier.width(40.dp)
         )
         Text(
-            stringResource(R.string.meter_per_second, hourly.windSpeed),
+            "${hourly.windSpeed}$windSpeedLabel",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.weight(1f)
         )

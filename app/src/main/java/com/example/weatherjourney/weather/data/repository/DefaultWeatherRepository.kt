@@ -15,13 +15,15 @@ class DefaultWeatherRepository(
         coordinate: Coordinate,
         timeZone: String,
         temperatureUnit: String,
+        windSpeedUnit: String,
         forceCache: Boolean
     ): Result<AllWeather> = runCatching {
         apiService.getAllWeather(
             lat = coordinate.lat,
             long = coordinate.long,
             timeZone = timeZone,
-            temperatureUnit = temperatureUnit
+            temperatureUnit = temperatureUnit,
+            windSpeedUnit = windSpeedUnit
         )
     }
 }

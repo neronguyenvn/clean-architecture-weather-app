@@ -49,10 +49,16 @@ class WeatherInfoViewModel @Inject constructor(
 
     init {
         Log.d(TAG, "$TAG init")
+
         viewModelScope.launch {
             val temperatureUnit = preferences.getTemperatureUnit()
-            uiState = uiState.copy(temperatureLabel = temperatureUnit.label)
+            val windSpeedUnit = preferences.getWindSpeedUnit()
+            uiState = uiState.copy(
+                temperatureLabel = temperatureUnit.label,
+                windSpeedLabel = windSpeedUnit.label
+            )
         }
+
         viewModelScope.launch {
             refreshRepository.refreshFlow.collect {
                 refresh(false)
@@ -191,7 +197,8 @@ class WeatherInfoViewModel @Inject constructor(
 
             launch {
                 uiState = uiState.copy(
-                    temperatureLabel = preferences.getTemperatureUnit().label
+                    temperatureLabel = preferences.getTemperatureUnit().label,
+                    windSpeedLabel = preferences.getWindSpeedUnit().label
                 )
             },
 

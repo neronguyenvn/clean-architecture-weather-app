@@ -23,6 +23,7 @@ interface Api {
         @Query("longitude") long: Double,
         @Query("timezone") timeZone: String,
         @Query("temperature_unit") temperatureUnit: String,
+        @Query("windspeed_unit") windSpeedUnit: String,
         @Query("timeformat") timeFormat: String = "unixtime"
     ): AllWeather
 

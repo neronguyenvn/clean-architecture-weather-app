@@ -40,8 +40,11 @@ fun WeatherSettingScreen(
 
         WeatherSettingScreenContent(
             uiState = uiState,
-            onTemperatureUnitUpdate = {
-                settingViewModel.onEvent(WeatherSettingEvent.OnTemperatureUnitUpdate(it))
+            onTemperatureLabelUpdate = {
+                settingViewModel.onEvent(WeatherSettingEvent.OnTemperatureLabelUpdate(it))
+            },
+            onWindSpeedLabelUpdate = {
+                settingViewModel.onEvent(WeatherSettingEvent.OnWindSpeedLabelUpdate(it))
             },
             modifier = Modifier.padding(paddingValues)
         )
@@ -51,7 +54,8 @@ fun WeatherSettingScreen(
 @Composable
 fun WeatherSettingScreenContent(
     uiState: WeatherSettingUiState,
-    onTemperatureUnitUpdate: (String) -> Unit,
+    onTemperatureLabelUpdate: (String) -> Unit,
+    onWindSpeedLabelUpdate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val screenPadding = PaddingValues(
@@ -60,6 +64,7 @@ fun WeatherSettingScreenContent(
     )
 
     val temperatureUnits = stringArrayResource(R.array.temperature_units).toList()
+    val windSpeedUnits = stringArrayResource(R.array.wind_speed_units).toList()
 
     Column(
         modifier
@@ -75,7 +80,14 @@ fun WeatherSettingScreenContent(
             title = R.string.temperature_unit,
             segments = temperatureUnits,
             selectedSegment = uiState.temperatureLabel,
-            onSegmentSelected = onTemperatureUnitUpdate
+            onSegmentSelected = onTemperatureLabelUpdate
+        )
+        Spacer(Modifier.height(12.dp))
+        UnitItem(
+            title = R.string.wind_speed_unit,
+            segments = windSpeedUnits,
+            selectedSegment = uiState.windSpeedLabel,
+            onSegmentSelected = onWindSpeedLabelUpdate
         )
     }
 }

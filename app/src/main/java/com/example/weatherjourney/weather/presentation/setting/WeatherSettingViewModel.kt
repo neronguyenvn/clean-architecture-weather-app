@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.weather.data.repository.DefaultRefreshRepository
 import com.example.weatherjourney.weather.domain.mapper.getTemperatureUnit
+import com.example.weatherjourney.weather.domain.mapper.getWindSpeedUnit
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,17 +24,30 @@ class WeatherSettingViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val temperatureUnit = preferences.getTemperatureUnit()
-            uiState = uiState.copy(temperatureLabel = temperatureUnit.label)
+            val windSpeedUnit = preferences.getWindSpeedUnit()
+            uiState = uiState.copy(
+                temperatureLabel = temperatureUnit.label,
+                windSpeedLabel = windSpeedUnit.label
+            )
         }
     }
 
     fun onEvent(event: WeatherSettingEvent) {
         when (event) {
-            is WeatherSettingEvent.OnTemperatureUnitUpdate -> {
-                uiState = uiState.copy(temperatureLabel = event.unitLabel)
+            is WeatherSettingEvent.OnTemperatureLabelUpdate -> {
+                uiState = uiState.copy(temperatureLabel = event.label)
 
                 viewModelScope.launch {
-                    preferences.saveTemperatureUnit(getTemperatureUnit(event.unitLabel))
+                    preferences.saveTemperatureUnit(getTemperatureUnit(event.label))
+                    refreshRepository.emit()
+                }
+            }
+
+            is WeatherSettingEvent.OnWindSpeedLabelUpdate -> {
+                uiState = uiState.copy(windSpeedLabel = event.label)
+
+                viewModelScope.launch {
+                    preferences.saveWindSpeedUnit(getWindSpeedUnit(event.label))
                     refreshRepository.emit()
                 }
             }

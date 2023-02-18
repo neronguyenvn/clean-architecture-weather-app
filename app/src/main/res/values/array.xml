@@ -4,4 +4,10 @@
         <item>\u00B0C</item>
         <item>\u00B0F</item>
     </string-array>
+
+    <string-array name="wind_speed_units">
+        <item>km/h</item>
+        <item>m/s</item>
+        <item>mph</item>
+    </string-array>
 </resources>

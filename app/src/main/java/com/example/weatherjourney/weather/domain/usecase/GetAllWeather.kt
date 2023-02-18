@@ -17,6 +17,7 @@ class GetAllWeather(
         coordinate,
         timeZone,
         preferences.getTemperatureUnit().apiParam,
+        preferences.getWindSpeedUnit().apiParam,
         true
     )
 }

@@ -10,6 +10,7 @@ interface WeatherRepository {
         coordinate: Coordinate,
         timeZone: String,
         temperatureUnit: String,
+        windSpeedUnit: String,
         forceCache: Boolean
     ): Result<AllWeather>
 }

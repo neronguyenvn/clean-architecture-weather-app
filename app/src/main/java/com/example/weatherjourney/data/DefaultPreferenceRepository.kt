@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.TemperatureUnit
+import com.example.weatherjourney.weather.domain.model.WindSpeedUnit
 import kotlinx.coroutines.flow.first
 
 class DefaultPreferenceRepository(private val dataStore: DataStore<Preferences>) :
@@ -25,6 +26,12 @@ class DefaultPreferenceRepository(private val dataStore: DataStore<Preferences>)
     override suspend fun getTemperatureUnit(): TemperatureUnit =
         TemperatureUnit.valueOf(
             dataStore.data.first().toPreferences()[TEMPERATURE_UNIT] ?: TemperatureUnit.CELSIUS.name
+        )
+
+    override suspend fun getWindSpeedUnit(): WindSpeedUnit =
+        WindSpeedUnit.valueOf(
+            dataStore.data.first().toPreferences()[WIND_SPEED_UNIT]
+                ?: WindSpeedUnit.KILOMETER_PER_HOUR.name
         )
 
     override suspend fun saveCoordinate(coordinate: Coordinate) {
@@ -52,6 +59,12 @@ class DefaultPreferenceRepository(private val dataStore: DataStore<Preferences>)
         }
     }
 
+    override suspend fun saveWindSpeedUnit(unit: WindSpeedUnit) {
+        dataStore.edit { preferences ->
+            preferences[WIND_SPEED_UNIT] = unit.name
+        }
+    }
+
     private fun mapCoordinatePreferences(preferences: Preferences): Coordinate {
         return Coordinate(preferences[LATITUDE] ?: 0.0, preferences[LONGITUDE] ?: 0.0)
     }
@@ -62,5 +75,6 @@ class DefaultPreferenceRepository(private val dataStore: DataStore<Preferences>)
         val TIMEZONE = stringPreferencesKey("timeZone")
         val CITY_ADDRESS = stringPreferencesKey("cityAddress")
         val TEMPERATURE_UNIT = stringPreferencesKey("temperatureUnit")
+        val WIND_SPEED_UNIT = stringPreferencesKey("windSpeedUnit")
     }
 }

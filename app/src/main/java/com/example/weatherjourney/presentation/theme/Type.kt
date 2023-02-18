@@ -6,5 +6,5 @@ import androidx.compose.ui.unit.sp
 
 val superscript = SpanStyle(
     baselineShift = BaselineShift.Superscript,
-    fontSize = 20.sp
+    fontSize = 22.sp
 )

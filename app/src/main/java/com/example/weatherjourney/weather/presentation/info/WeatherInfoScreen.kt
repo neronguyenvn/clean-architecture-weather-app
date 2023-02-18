@@ -141,12 +141,18 @@ fun WeatherInfoScreenContent(
             Modifier.fillMaxWidth(),
             contentPadding = screenPadding
         ) {
-            item { CurrentWeatherContent(uiState.weatherState.current, uiState.temperatureLabel) }
+            item {
+                CurrentWeatherContent(
+                    uiState.weatherState.current,
+                    uiState.temperatureLabel,
+                    uiState.windSpeedLabel
+                )
+            }
             item { Spacer(Modifier.height(32.dp)) }
             item { DailyWeatherContent(uiState.weatherState.listDaily) }
             item { Spacer(Modifier.height(32.dp)) }
             items(uiState.weatherState.listHourly) { hourly ->
-                HourlyWeatherItem(hourly)
+                HourlyWeatherItem(hourly, uiState.windSpeedLabel)
             }
         }
     }
@@ -156,6 +162,7 @@ fun WeatherInfoScreenContent(
 fun CurrentWeatherContent(
     current: CurrentWeather?,
     temperatureLabel: String,
+    windSpeedLabel: String,
     modifier: Modifier = Modifier
 ) {
     current?.let {
@@ -205,7 +212,7 @@ fun CurrentWeatherContent(
                 ) {
                     WeatherDataDisplay(
                         value = current.pressure.roundToInt(),
-                        unit = "hpa",
+                        unit = "hPa",
                         icon = ImageVector.vectorResource(R.drawable.ic_pressure),
                         iconTint = Color.White,
                         textStyle = TextStyle(color = Color.White)
@@ -219,7 +226,7 @@ fun CurrentWeatherContent(
                     )
                     WeatherDataDisplay(
                         value = current.windSpeed.roundToInt(),
-                        unit = "km/h",
+                        unit = windSpeedLabel,
                         icon = ImageVector.vectorResource(R.drawable.ic_wind),
                         iconTint = Color.White,
                         textStyle = TextStyle(color = Color.White)
