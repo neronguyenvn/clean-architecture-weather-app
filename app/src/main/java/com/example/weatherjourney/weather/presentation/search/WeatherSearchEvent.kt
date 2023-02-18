@@ -10,5 +10,5 @@ sealed class WeatherSearchEvent {
 
     data class OnCityLongClick(val city: CityUiModel) : WeatherSearchEvent()
 
-    object DeleteCity : WeatherSearchEvent()
+    object OnCityDelete : WeatherSearchEvent()
 }

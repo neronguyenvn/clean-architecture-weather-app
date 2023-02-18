@@ -29,8 +29,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.weatherjourney.R
-import com.example.weatherjourney.presentation.theme.White70
 import com.example.weatherjourney.presentation.component.HorizontalDivider
+import com.example.weatherjourney.presentation.theme.White70
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

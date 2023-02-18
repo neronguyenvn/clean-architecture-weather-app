@@ -92,7 +92,7 @@ fun WeatherSearchScreen(
 
                         if (result == SnackbarResult.ActionPerformed) {
                             when (event.actionLabel) {
-                                R.string.delete -> viewModel.onEvent(WeatherSearchEvent.DeleteCity)
+                                R.string.delete -> viewModel.onEvent(WeatherSearchEvent.OnCityDelete)
                             }
                         }
                     }

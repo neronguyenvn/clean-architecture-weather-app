@@ -16,7 +16,7 @@ import com.example.weatherjourney.weather.domain.model.CityUiModel
 import com.example.weatherjourney.weather.domain.model.SavedCity
 import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
-import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.DeleteCity
+import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.OnCityDelete
 import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.OnCityLongClick
 import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.OnCityUpdate
 import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.OnRefresh
@@ -141,7 +141,7 @@ class WeatherSearchViewModel @Inject constructor(
                 )
             }
 
-            is DeleteCity -> viewModelScope.launch {
+            is OnCityDelete -> viewModelScope.launch {
                 locationUseCases.deleteLocation(tempCityUiModel.coordinate)
             }
         }

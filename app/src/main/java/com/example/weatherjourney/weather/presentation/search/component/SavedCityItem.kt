@@ -19,9 +19,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.weatherjourney.R
+import com.example.weatherjourney.presentation.component.HorizontalDivider
 import com.example.weatherjourney.presentation.theme.White70
 import com.example.weatherjourney.weather.domain.model.SavedCity
-import com.example.weatherjourney.presentation.component.HorizontalDivider
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
