@@ -9,12 +9,10 @@ import com.example.weatherjourney.util.toDayNameInWeek
 import com.example.weatherjourney.weather.data.remote.dto.AllWeather
 import com.example.weatherjourney.weather.data.remote.dto.DailyWeatherDto
 import com.example.weatherjourney.weather.data.remote.dto.HourlyWeatherDto
-import com.example.weatherjourney.weather.domain.model.Coordinate
-import com.example.weatherjourney.weather.domain.model.CurrentWeather
-import com.example.weatherjourney.weather.domain.model.DailyWeather
-import com.example.weatherjourney.weather.domain.model.HourlyWeather
-import com.example.weatherjourney.weather.domain.model.SavedCity
 import com.example.weatherjourney.weather.domain.model.WeatherType
+import com.example.weatherjourney.weather.domain.model.weather.CurrentWeather
+import com.example.weatherjourney.weather.domain.model.weather.DailyWeather
+import com.example.weatherjourney.weather.domain.model.weather.HourlyWeather
 
 fun AllWeather.toCurrentWeather(timeZone: String): CurrentWeather {
     this.hourly.apply {
@@ -47,24 +45,6 @@ fun HourlyWeatherDto.toHourlyWeather(timeZone: String): List<HourlyWeather> {
             temp = temperatures[index],
             windSpeed = windSpeeds[index],
             weatherType = WeatherType.fromWMO(weatherCodes[index])
-        )
-    }
-}
-
-fun AllWeather.toSavedCity(
-    cityAddress: String,
-    coordinate: Coordinate,
-    timeZone: String,
-    isCurrentLocation: Boolean
-): SavedCity {
-    this.hourly.apply {
-        return SavedCity(
-            temp = temperatures[0],
-            weatherType = WeatherType.fromWMO(weatherCodes[0]),
-            cityAddress = cityAddress,
-            coordinate = coordinate,
-            isCurrentLocation = isCurrentLocation,
-            timeZone = timeZone
         )
     }
 }

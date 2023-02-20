@@ -1,4 +1,4 @@
-package com.example.weatherjourney.weather.domain.usecase
+package com.example.weatherjourney.weather.domain.usecase.weather
 
 import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.util.Result

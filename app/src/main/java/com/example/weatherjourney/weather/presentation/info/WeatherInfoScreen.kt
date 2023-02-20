@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -33,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -45,8 +48,8 @@ import com.example.weatherjourney.presentation.component.LoadingContent
 import com.example.weatherjourney.presentation.theme.superscript
 import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.weather.domain.model.Coordinate
-import com.example.weatherjourney.weather.domain.model.CurrentWeather
-import com.example.weatherjourney.weather.domain.model.DailyWeather
+import com.example.weatherjourney.weather.domain.model.weather.CurrentWeather
+import com.example.weatherjourney.weather.domain.model.weather.DailyWeather
 import com.example.weatherjourney.weather.presentation.info.component.DailyWeatherItem
 import com.example.weatherjourney.weather.presentation.info.component.HourlyWeatherItem
 import com.example.weatherjourney.weather.presentation.info.component.InfoTopBar
@@ -61,6 +64,7 @@ fun WeatherInfoScreen(
     snackbarHostState: SnackbarHostState,
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
+    onNotificationClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WeatherInfoViewModel = LocalView.current.findViewTreeViewModelStoreOwner()
         .let { hiltViewModel(it!!) }
@@ -77,6 +81,14 @@ fun WeatherInfoScreen(
                 onSearchClick = onSearchClick,
                 onSettingClick = onSettingClick
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onNotificationClick) {
+                Icon(
+                    Icons.Outlined.Notifications,
+                    contentDescription = stringResource(R.string.notification)
+                )
+            }
         }
     ) { paddingValues ->
 
@@ -166,11 +178,7 @@ fun CurrentWeatherContent(
     modifier: Modifier = Modifier
 ) {
     current?.let {
-        Card(
-            shape = RoundedCornerShape(10.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            modifier = modifier
-        ) {
+        Card(modifier) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

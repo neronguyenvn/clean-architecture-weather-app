@@ -1,8 +1,8 @@
 package com.example.weatherjourney.weather.presentation.info
 
-import com.example.weatherjourney.weather.domain.model.CurrentWeather
-import com.example.weatherjourney.weather.domain.model.DailyWeather
-import com.example.weatherjourney.weather.domain.model.HourlyWeather
+import com.example.weatherjourney.weather.domain.model.weather.CurrentWeather
+import com.example.weatherjourney.weather.domain.model.weather.DailyWeather
+import com.example.weatherjourney.weather.domain.model.weather.HourlyWeather
 
 data class WeatherInfoUiState(
     val cityAddress: String = "",

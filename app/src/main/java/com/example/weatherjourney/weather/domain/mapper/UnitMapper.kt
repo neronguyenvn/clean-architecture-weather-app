@@ -1,7 +1,7 @@
 package com.example.weatherjourney.weather.domain.mapper
 
-import com.example.weatherjourney.weather.domain.model.TemperatureUnit
-import com.example.weatherjourney.weather.domain.model.WindSpeedUnit
+import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit
+import com.example.weatherjourney.weather.domain.model.unit.WindSpeedUnit
 
 fun getTemperatureUnit(label: String): TemperatureUnit {
     for (unit in TemperatureUnit.values()) {

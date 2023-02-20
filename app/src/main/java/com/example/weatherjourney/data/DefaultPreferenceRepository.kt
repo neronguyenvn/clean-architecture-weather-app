@@ -7,8 +7,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.weather.domain.model.Coordinate
-import com.example.weatherjourney.weather.domain.model.TemperatureUnit
-import com.example.weatherjourney.weather.domain.model.WindSpeedUnit
+import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit
+import com.example.weatherjourney.weather.domain.model.unit.WindSpeedUnit
 import kotlinx.coroutines.flow.first
 
 class DefaultPreferenceRepository(private val dataStore: DataStore<Preferences>) :

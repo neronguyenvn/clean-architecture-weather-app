@@ -16,7 +16,7 @@ data class HourlyWeatherDto(
     val temperatures: List<Double>,
     @SerialName("weathercode")
     val weatherCodes: List<Int>,
-    @SerialName("surface_pressure")
+    @SerialName("pressure_msl")
     val pressures: List<Double>,
     @SerialName("windspeed_10m")
     val windSpeeds: List<Double>,

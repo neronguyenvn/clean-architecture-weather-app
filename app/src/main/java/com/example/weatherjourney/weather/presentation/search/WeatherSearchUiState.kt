@@ -7,5 +7,5 @@ data class WeatherSearchUiState(
     val cityAddress: String = "",
     val savedCities: List<SavedCity> = emptyList(),
     val suggestionCities: List<SuggestionCity> = emptyList(),
-    val isLoading: Boolean = true
+    val isLoading: Boolean = false
 )

@@ -9,8 +9,10 @@ import androidx.compose.ui.graphics.Color
 
 private val AppDarkColorScheme = darkColorScheme()
 private val AppLightColorScheme = lightColorScheme().copy(
-    background = DarkBlue,
     surface = DeepBlue,
+    primaryContainer = DeepBlue,
+    surfaceVariant = DeepBlue,
+    background = DarkBlue,
     onBackground = Color.White,
     onSurface = Color.White
 )

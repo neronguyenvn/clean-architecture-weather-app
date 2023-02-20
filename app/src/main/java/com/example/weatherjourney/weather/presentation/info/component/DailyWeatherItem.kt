@@ -19,7 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.weatherjourney.R
-import com.example.weatherjourney.weather.domain.model.DailyWeather
+import com.example.weatherjourney.weather.domain.model.weather.DailyWeather
 import kotlin.math.roundToInt
 
 @Composable

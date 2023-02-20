@@ -1,8 +1,8 @@
 package com.example.weatherjourney.domain
 
 import com.example.weatherjourney.weather.domain.model.Coordinate
-import com.example.weatherjourney.weather.domain.model.TemperatureUnit
-import com.example.weatherjourney.weather.domain.model.WindSpeedUnit
+import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit
+import com.example.weatherjourney.weather.domain.model.unit.WindSpeedUnit
 
 interface PreferenceRepository {
 

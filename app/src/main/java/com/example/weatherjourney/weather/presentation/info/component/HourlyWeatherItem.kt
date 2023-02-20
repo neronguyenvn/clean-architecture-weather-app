@@ -17,7 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.weatherjourney.R
-import com.example.weatherjourney.weather.domain.model.HourlyWeather
+import com.example.weatherjourney.weather.domain.model.weather.HourlyWeather
 
 @Composable
 fun HourlyWeatherItem(

@@ -147,9 +147,9 @@ class WeatherSearchViewModel @Inject constructor(
         }
     }
 
-    private suspend fun runSuspend(vararg jobs: Job?) {
+    private suspend fun runSuspend(vararg jobs: Job) {
         uiState = uiState.copy(isLoading = true)
-        jobs.forEach { it?.join() }
+        jobs.forEach { it.join() }
         uiState = uiState.copy(isLoading = false)
     }
 

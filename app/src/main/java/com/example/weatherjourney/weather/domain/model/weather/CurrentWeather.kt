@@ -1,4 +1,6 @@
-package com.example.weatherjourney.weather.domain.model
+package com.example.weatherjourney.weather.domain.model.weather
+
+import com.example.weatherjourney.weather.domain.model.WeatherType
 
 data class CurrentWeather(
     val date: String,

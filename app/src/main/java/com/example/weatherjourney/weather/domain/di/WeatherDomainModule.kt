@@ -4,20 +4,21 @@ import com.example.weatherjourney.di.IoDispatcher
 import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.weather.domain.repository.LocationRepository
 import com.example.weatherjourney.weather.domain.repository.WeatherRepository
-import com.example.weatherjourney.weather.domain.usecase.DeleteLocation
-import com.example.weatherjourney.weather.domain.usecase.GetAllWeather
-import com.example.weatherjourney.weather.domain.usecase.GetAllWeatherAndCacheLastInfo
-import com.example.weatherjourney.weather.domain.usecase.GetCityAddressAndSaveLocation
-import com.example.weatherjourney.weather.domain.usecase.GetCurrentCoordinate
-import com.example.weatherjourney.weather.domain.usecase.GetLocationsStream
-import com.example.weatherjourney.weather.domain.usecase.GetSuggestionCities
 import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
-import com.example.weatherjourney.weather.domain.usecase.SaveLocation
-import com.example.weatherjourney.weather.domain.usecase.ShouldSaveLocation
-import com.example.weatherjourney.weather.domain.usecase.ValidateCurrentCoordinate
-import com.example.weatherjourney.weather.domain.usecase.ValidateCurrentLocation
-import com.example.weatherjourney.weather.domain.usecase.ValidateLastInfo
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
+import com.example.weatherjourney.weather.domain.usecase.location.DeleteLocation
+import com.example.weatherjourney.weather.domain.usecase.location.GetCityAddressAndSaveLocation
+import com.example.weatherjourney.weather.domain.usecase.location.GetCurrentCoordinate
+import com.example.weatherjourney.weather.domain.usecase.location.GetLocationsStream
+import com.example.weatherjourney.weather.domain.usecase.location.GetSuggestionCities
+import com.example.weatherjourney.weather.domain.usecase.location.SaveLocation
+import com.example.weatherjourney.weather.domain.usecase.location.ShouldSaveLocation
+import com.example.weatherjourney.weather.domain.usecase.location.ValidateCurrentCoordinate
+import com.example.weatherjourney.weather.domain.usecase.location.ValidateCurrentLocation
+import com.example.weatherjourney.weather.domain.usecase.location.ValidateLastInfo
+import com.example.weatherjourney.weather.domain.usecase.weather.GetAllWeather
+import com.example.weatherjourney.weather.domain.usecase.weather.GetAllWeatherAndCacheLastInfo
+import com.example.weatherjourney.weather.domain.usecase.weather.GetWeatherAdvices
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -60,6 +61,7 @@ class WeatherDomainModule {
             preferences,
             ioDispatcher
         ),
-        getAllWeather = GetAllWeather(repository, preferences)
+        getAllWeather = GetAllWeather(repository, preferences),
+        getWeatherAdvices = GetWeatherAdvices(repository, preferences)
     )
 }

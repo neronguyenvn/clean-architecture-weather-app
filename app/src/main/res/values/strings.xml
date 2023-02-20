@@ -20,4 +20,12 @@
     <string name="units">UNITS</string>
     <string name="temperature_unit">Temperature unit</string>
     <string name="wind_speed_unit">Wind speed unit</string>
+    <string name="notification">Notifications</string>
+    <string name="uv_notification">UV notification</string>
+    <string name="level_one_uv_info">The UV index is in 0 to 2</string>
+    <string name="level_one_uv_advice">You can safely enjoy being outside!</string>
+    <string name="level_two_uv_info">The UV index is in 3 to 7</string>
+    <string name="level_two_uv_advice">Seek shade during midday hours! Slip on a shirt, slop on sunscreen and slap on hat!</string>
+    <string name="level_three_uv_info">The UV index is 8 or greater</string>
+    <string name="level_three_uv_advice">You can safely enjoy being outside!</string>
 </resources>

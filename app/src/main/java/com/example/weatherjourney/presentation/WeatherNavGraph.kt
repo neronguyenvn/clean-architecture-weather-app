@@ -16,6 +16,7 @@ import com.example.weatherjourney.presentation.WeatherDestinationsArgs.LONGITUDE
 import com.example.weatherjourney.presentation.WeatherDestinationsArgs.TIMEZONE_ARG
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.presentation.info.WeatherInfoScreen
+import com.example.weatherjourney.weather.presentation.notification.WeatherNotificationScreen
 import com.example.weatherjourney.weather.presentation.search.WeatherSearchScreen
 import com.example.weatherjourney.weather.presentation.setting.WeatherSettingScreen
 
@@ -55,7 +56,8 @@ fun WeatherNavGraph(
                 timeZone = timeZone,
                 snackbarHostState = snackbarHostState,
                 onSearchClick = { navActions.navigateToSearch() },
-                onSettingClick = { navActions.navigateToSetting() }
+                onSettingClick = { navActions.navigateToSetting() },
+                onNotificationClick = { navActions.navigateToNotification() }
             )
         }
         composable(WeatherDestinations.SEARCH_ROUTE) {
@@ -73,6 +75,12 @@ fun WeatherNavGraph(
         }
         composable(WeatherDestinations.SETTING_ROUTE) {
             WeatherSettingScreen(
+                snackbarHostState = snackbarHostState,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable(WeatherDestinations.NOTIFICATION_ROUTE) {
+            WeatherNotificationScreen(
                 snackbarHostState = snackbarHostState,
                 onBackClick = { navController.popBackStack() }
             )

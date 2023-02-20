@@ -1,4 +1,4 @@
-package com.example.weatherjourney.weather.domain.usecase
+package com.example.weatherjourney.weather.domain.usecase.location
 
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.repository.LocationRepository
