@@ -1,4 +1,4 @@
-package com.example.weatherjourney.weather.presentation.setting.component
+package com.example.weatherjourney.presentation.component
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -13,7 +13,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.weatherjourney.R
 
 @Composable
-fun SettingTopBar(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
+fun BasicTopBar(title: String, onBackClick: () -> Unit, modifier: Modifier = Modifier) {
     TopAppBar(
         navigationIcon = {
             IconButton(onBackClick) {
@@ -25,7 +25,7 @@ fun SettingTopBar(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
         },
         title = {
             Text(
-                stringResource(R.string.setting),
+                title,
                 style = MaterialTheme.typography.titleMedium
             )
         },

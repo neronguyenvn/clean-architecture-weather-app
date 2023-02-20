@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.theme.White70
-import com.example.weatherjourney.weather.presentation.setting.component.SettingTopBar
+import com.example.weatherjourney.presentation.component.BasicTopBar
 import com.example.weatherjourney.weather.presentation.setting.component.UnitItem
 
 @Composable
@@ -28,23 +28,23 @@ fun WeatherSettingScreen(
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    settingViewModel: WeatherSettingViewModel = hiltViewModel()
+    viewModel: WeatherSettingViewModel = hiltViewModel()
 ) {
     Scaffold(
         modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = { SettingTopBar(onBackClick) }
+        topBar = { BasicTopBar(stringResource(R.string.setting), onBackClick) }
     ) { paddingValues ->
 
-        val uiState = settingViewModel.uiState
+        val uiState = viewModel.uiState
 
         WeatherSettingScreenContent(
             uiState = uiState,
             onTemperatureLabelUpdate = {
-                settingViewModel.onEvent(WeatherSettingEvent.OnTemperatureLabelUpdate(it))
+                viewModel.onEvent(WeatherSettingEvent.OnTemperatureLabelUpdate(it))
             },
             onWindSpeedLabelUpdate = {
-                settingViewModel.onEvent(WeatherSettingEvent.OnWindSpeedLabelUpdate(it))
+                viewModel.onEvent(WeatherSettingEvent.OnWindSpeedLabelUpdate(it))
             },
             modifier = Modifier.padding(paddingValues)
         )

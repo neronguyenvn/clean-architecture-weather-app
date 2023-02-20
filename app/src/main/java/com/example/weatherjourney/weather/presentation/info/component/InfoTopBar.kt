@@ -25,7 +25,7 @@ fun InfoTopBar(
             IconButton(onSearchClick) {
                 Icon(
                     painter = painterResource(R.drawable.ic_search),
-                    contentDescription = stringResource(R.string.search_city)
+                    contentDescription = stringResource(R.string.search)
                 )
             }
         },

@@ -78,7 +78,7 @@ fun SearchBar(
                 IconButton(onValueClear) {
                     Icon(
                         Icons.Filled.Close,
-                        contentDescription = stringResource(R.string.delete_city)
+                        contentDescription = stringResource(R.string.delete_city_address_input)
                     )
                 }
             }

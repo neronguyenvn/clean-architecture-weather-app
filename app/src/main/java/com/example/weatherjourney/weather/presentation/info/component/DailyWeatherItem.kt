@@ -39,7 +39,7 @@ fun DailyWeatherItem(
         val context = LocalContext.current
 
         Text(
-            text = stringResource(R.string.daily_weather, daily.date.asString(context), daily.weatherType.weatherDesc),
+            text = "${daily.date.asString(context)}\n${daily.weatherType.weatherDesc}",
             style = MaterialTheme.typography.titleSmall,
             textAlign = TextAlign.Center
         )

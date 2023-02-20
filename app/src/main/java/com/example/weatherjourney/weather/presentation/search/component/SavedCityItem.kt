@@ -54,7 +54,7 @@ fun SavedCityItem(
                     )
                     Text(
                         text = stringResource(R.string.your_location),
-                        style = MaterialTheme.typography.labelMedium.copy(color = White70)
+                        style = MaterialTheme.typography.labelMedium.copy(White70)
                     )
                 }
             } else {
