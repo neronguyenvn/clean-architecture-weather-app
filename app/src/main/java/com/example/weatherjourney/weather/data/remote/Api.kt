@@ -48,7 +48,7 @@ interface Api {
         @Query("latitude") lat: Double,
         @Query("longitude") long: Double,
         @Query("timezone") timeZone: String,
-        @Query("hourly", encoded = true) hourlyParams: String = "uv_index,uv_index_clear_sky",
+        @Query("hourly", encoded = true) hourlyParams: String = "uv_index,european_aqi",
         @Query("timeformat") timeFormat: String = "unixtime"
     ): AirQuality
 

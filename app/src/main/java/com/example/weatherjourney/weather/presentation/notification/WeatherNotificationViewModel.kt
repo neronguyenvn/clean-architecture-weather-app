@@ -46,7 +46,7 @@ class WeatherNotificationViewModel @Inject constructor(
             viewModelScope.launch {
                 when (val advices = weatherUseCases.getWeatherAdvices()) {
                     is Result.Success -> {
-                        uiState = uiState.copy(weatherAdviceState = advices.data)
+                        uiState = uiState.copy(weatherNotificationState = advices.data)
                     }
 
                     is Result.Error -> handleError(advices)

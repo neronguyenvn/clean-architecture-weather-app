@@ -1,18 +1,13 @@
 package com.example.weatherjourney.weather.presentation.notification
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -24,8 +19,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.component.BasicTopBar
 import com.example.weatherjourney.presentation.component.LoadingContent
-import com.example.weatherjourney.presentation.theme.White70
 import com.example.weatherjourney.util.UiEvent
+import com.example.weatherjourney.weather.presentation.notification.component.AqiNotificationItem
+import com.example.weatherjourney.weather.presentation.notification.component.UvNotificationItem
 
 @Composable
 fun WeatherNotificationScreen(
@@ -80,27 +76,29 @@ fun WeatherNotificationScreenContent(
         LazyColumn(
             Modifier
                 .fillMaxWidth()
-                .padding(screenPadding)
+                .padding(screenPadding),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            uiState.weatherAdviceState.uvAdvice?.let {
+            uiState.weatherNotificationState.uvNotification?.let {
                 item {
-                    Card {
-                        Column(Modifier.padding(16.dp)) {
-                            Text(
-                                stringResource(R.string.uv_notification),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                "${it.firstTimeLine.asString()} - ${it.secondTimeLine.asString()}",
-                                style = MaterialTheme.typography.labelMedium.copy(White70)
-                            )
-                            Spacer(Modifier.height(16.dp))
-                            Text(
-                                "${stringResource(it.infoRes)}\n${stringResource(it.adviceRes)}",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
+                    UvNotificationItem(
+                        title = stringResource(R.string.uv_notification),
+                        firstTimeLine = it.firstTimeLine.asString(),
+                        secondTimeLine = it.secondTimeLine.asString(),
+                        info = stringResource(it.infoRes),
+                        adviceRes = stringResource(it.adviceRes)
+                    )
+                }
+            }
+            uiState.weatherNotificationState.aqiNotification?.let {
+                item {
+                    AqiNotificationItem(
+                        firstTimeLine = it.firstTimeLine.asString(),
+                        secondTimeLine = it.secondTimeLine.asString(),
+                        info = stringResource(it.infoRes),
+                        adviceRes1 = stringResource(it.adviceRes),
+                        adviceRes2 = it.adviceRes2.asString()
+                    )
                 }
             }
         }

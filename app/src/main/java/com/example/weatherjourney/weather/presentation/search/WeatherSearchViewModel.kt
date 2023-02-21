@@ -88,6 +88,7 @@ class WeatherSearchViewModel @Inject constructor(
         Log.d(TAG, "$TAG init")
 
         viewModelScope.launch {
+            uiState = uiState.copy(isLoading = true)
             if (locationUseCases.validateCurrentCoordinate()) {
                 return@launch
             }

@@ -28,4 +28,22 @@
     <string name="level_two_uv_advice">Seek shade during midday hours! Slip on a shirt, slop on sunscreen and slap on hat!</string>
     <string name="level_three_uv_info">The UV index is 8 or greater</string>
     <string name="level_three_uv_advice">You can safely enjoy being outside!</string>
+    <string name="aqi_notification">AQI notification</string>
+    <string name="good_aqi_info">The air quality is Good</string>
+    <string name="fair_aqi_info">The air quality is Fair</string>
+    <string name="moderate_aqi_info">The air quality is Moderate</string>
+    <string name="poor_aqi_info">The air quality is Poor</string>
+    <string name="very_poor_aqi_info">The air quality is Very Poor</string>
+    <string name="extremely_poor_aqi_info">The air quality is Extremely Poor</string>
+    <string name="general_and_sensitive_population">General and sensitive population</string>
+    <string name="general_population">General population</string>
+    <string name="sensitive_population">Sensitive population</string>
+    <string name="good_aqi_advice">The air quality is good. Enjoy your usual outdoor activities.</string>
+    <string name="fair_and_general_population_moderate_aqi_advice">Enjoy your usual outdoor activities.</string>
+    <string name="sensitive_population_moderate_aqi_advice">Consider reducing intense outdoor activities, if you experience symptoms.</string>
+    <string name="general_population_poor_and_very_poor_aqi_advice">Consider reducing intense activities outdoors, if you experience symptoms such as sore eyes, a cough or sore throat.</string>
+    <string name="sensitive_population_poor_aqi_advice">Consider reducing physical activities, particularly outdoors, especially if you experience symptoms.</string>
+    <string name="sensitive_population_very_poor_aqi_advice">Reduce physical activities, particularly outdoors, especially if you experience symptoms.</string>
+    <string name="general_population_extremely_poor_aqi_advice">Reduce physical activities outdoors.</string>
+    <string name="sensitive_population_extremely_poor_aqi_advice">Avoid physical activities outdoors.</string>
 </resources>

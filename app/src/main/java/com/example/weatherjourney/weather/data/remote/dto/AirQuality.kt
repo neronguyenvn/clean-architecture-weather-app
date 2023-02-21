@@ -12,7 +12,7 @@ data class AirQuality(
 data class HourlyAirQuality(
     val time: List<Long>,
     @SerialName("uv_index")
-    val uvIndexList: List<Double>,
-    @SerialName("uv_index_clear_sky")
-    val clearSkyUvIndexList: List<Double>
+    val uvIndexList: List<Double?>,
+    @SerialName("european_aqi")
+    val europeanAqiList: List<Int?>
 )
