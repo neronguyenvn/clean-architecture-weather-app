@@ -46,4 +46,5 @@
     <string name="sensitive_population_very_poor_aqi_advice">Reduce physical activities, particularly outdoors, especially if you experience symptoms.</string>
     <string name="general_population_extremely_poor_aqi_advice">Reduce physical activities outdoors.</string>
     <string name="sensitive_population_extremely_poor_aqi_advice">Avoid physical activities outdoors.</string>
+    <string name="restore_internet_connection">Internet connection was restored</string>
 </resources>

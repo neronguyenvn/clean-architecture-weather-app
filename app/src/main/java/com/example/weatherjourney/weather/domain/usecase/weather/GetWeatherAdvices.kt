@@ -4,14 +4,14 @@ import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.weather.data.mapper.toWeatherAdviceState
 import com.example.weatherjourney.weather.domain.repository.WeatherRepository
-import com.example.weatherjourney.weather.presentation.notification.WeatherNotificationState
+import com.example.weatherjourney.weather.presentation.notification.WeatherNotifications
 
 class GetWeatherAdvices(
     private val repository: WeatherRepository,
     private val preferences: PreferenceRepository
 ) {
 
-    suspend operator fun invoke(): Result<WeatherNotificationState> {
+    suspend operator fun invoke(): Result<WeatherNotifications> {
         val timeZone = preferences.getLastTimeZone()
 
         return when (

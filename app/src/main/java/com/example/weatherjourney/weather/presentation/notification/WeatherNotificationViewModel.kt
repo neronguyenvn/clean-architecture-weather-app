@@ -1,20 +1,27 @@
 package com.example.weatherjourney.weather.presentation.notification
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.weatherjourney.R
+import com.example.weatherjourney.presentation.BaseViewModel
+import com.example.weatherjourney.util.Async
 import com.example.weatherjourney.util.Result
-import com.example.weatherjourney.util.UiEvent
-import com.example.weatherjourney.util.UiText
+import com.example.weatherjourney.util.UiText.DynamicString
+import com.example.weatherjourney.util.UiText.StringResource
+import com.example.weatherjourney.util.UserMessage
+import com.example.weatherjourney.util.WhileUiSubscribed
+import com.example.weatherjourney.weather.data.repository.DefaultRefreshRepository
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,56 +29,71 @@ private const val TAG = "WeatherNotificationViewModel"
 
 @HiltViewModel
 class WeatherNotificationViewModel @Inject constructor(
-    private val weatherUseCases: WeatherUseCases
-) : ViewModel() {
+    private val weatherUseCases: WeatherUseCases,
+    private val refreshRepository: DefaultRefreshRepository
+) : BaseViewModel() {
 
-    var uiState by mutableStateOf(WeatherNotificationUiState())
-        private set
+    private val _notificationsAsync = flow { emit(weatherUseCases.getWeatherAdvices()) }
+        .map { handleResult(it) }
+        .onStart { Async.Loading }
 
-    private val _uiEvent = MutableSharedFlow<UiEvent>()
-    val uiEvent = _uiEvent.asSharedFlow()
+    val uiState: StateFlow<WeatherNotificationUiState> = combine(
+        _userMessage,
+        _isLoading,
+        _notificationsAsync
+    ) { userMessage, isLoading, notificationsAsync ->
 
-    init {
-        refresh(false)
-    }
-
-    fun onEvent(event: WeatherNotificationEvent) {
-        when (event) {
-            is WeatherNotificationEvent.OnRefresh -> refresh(true)
-        }
-    }
-
-    private fun refresh(isDelay: Boolean) = viewModelScope.launch {
-        runSuspend(
-            viewModelScope.launch {
-                when (val advices = weatherUseCases.getWeatherAdvices()) {
-                    is Result.Success -> {
-                        uiState = uiState.copy(weatherNotificationState = advices.data)
-                    }
-
-                    is Result.Error -> handleError(advices)
-                }
-            },
-
-            if (isDelay) {
-                launch {
-                    delay(1500)
-                }
-            } else {
-                launch { }
+        when (notificationsAsync) {
+            Async.Loading -> {
+                WeatherNotificationUiState(isLoading = true)
             }
+
+            is Async.Success -> {
+                WeatherNotificationUiState(
+                    notifications = notificationsAsync.data,
+                    isLoading = isLoading,
+                    userMessage = userMessage
+                )
+            }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = WhileUiSubscribed,
+        initialValue = WeatherNotificationUiState(isLoading = true)
+    )
+
+    private var listenSuccessNetworkJob: Job? = null
+
+    fun refresh() = viewModelScope.launch {
+        runSuspend(
+            launch { _notificationsAsync.first() },
+            launch { delay(1500) }
         )
     }
 
-    private suspend fun handleError(error: Result.Error) {
-        val message = error.toString()
-        Log.e(TAG, message)
-        _uiEvent.emit(UiEvent.ShowSnackbar(UiText.DynamicString(message)))
-    }
+    private fun handleResult(result: Result<WeatherNotifications>): Async<WeatherNotifications?> =
+        if (result is Result.Success) {
+            Async.Success(result.data)
+        } else {
+            val message = result.toString()
+            showSnackbarMessage(UserMessage(DynamicString(message)))
+            Log.e(TAG, message)
 
-    private suspend fun runSuspend(vararg jobs: Job) {
-        uiState = uiState.copy(isLoading = true)
-        jobs.forEach { it.join() }
-        uiState = uiState.copy(isLoading = false)
-    }
+            refreshRepository.startListenWhenConnectivitySuccess()
+
+            if (listenSuccessNetworkJob != null) {
+                Async.Success(null)
+            }
+
+            listenSuccessNetworkJob = viewModelScope.launch {
+                refreshRepository.outputWorkInfo.collect { info ->
+                    if (info.state.isFinished) {
+                        refresh()
+                        showSnackbarMessage(UserMessage(StringResource(R.string.restore_internet_connection)))
+                    }
+                }
+            }
+
+            Async.Success(null)
+        }
 }

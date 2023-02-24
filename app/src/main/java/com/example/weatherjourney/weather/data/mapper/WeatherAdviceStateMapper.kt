@@ -8,14 +8,14 @@ import com.example.weatherjourney.weather.domain.model.notification.AqiNotificat
 import com.example.weatherjourney.weather.domain.model.notification.UvNotification
 import com.example.weatherjourney.weather.domain.model.notification.toAqiLevel
 import com.example.weatherjourney.weather.domain.model.notification.toUvIndexLevel
-import com.example.weatherjourney.weather.presentation.notification.WeatherNotificationState
+import com.example.weatherjourney.weather.presentation.notification.WeatherNotifications
 
-fun HourlyAirQuality.toWeatherAdviceState(timeZone: String): WeatherNotificationState {
+fun HourlyAirQuality.toWeatherAdviceState(timeZone: String): WeatherNotifications {
     val newTimeList = time.filterPastHours()
     val newUvIndexList = uvIndexList.takeLast(newTimeList.size).filterNotNull()
     val newAqiList = europeanAqiList.takeLast(newTimeList.size).filterNotNull()
 
-    var notificationState = WeatherNotificationState()
+    var notificationState = WeatherNotifications()
     val lastIndex = newUvIndexList.size - 2
 
     for (i in 0..lastIndex) {

@@ -65,6 +65,8 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:$navigationVersion"
     implementation "me.omico.lux:lux-androidx-compose-material3-pullrefresh"
     implementation "androidx.compose.ui:ui-tooling-preview:$composeVersion"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidxLifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:$androidxLifecycleVersion"
     debugImplementation "androidx.compose.ui:ui-tooling:$composeVersion"
 
     // Splash Screen
@@ -75,7 +77,7 @@ dependencies {
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$hiltVersion"
-    implementation "androidx.hilt:hilt-navigation-compose:$hiltAndroidXVersion"
+    implementation "androidx.hilt:hilt-navigation-compose:$hiltAndroidxVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
 
     // Retrofit
@@ -91,6 +93,9 @@ dependencies {
 
     // DataStore
     implementation "androidx.datastore:datastore-preferences:$dataStoreVersion"
+
+    // WorkManager
+    implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
 
     // Local Test
     testImplementation "junit:junit:$junitVersion"

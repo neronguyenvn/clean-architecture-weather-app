@@ -10,16 +10,16 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.component.BasicTopBar
 import com.example.weatherjourney.presentation.component.LoadingContent
-import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.weather.presentation.notification.component.AqiNotificationItem
 import com.example.weatherjourney.weather.presentation.notification.component.UvNotificationItem
 
@@ -36,26 +36,20 @@ fun WeatherNotificationScreen(
         topBar = { BasicTopBar(stringResource(R.string.notification), onBackClick) }
     ) { paddingValues ->
 
-        val uiState = viewModel.uiState
-        val context = LocalContext.current
+        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
         WeatherNotificationScreenContent(
             uiState = uiState,
             modifier = Modifier.padding(paddingValues),
-            onRefresh = { viewModel.onEvent(WeatherNotificationEvent.OnRefresh) }
+            onRefresh = viewModel::refresh
         )
 
-        LaunchedEffect(true) {
-            viewModel.uiEvent.collect { event ->
-                when (event) {
-                    is UiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(
-                        event.message.asString(
-                            context
-                        )
-                    )
-
-                    else -> Unit
-                }
+        // Check for user messages to display on the screen
+        uiState.userMessage?.let { userMessage ->
+            val snackbarText = userMessage.message.asString()
+            LaunchedEffect(snackbarHostState, viewModel, userMessage, snackbarText) {
+                snackbarHostState.showSnackbar(snackbarText)
+                viewModel.snackbarMessageShown()
             }
         }
     }
@@ -79,7 +73,7 @@ fun WeatherNotificationScreenContent(
                 .padding(screenPadding),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            uiState.weatherNotificationState.uvNotification?.let {
+            uiState.notifications?.uvNotification?.let {
                 item {
                     UvNotificationItem(
                         title = stringResource(R.string.uv_notification),
@@ -90,7 +84,7 @@ fun WeatherNotificationScreenContent(
                     )
                 }
             }
-            uiState.weatherNotificationState.aqiNotification?.let {
+            uiState.notifications?.aqiNotification?.let {
                 item {
                     AqiNotificationItem(
                         firstTimeLine = it.firstTimeLine.asString(),
