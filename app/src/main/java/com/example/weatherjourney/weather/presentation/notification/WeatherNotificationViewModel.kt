@@ -6,8 +6,8 @@ import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.BaseViewModel
 import com.example.weatherjourney.util.Async
 import com.example.weatherjourney.util.Result
+import com.example.weatherjourney.util.UiText
 import com.example.weatherjourney.util.UiText.DynamicString
-import com.example.weatherjourney.util.UiText.StringResource
 import com.example.weatherjourney.util.UserMessage
 import com.example.weatherjourney.util.WhileUiSubscribed
 import com.example.weatherjourney.weather.data.repository.DefaultRefreshRepository
@@ -88,8 +88,8 @@ class WeatherNotificationViewModel @Inject constructor(
             listenSuccessNetworkJob = viewModelScope.launch {
                 refreshRepository.outputWorkInfo.collect { info ->
                     if (info.state.isFinished) {
+                        showSnackbarMessage(UserMessage(UiText.StringResource(R.string.restore_internet_connection)))
                         refresh()
-                        showSnackbarMessage(UserMessage(StringResource(R.string.restore_internet_connection)))
                     }
                 }
             }

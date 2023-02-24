@@ -1,8 +1,5 @@
 package com.example.weatherjourney.weather.presentation.setting
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.domain.PreferenceRepository
@@ -10,6 +7,9 @@ import com.example.weatherjourney.weather.data.repository.DefaultRefreshReposito
 import com.example.weatherjourney.weather.domain.mapper.getTemperatureUnit
 import com.example.weatherjourney.weather.domain.mapper.getWindSpeedUnit
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,38 +19,35 @@ class WeatherSettingViewModel @Inject constructor(
     private val refreshRepository: DefaultRefreshRepository
 ) : ViewModel() {
 
-    var uiState by mutableStateOf(WeatherSettingUiState())
+    private val _uiState = MutableStateFlow(WeatherSettingUiState())
+    val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            val temperatureUnit = preferences.getTemperatureUnit()
-            val windSpeedUnit = preferences.getWindSpeedUnit()
-            uiState = uiState.copy(
-                temperatureLabel = temperatureUnit.label,
-                windSpeedLabel = windSpeedUnit.label
-            )
+            _uiState.update {
+                WeatherSettingUiState(
+                    temperatureLabel = preferences.getTemperatureUnit().label,
+                    windSpeedLabel = preferences.getWindSpeedUnit().label
+                )
+            }
         }
     }
 
-    fun onEvent(event: WeatherSettingEvent) {
-        when (event) {
-            is WeatherSettingEvent.OnTemperatureLabelUpdate -> {
-                uiState = uiState.copy(temperatureLabel = event.label)
+    fun onTemperatureLabelUpdate(label: String) {
+        _uiState.update { it.copy(temperatureLabel = label) }
 
-                viewModelScope.launch {
-                    preferences.saveTemperatureUnit(getTemperatureUnit(event.label))
-                    refreshRepository.emit()
-                }
-            }
+        viewModelScope.launch {
+            preferences.saveTemperatureUnit(getTemperatureUnit(label))
+            refreshRepository.emit()
+        }
+    }
 
-            is WeatherSettingEvent.OnWindSpeedLabelUpdate -> {
-                uiState = uiState.copy(windSpeedLabel = event.label)
+    fun onWindSpeedLabelUpdate(label: String) {
+        _uiState.update { it.copy(windSpeedLabel = label) }
 
-                viewModelScope.launch {
-                    preferences.saveWindSpeedUnit(getWindSpeedUnit(event.label))
-                    refreshRepository.emit()
-                }
-            }
+        viewModelScope.launch {
+            preferences.saveWindSpeedUnit(getWindSpeedUnit(label))
+            refreshRepository.emit()
         }
     }
 }
