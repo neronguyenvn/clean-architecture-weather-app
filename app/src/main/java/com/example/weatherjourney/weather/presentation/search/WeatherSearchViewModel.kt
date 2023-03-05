@@ -10,7 +10,7 @@ import com.example.weatherjourney.R
 import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.util.UiText
-import com.example.weatherjourney.weather.data.mapper.toCoordinate
+import com.example.weatherjourney.weather.data.mapper.coordinate
 import com.example.weatherjourney.weather.data.mapper.toSavedCity
 import com.example.weatherjourney.weather.domain.model.CityUiModel
 import com.example.weatherjourney.weather.domain.model.SavedCity
@@ -49,7 +49,7 @@ class WeatherSearchViewModel @Inject constructor(
                 launch {
                     when (
                         val weather = weatherUseCases.getAllWeather(
-                            location.toCoordinate(),
+                            location.coordinate,
                             location.timeZone
                         )
                     ) {
@@ -57,7 +57,7 @@ class WeatherSearchViewModel @Inject constructor(
                         is Result.Success -> {
                             val city = weather.data.toSavedCity(
                                 location.cityAddress,
-                                location.toCoordinate(),
+                                location.coordinate,
                                 location.timeZone,
                                 location.isCurrentLocation
                             )

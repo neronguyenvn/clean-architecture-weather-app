@@ -39,7 +39,7 @@ class WeatherNavigationActions(private val navController: NavController) {
     fun navigateToInfo(cityAddress: String, coordinate: Coordinate, timeZone: String) {
         navController.navigate(
             INFO_SCREEN.let {
-                "$it?$CITY_ADDRESS_ARG=$cityAddress&$LATITUDE_ARG=${coordinate.lat}&$LONGITUDE_ARG=${coordinate.long}&$TIMEZONE_ARG=$timeZone"
+                "$it?$CITY_ADDRESS_ARG=$cityAddress&$LATITUDE_ARG=${coordinate.latitude}&$LONGITUDE_ARG=${coordinate.longitude}&$TIMEZONE_ARG=$timeZone"
             }
         ) {
             popUpTo(navController.graph.findStartDestination().id)

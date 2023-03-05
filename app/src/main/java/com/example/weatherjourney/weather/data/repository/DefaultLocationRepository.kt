@@ -32,21 +32,20 @@ class DefaultLocationRepository(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : LocationRepository {
 
-    override suspend fun fetchLocation(coordinate: Coordinate): Result<LocationEntity> {
-        return when (val location = getLocation(coordinate)) {
+    override suspend fun fetchLocation(coordinate: Coordinate): Result<Any> =
+        when (getLocation(coordinate)) {
             null -> {
                 try {
                     updateCurrentLocationFromRemote(coordinate)
                 } catch (ex: Exception) {
-                    return Result.Error(ex)
+                    Result.Error(ex)
                 }
 
-                Result.Success(getLocation(coordinate)!!)
+                Result.Success(true)
             }
 
-            else -> Result.Success(location)
+            else -> Result.Success(true)
         }
-    }
 
     override suspend fun getCurrentCoordinate(): Result<Coordinate> =
         withContext(defaultDispatcher) {
@@ -66,7 +65,7 @@ class DefaultLocationRepository(
         }
 
     override suspend fun getLocation(coordinate: Coordinate): LocationEntity? =
-        dao.observeLocation(coordinate.lat, coordinate.long).firstOrNull()
+        dao.observeLocation(coordinate.latitude, coordinate.longitude).firstOrNull()
 
     override suspend fun getCurrentLocation(): LocationEntity? =
         dao.observeCurrentLocation().firstOrNull()
@@ -74,32 +73,34 @@ class DefaultLocationRepository(
     override fun getLocationsStream(): Flow<List<LocationEntity>> =
         dao.observeLocations()
 
-    override suspend fun saveLocation(location: LocationEntity) {
-        dao.insert(location)
-    }
+    override suspend fun saveLocation(location: LocationEntity) = dao.insertLocation(location)
 
     override suspend fun deleteLocation(location: LocationEntity) =
-        dao.delete(location)
+        dao.deleteLocation(location)
 
     private suspend fun updateCurrentLocationFromRemote(coordinate: Coordinate) {
         try {
             val response = api.getReverseGeocoding(coordinate.toApiCoordinate())
 
+            preferences.updateLocation(
+                response.getCityAddress(),
+                coordinate,
+                response.getTimeZone()
+            )
+
             withContext(ioDispatcher) {
-                this.launch {
-                    preferences.saveTimeZone(response.getTimeZone())
+                launch {
+                    dao.insertLocation(
+                        LocationEntity(
+                            cityAddress = response.getCityAddress(),
+                            latitude = coordinate.latitude,
+                            longitude = coordinate.longitude,
+                            timeZone = response.getTimeZone(),
+                            isCurrentLocation = true
+                        )
+                    )
                 }
             }
-
-            dao.insert(
-                LocationEntity(
-                    cityAddress = response.getCityAddress(),
-                    lat = coordinate.lat,
-                    long = coordinate.long,
-                    timeZone = response.getTimeZone(),
-                    isCurrentLocation = true
-                )
-            )
         } catch (ex: Exception) {
             throw ex
         }

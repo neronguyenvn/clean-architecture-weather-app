@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface LocationDao {
 
-    @Query("SELECT * FROM location WHERE lat = :latitude AND long = :longitude")
+    @Query("SELECT * FROM location WHERE latitude = :latitude AND longitude = :longitude")
     fun observeLocation(latitude: Double, longitude: Double): Flow<LocationEntity>
 
     @Query("SELECT * FROM location WHERE isCurrentLocation = 1")
@@ -21,8 +21,8 @@ interface LocationDao {
     fun observeLocations(): Flow<List<LocationEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(location: LocationEntity)
+    suspend fun insertLocation(location: LocationEntity)
 
     @Delete
-    suspend fun delete(location: LocationEntity)
+    suspend fun deleteLocation(location: LocationEntity)
 }

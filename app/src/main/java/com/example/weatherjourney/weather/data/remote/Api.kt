@@ -2,7 +2,7 @@ package com.example.weatherjourney.weather.data.remote
 
 import com.example.weatherjourney.BuildConfig
 import com.example.weatherjourney.weather.data.remote.dto.AirQuality
-import com.example.weatherjourney.weather.data.remote.dto.AllWeather
+import com.example.weatherjourney.weather.data.remote.dto.AllWeatherDto
 import com.example.weatherjourney.weather.data.remote.dto.ForwardGeocoding
 import com.example.weatherjourney.weather.data.remote.dto.ReverseGeocoding
 import retrofit2.http.GET
@@ -34,7 +34,7 @@ interface Api {
             encoded = true
         ) dailyParams: String = "weathercode,temperature_2m_max,temperature_2m_min",
         @Query("timeformat") timeFormat: String = "unixtime"
-    ): AllWeather
+    ): AllWeatherDto
 
     @GET
     suspend fun getForwardGeocoding(
@@ -45,8 +45,8 @@ interface Api {
     @GET
     suspend fun getAirQuality(
         @Url url: String = OPENMETEO_AIR_QUALITY_URL,
-        @Query("latitude") lat: Double,
-        @Query("longitude") long: Double,
+        @Query("latitude") latitude: Double,
+        @Query("longitude") longitude: Double,
         @Query("timezone") timeZone: String,
         @Query("hourly", encoded = true) hourlyParams: String = "uv_index,european_aqi",
         @Query("timeformat") timeFormat: String = "unixtime"

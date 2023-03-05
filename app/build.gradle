@@ -6,6 +6,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization'
     id 'kotlin-kapt'
     id 'com.google.devtools.ksp'
+    id "com.google.protobuf" version "0.9.1"
 }
 android {
     namespace 'com.example.weatherjourney'
@@ -93,6 +94,10 @@ dependencies {
 
     // DataStore
     implementation "androidx.datastore:datastore-preferences:$dataStoreVersion"
+    implementation "androidx.datastore:datastore:$dataStoreVersion"
+
+    // Protobuf
+    implementation  "com.google.protobuf:protobuf-javalite:3.19.4"
 
     // WorkManager
     implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
@@ -105,4 +110,18 @@ dependencies {
 
     // Android Test
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$composeVersion"
+}
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.19.4'
+    }
+    generateProtoTasks {
+        all().configureEach { task ->
+            task.builtins {
+                java {
+                    option "lite"
+                }
+            }
+        }
+    }
 }

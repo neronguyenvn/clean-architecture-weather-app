@@ -38,12 +38,12 @@ fun HourlyWeatherItem(
         Text(
             hourly.date.asString(context),
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.width(70.dp)
+            modifier = Modifier.width(80.dp)
         )
         Image(
             painter = painterResource(hourly.weatherType.iconRes),
             contentDescription = null,
-            modifier = Modifier.width(30.dp)
+            modifier = Modifier.width(40.dp)
         )
         Text(
             stringResource(R.string.temperature, hourly.temp),

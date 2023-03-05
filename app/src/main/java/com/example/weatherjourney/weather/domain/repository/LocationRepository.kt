@@ -12,7 +12,7 @@ interface LocationRepository {
 
     suspend fun getSuggestionLocations(cityAddress: String): Result<List<SuggestionCity>>
 
-    suspend fun fetchLocation(coordinate: Coordinate): Result<LocationEntity>
+    suspend fun fetchLocation(coordinate: Coordinate): Result<Any>
 
     suspend fun getLocation(coordinate: Coordinate): LocationEntity?
 

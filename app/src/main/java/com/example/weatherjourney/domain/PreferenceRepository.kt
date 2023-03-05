@@ -1,26 +1,26 @@
 package com.example.weatherjourney.domain
 
+import com.example.weatherejourney.LocationPreferences
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit
 import com.example.weatherjourney.weather.domain.model.unit.WindSpeedUnit
+import kotlinx.coroutines.flow.Flow
 
 interface PreferenceRepository {
 
-    suspend fun getLastCoordinate(): Coordinate
+    val locationPreferencesFlow: Flow<LocationPreferences>
 
-    suspend fun getLastTimeZone(): String
+    val temperatureUnitFlow: Flow<TemperatureUnit>
 
-    suspend fun getLastCityAddress(): String
+    val windSpeedUnitFlow: Flow<WindSpeedUnit>
 
-    suspend fun getTemperatureUnit(): TemperatureUnit
+    suspend fun updateCityAddress(cityAddress: String)
 
-    suspend fun getWindSpeedUnit(): WindSpeedUnit
+    suspend fun updateLocation(cityAddress: String, coordinate: Coordinate, timeZone: String)
 
-    suspend fun saveCoordinate(coordinate: Coordinate)
+    suspend fun updateCoordinate(coordinate: Coordinate)
 
-    suspend fun saveTimeZone(timeZone: String)
-
-    suspend fun saveCityAddress(cityAddress: String)
+    suspend fun updateTimeZone(timeZone: String)
 
     suspend fun saveTemperatureUnit(unit: TemperatureUnit)
 

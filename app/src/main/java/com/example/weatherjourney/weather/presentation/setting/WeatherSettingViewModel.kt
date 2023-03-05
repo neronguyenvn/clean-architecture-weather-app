@@ -9,6 +9,7 @@ import com.example.weatherjourney.weather.domain.mapper.getWindSpeedUnit
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,8 +27,8 @@ class WeatherSettingViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update {
                 WeatherSettingUiState(
-                    temperatureLabel = preferences.getTemperatureUnit().label,
-                    windSpeedLabel = preferences.getWindSpeedUnit().label
+                    temperatureLabel = preferences.temperatureUnitFlow.first().label,
+                    windSpeedLabel = preferences.windSpeedUnitFlow.first().label
                 )
             }
         }

@@ -1,23 +1,19 @@
 package com.example.weatherjourney.weather.domain.usecase.weather
 
 import com.example.weatherjourney.domain.PreferenceRepository
-import com.example.weatherjourney.util.Result
-import com.example.weatherjourney.weather.data.remote.dto.AllWeather
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.repository.WeatherRepository
+import kotlinx.coroutines.flow.first
 
 class GetAllWeather(
     private val repository: WeatherRepository,
     private val preferences: PreferenceRepository
 ) {
-    suspend operator fun invoke(
-        coordinate: Coordinate,
-        timeZone: String
-    ): Result<AllWeather> = repository.fetchAllWeather(
+
+    suspend operator fun invoke(coordinate: Coordinate, timeZone: String) = repository.getAllWeather(
         coordinate,
         timeZone,
-        preferences.getTemperatureUnit().apiParam,
-        preferences.getWindSpeedUnit().apiParam,
-        true
+        preferences.temperatureUnitFlow.first().apiParam,
+        preferences.windSpeedUnitFlow.first().apiParam
     )
 }

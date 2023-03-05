@@ -1,19 +1,29 @@
 package com.example.weatherjourney.weather.domain.usecase.location
 
-import com.example.weatherjourney.weather.data.mapper.toLocationEntity
+import com.example.weatherejourney.LocationPreferences
+import com.example.weatherjourney.util.Result
+import com.example.weatherjourney.weather.data.local.entity.LocationEntity
 import com.example.weatherjourney.weather.data.mapper.toUnifiedCoordinate
-import com.example.weatherjourney.weather.domain.model.Coordinate
+import com.example.weatherjourney.weather.domain.mapper.toCoordinate
 import com.example.weatherjourney.weather.domain.repository.LocationRepository
 
-class SaveLocation(private val repository: LocationRepository) {
+class SaveLocation(
+    private val repository: LocationRepository
+) {
 
-    suspend operator fun invoke(
-        cityAddress: String,
-        coordinate: Coordinate,
-        timeZone: String
-    ) {
+    suspend operator fun invoke(location: LocationPreferences) {
+        val coordinate = location.coordinate.toCoordinate()
+        val currentCoordinate = repository.getCurrentCoordinate()
+            .let { if (it is Result.Success) it.data.toUnifiedCoordinate() else null }
+
         repository.saveLocation(
-            coordinate.toUnifiedCoordinate().toLocationEntity(cityAddress, timeZone)
+            LocationEntity(
+                cityAddress = location.cityAddress,
+                latitude = coordinate.latitude,
+                longitude = coordinate.longitude,
+                timeZone = location.timeZone,
+                isCurrentLocation = currentCoordinate?.let { it == coordinate } ?: false
+            )
         )
     }
 }

@@ -13,7 +13,6 @@ import com.example.weatherjourney.util.WhileUiSubscribed
 import com.example.weatherjourney.weather.data.repository.DefaultRefreshRepository
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -44,10 +43,7 @@ class WeatherNotificationViewModel @Inject constructor(
     ) { userMessage, isLoading, notificationsAsync ->
 
         when (notificationsAsync) {
-            Async.Loading -> {
-                WeatherNotificationUiState(isLoading = true)
-            }
-
+            Async.Loading -> WeatherNotificationUiState(isLoading = true)
             is Async.Success -> {
                 WeatherNotificationUiState(
                     notifications = notificationsAsync.data,
@@ -61,8 +57,6 @@ class WeatherNotificationViewModel @Inject constructor(
         started = WhileUiSubscribed,
         initialValue = WeatherNotificationUiState(isLoading = true)
     )
-
-    private var listenSuccessNetworkJob: Job? = null
 
     fun refresh() = viewModelScope.launch {
         runSuspend(

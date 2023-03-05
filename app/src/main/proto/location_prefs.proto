@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_package = "com.example.weatherejourney";
+option java_multiple_files = true;
+
+message LocationPreferences {
+  string city_address = 1;
+
+  message CoordinatePreferences {
+    double latitude = 1;
+    double longitude = 2;
+  }
+
+  CoordinatePreferences coordinate = 2;
+  string time_zone = 3;
+}

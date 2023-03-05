@@ -1,30 +1,38 @@
 package com.example.weatherjourney.weather.presentation.info
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.weatherejourney.LocationPreferences
 import com.example.weatherjourney.R
 import com.example.weatherjourney.domain.PreferenceRepository
+import com.example.weatherjourney.presentation.BaseViewModel
+import com.example.weatherjourney.presentation.WeatherDestinations
+import com.example.weatherjourney.util.ActionLabel
+import com.example.weatherjourney.util.Async
 import com.example.weatherjourney.util.Result
-import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.util.UiText
-import com.example.weatherjourney.weather.data.mapper.toCurrentWeather
-import com.example.weatherjourney.weather.data.mapper.toDailyWeather
-import com.example.weatherjourney.weather.data.mapper.toHourlyWeather
+import com.example.weatherjourney.util.UserMessage
+import com.example.weatherjourney.util.WhileUiSubscribed
+import com.example.weatherjourney.weather.data.mapper.toAllWeather
+import com.example.weatherjourney.weather.data.remote.dto.AllWeatherDto
 import com.example.weatherjourney.weather.data.repository.DefaultRefreshRepository
+import com.example.weatherjourney.weather.domain.mapper.toCoordinate
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
+import com.example.weatherjourney.weather.presentation.setting.WeatherSettingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,171 +44,102 @@ class WeatherInfoViewModel @Inject constructor(
     private val weatherUseCases: WeatherUseCases,
     private val preferences: PreferenceRepository,
     private val refreshRepository: DefaultRefreshRepository
-) : ViewModel() {
-
-    var uiState by mutableStateOf(WeatherInfoUiState())
-        private set
-
-    private val _uiEvent = MutableSharedFlow<UiEvent>()
-    val uiEvent = _uiEvent.asSharedFlow()
+) : BaseViewModel() {
 
     private val _isInitializing = MutableStateFlow(true)
     val isInitializing = _isInitializing.asStateFlow()
 
-    init {
-        Log.d(TAG, "$TAG init")
+    private var _appRoute = WeatherDestinations.INFO_ROUTE
+    val appRoute get() = _appRoute
 
-        viewModelScope.launch {
-            val temperatureUnit = preferences.getTemperatureUnit()
-            val windSpeedUnit = preferences.getWindSpeedUnit()
-            uiState = uiState.copy(
+    private val _temperatureUnit = preferences.temperatureUnitFlow
+    private val _windSpeedUnit = preferences.windSpeedUnitFlow
+
+    private val _labels =
+        combine(_temperatureUnit, _windSpeedUnit) { temperatureUnit, windSpeedUnit ->
+            Log.d(TAG, "Labels flow collected")
+            WeatherSettingUiState(
                 temperatureLabel = temperatureUnit.label,
                 windSpeedLabel = windSpeedUnit.label
             )
+        }.shareIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            replay = 1
+        )
+
+    private val _lastLocation = preferences.locationPreferencesFlow
+        .map {
+            Log.d(TAG, "Location Async flow collected: $it")
+            handleLocation(it)
         }
+        .stateIn(
+            viewModelScope,
+            WhileUiSubscribed,
+            null
+        )
 
-        viewModelScope.launch {
-            refreshRepository.refreshFlow.collect {
-                refresh(false)
-            }
-        }
-    }
+    private val _weatherAsync = _lastLocation.map { location ->
+        Log.d(TAG, "Weather Async flow collected")
 
-    fun onEvent(event: WeatherInfoEvent) {
-        when (event) {
-            is WeatherInfoEvent.OnAppInit -> viewModelScope.launch {
-                val lastCoordinate = preferences.getLastCoordinate()
-                val lastTimeZone = preferences.getLastTimeZone()
-                val lastCityAddress = preferences.getLastCityAddress()
-
-                when {
-                    locationUseCases.validateLastInfo(
-                        lastCoordinate,
-                        lastTimeZone,
-                        lastCityAddress
-                    ) -> runSuspend(
-                        launch { uiState = uiState.copy(cityAddress = lastCityAddress) },
-                        getAndUpdateWeather(lastCoordinate, lastTimeZone, true)
-                    )
-
-                    event.isLocationPermissionGranted -> viewModelScope.launch {
-                        val coordinate = locationUseCases.getCurrentCoordinate() as Result.Success
-                        runSuspend(
-                            viewModelScope.launch {
-                                getAndUpdateCity(coordinate.data).join()
-                                getAndUpdateWeather(
-                                    coordinate.data,
-                                    preferences.getLastTimeZone(),
-                                    true
-                                )
-                            }
-                        )
-                    }
-
-                    else -> {
-                        _uiEvent.emit(UiEvent.StartWithSearchRoute)
-                        _isInitializing.value = false
-                    }
-                }
-            }
-
-            is WeatherInfoEvent.OnRefresh -> refresh(true)
-
-            is WeatherInfoEvent.OnFetchWeatherFromSearch -> {
-                viewModelScope.launch {
-                    uiState = uiState.copy(cityAddress = event.cityAddress)
-                    runSuspend(getAndUpdateWeather(event.coordinate, event.timeZone, false))
-                    if (locationUseCases.shouldSaveLocation(event.coordinate, event.cityAddress)) {
-                        _uiEvent.emit(
-                            UiEvent.ShowSnackbar(
-                                message = UiText.StringResource(R.string.add_this_location),
-                                actionLabel = R.string.add
-                            )
-                        )
-                    }
-                    preferences.saveCityAddress(event.cityAddress)
-                }
-            }
-
-            is WeatherInfoEvent.OnCacheInfo -> {
-                viewModelScope.launch {
-                    _uiEvent.emit(UiEvent.ShowSnackbar(UiText.StringResource(R.string.location_saved)))
-                    locationUseCases.saveLocation(
-                        uiState.cityAddress,
-                        preferences.getLastCoordinate(),
-                        preferences.getLastTimeZone()
+        when (location) {
+            null -> Async.Loading
+            else -> {
+                location.let {
+                    handleWeatherResult(
+                        weatherUseCases.getAllWeather(
+                            it.coordinate.toCoordinate(),
+                            it.timeZone
+                        ),
+                        it.cityAddress,
+                        it.timeZone
                     )
                 }
             }
         }
     }
 
-    private fun getAndUpdateCity(coordinate: Coordinate): Job {
-        Log.d(TAG, "getAndUpdateCityByCoordinate() called")
-
-        return viewModelScope.launch {
-            when (val address = locationUseCases.getCityAddressAndSaveLocation(coordinate)) {
-                is Result.Success -> uiState = uiState.copy(cityAddress = address.data)
-
-                is Result.Error -> handleError(address)
+    val uiState: StateFlow<WeatherInfoUiState> = combine(
+        _isLoading,
+        _userMessage,
+        _weatherAsync,
+        _labels
+    ) { isLoading, userMessage, weatherAsync, labels ->
+        Log.d(TAG, "UiState flow collected: $weatherAsync")
+        when (weatherAsync) {
+            Async.Loading -> {
+                WeatherInfoUiState(isLoading = true)
             }
-        }
-    }
 
-    private fun getAndUpdateWeather(
-        coordinate: Coordinate,
-        timeZone: String,
-        forceCache: Boolean
-    ): Job {
-        Log.d(TAG, "getAndUpdateWeather() called")
-
-        return viewModelScope.launch {
-            when (
-                val weather =
-                    weatherUseCases.getAllWeatherAndCacheLastInfo(coordinate, timeZone, forceCache)
-            ) {
-                is Result.Success -> {
-                    uiState = uiState.copy(
-                        weatherState = WeatherState(
-                            current = weather.data.toCurrentWeather(timeZone),
-                            listDaily = weather.data.daily.toDailyWeather(timeZone),
-                            listHourly = weather.data.hourly.toHourlyWeather(timeZone)
-                        )
-                    )
-                }
-
-                is Result.Error -> handleError(weather)
-            }
-        }
-    }
-
-    private suspend fun runSuspend(vararg jobs: Job) {
-        uiState = uiState.copy(isLoading = true)
-        jobs.forEach { it.join() }
-        uiState = uiState.copy(isLoading = false)
-        _isInitializing.value = false
-    }
-
-    private suspend fun handleError(error: Result.Error) {
-        val message = error.toString()
-        Log.e(TAG, message)
-        _uiEvent.emit(UiEvent.ShowSnackbar(UiText.DynamicString(message)))
-    }
-
-    private fun refresh(isDelay: Boolean) = viewModelScope.launch {
-        runSuspend(
-            getAndUpdateWeather(
-                preferences.getLastCoordinate(),
-                preferences.getLastTimeZone(),
-                true
-            ),
-
-            launch {
-                uiState = uiState.copy(
-                    temperatureLabel = preferences.getTemperatureUnit().label,
-                    windSpeedLabel = preferences.getWindSpeedUnit().label
+            is Async.Success -> {
+                _isInitializing.value = false
+                WeatherInfoUiState(
+                    labels = labels,
+                    isLoading = isLoading,
+                    userMessage = userMessage,
+                    allWeather = weatherAsync.data ?: AllWeather()
                 )
-            },
+            }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = WhileUiSubscribed,
+        initialValue = WeatherInfoUiState(isLoading = true)
+    )
+
+    fun onActivityCreate(isLocationPermissionGranted: Boolean) {
+        if (!isLocationPermissionGranted) {
+            _appRoute = WeatherDestinations.SEARCH_ROUTE
+            _isInitializing.value = false
+        } else {
+            viewModelScope.launch { uiState.first() }
+        }
+    }
+
+    fun onRefresh(isDelay: Boolean) = viewModelScope.launch {
+        Log.d(TAG, "onRefresh($isDelay) called")
+        runSuspend(
+            launch { _weatherAsync.first() },
 
             if (isDelay) {
                 launch {
@@ -210,5 +149,86 @@ class WeatherInfoViewModel @Inject constructor(
                 launch { }
             }
         )
+    }
+
+    fun onNavigateFromSearch(cityAddress: String, coordinate: Coordinate, timeZone: String) {
+        if (!locationUseCases.validateLocation(cityAddress, coordinate, timeZone)) return
+
+        viewModelScope.launch {
+            if (locationUseCases.shouldSaveLocation(coordinate)) {
+                _userMessage.value = UserMessage(
+                    message = UiText.StringResource(R.string.add_this_location),
+                    actionLabel = ActionLabel.ADD
+                )
+            }
+            preferences.updateLocation(cityAddress, coordinate, timeZone)
+        }
+    }
+
+    fun onSaveInfo() {
+        Log.d(TAG, "onSaveInfo() called")
+        viewModelScope.launch {
+            _userMessage.update { it?.copy(message = UiText.StringResource(R.string.location_saved)) }
+            _lastLocation.value?.let { locationUseCases.saveLocation(it) }
+        }
+    }
+
+    private suspend fun handleLocation(location: LocationPreferences): LocationPreferences? =
+        when (location) {
+            LocationPreferences.getDefaultInstance() -> {
+                val result = locationUseCases.getAndSaveCurrentLocation()
+                if (result is Result.Error) {
+                    _userMessage.update { it?.copy(message = UiText.DynamicString(result.toString())) }
+                }
+                null
+            }
+
+            else -> {
+                if (locationUseCases.validateLocation(
+                        location.cityAddress,
+                        location.coordinate.toCoordinate(),
+                        location.timeZone
+                    )
+                ) {
+                    location
+                } else {
+                    null
+                }
+            }
+        }
+
+    private suspend fun handleWeatherResult(
+        result: Result<AllWeatherDto?>,
+        cityAddress: String,
+        timeZone: String
+    ): Async<AllWeather?> {
+        Log.d(TAG, "Weather Result: $result")
+        if (result == Result.Success(null)) {
+            return Async.Success(null)
+        }
+
+        return if (result is Result.Success) {
+            Async.Success(result.data?.toAllWeather(cityAddress, timeZone))
+        } else {
+            val message = result.toString()
+            showSnackbarMessage(UserMessage(UiText.DynamicString(message)))
+
+            refreshRepository.startListenWhenConnectivitySuccess()
+
+            if (listenSuccessNetworkJob != null) {
+                Async.Success(null)
+            }
+
+            listenSuccessNetworkJob = viewModelScope.launch {
+                refreshRepository.outputWorkInfo.collect { info ->
+                    if (info.state.isFinished) {
+                        showSnackbarMessage(UserMessage(UiText.StringResource(R.string.restore_internet_connection)))
+                        onRefresh(true)
+                    }
+                }
+            }
+
+            Async.Success(null)
+        }
     }
 }

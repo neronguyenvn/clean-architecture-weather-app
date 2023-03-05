@@ -1,7 +1,7 @@
 package com.example.weatherjourney.weather.data.mapper
 
 import com.example.weatherjourney.util.toFlagEmoji
-import com.example.weatherjourney.weather.data.remote.dto.AllWeather
+import com.example.weatherjourney.weather.data.remote.dto.AllWeatherDto
 import com.example.weatherjourney.weather.data.remote.dto.ForwardGeocodingResult
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.SavedCity
@@ -15,7 +15,7 @@ fun ForwardGeocodingResult.toSuggestionCity() = SuggestionCity(
     timeZone = timezone
 )
 
-fun AllWeather.toSavedCity(
+fun AllWeatherDto.toSavedCity(
     cityAddress: String,
     coordinate: Coordinate,
     timeZone: String,

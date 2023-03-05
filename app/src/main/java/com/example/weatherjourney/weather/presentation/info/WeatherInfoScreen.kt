@@ -27,11 +27,11 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -42,11 +42,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.component.LoadingContent
 import com.example.weatherjourney.presentation.theme.superscript
-import com.example.weatherjourney.util.UiEvent
+import com.example.weatherjourney.util.ActionLabel
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.weather.CurrentWeather
 import com.example.weatherjourney.weather.domain.model.weather.DailyWeather
@@ -69,15 +70,14 @@ fun WeatherInfoScreen(
     viewModel: WeatherInfoViewModel = LocalView.current.findViewTreeViewModelStoreOwner()
         .let { hiltViewModel(it!!) }
 ) {
-    val uiState = viewModel.uiState
-    val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             InfoTopBar(
-                cityAddress = uiState.cityAddress,
+                cityAddress = uiState.allWeather.cityAddress,
                 onSearchClick = onSearchClick,
                 onSettingClick = onSettingClick
             )
@@ -94,43 +94,30 @@ fun WeatherInfoScreen(
 
         WeatherInfoScreenContent(
             uiState = uiState,
-            onRefresh = { viewModel.onEvent(WeatherInfoEvent.OnRefresh) },
+            onRefresh = { viewModel.onRefresh(true) },
             modifier = Modifier.padding(paddingValues)
         )
 
         LaunchedEffect(true) {
-            if (city.isNotBlank()) {
-                viewModel.onEvent(
-                    WeatherInfoEvent.OnFetchWeatherFromSearch(
-                        city,
-                        coordinate,
-                        timeZone
-                    )
+            viewModel.onNavigateFromSearch(city, coordinate, timeZone)
+        }
+
+        uiState.userMessage?.let { userMessage ->
+            val snackbarText = userMessage.message.asString()
+            val actionLabel = userMessage.actionLabel.label.asString()
+
+            LaunchedEffect(snackbarHostState, viewModel, userMessage, snackbarText) {
+                val result = snackbarHostState.showSnackbar(
+                    message = snackbarText,
+                    actionLabel = actionLabel,
+                    duration = SnackbarDuration.Short
                 )
-            }
 
-            viewModel.uiEvent.collect { event ->
-                when (event) {
-                    is UiEvent.ShowSnackbar -> {
-                        val result = snackbarHostState.showSnackbar(
-                            message = event.message.asString(context),
-                            actionLabel = if (event.actionLabel == 0) {
-                                null
-                            } else {
-                                context.getString(event.actionLabel)
-                            },
-                            duration = SnackbarDuration.Short
-                        )
-
-                        if (result == SnackbarResult.ActionPerformed) {
-                            when (event.actionLabel) {
-                                R.string.add -> viewModel.onEvent(WeatherInfoEvent.OnCacheInfo)
-                            }
-                        }
-                    }
-
-                    else -> Unit
+                if (result == SnackbarResult.ActionPerformed && userMessage.actionLabel == ActionLabel.ADD) {
+                    viewModel.onSaveInfo()
                 }
+
+                viewModel.snackbarMessageShown()
             }
         }
     }
@@ -150,21 +137,22 @@ fun WeatherInfoScreenContent(
 
     LoadingContent(uiState.isLoading, onRefresh, modifier) {
         LazyColumn(
-            Modifier.fillMaxWidth(),
-            contentPadding = screenPadding
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(screenPadding)
         ) {
             item {
                 CurrentWeatherContent(
-                    uiState.weatherState.current,
-                    uiState.temperatureLabel,
-                    uiState.windSpeedLabel
+                    uiState.allWeather.current,
+                    uiState.labels.temperatureLabel,
+                    uiState.labels.windSpeedLabel
                 )
             }
             item { Spacer(Modifier.height(32.dp)) }
-            item { DailyWeatherContent(uiState.weatherState.listDaily) }
+            item { DailyWeatherContent(uiState.allWeather.listDaily) }
             item { Spacer(Modifier.height(32.dp)) }
-            items(uiState.weatherState.listHourly) { hourly ->
-                HourlyWeatherItem(hourly, uiState.windSpeedLabel)
+            items(uiState.allWeather.listHourly) { hourly ->
+                HourlyWeatherItem(hourly, uiState.labels.windSpeedLabel)
             }
         }
     }

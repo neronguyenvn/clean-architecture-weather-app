@@ -10,6 +10,8 @@ abstract class BaseViewModel : ViewModel() {
     protected val _userMessage: MutableStateFlow<UserMessage?> = MutableStateFlow(null)
     protected val _isLoading = MutableStateFlow(false)
 
+    protected var listenSuccessNetworkJob: Job? = null
+
     fun snackbarMessageShown() {
         _userMessage.value = null
     }

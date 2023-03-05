@@ -15,11 +15,10 @@ const val DAY_NAME_IN_WEEK_PATTERN = "EEE"
 /**
  * Round a Double number to make it has a certain number of digits after decimal point.
  */
-fun Double.roundTo(n: Int): Double = "%.${n}f".format(Locale.getDefault(), this).toDouble()
+fun Double.roundTo(n: Int): Double = String.format(Locale.US, "%.${n}f", this).toDouble()
 
 fun getCurrentDate(timeZone: String, pattern: String): String {
     val instant = Instant.now()
-
     val formatter = DateTimeFormatter.ofPattern(pattern)
     return instant.atZone(ZoneId.of(timeZone)).format(formatter)
 }
