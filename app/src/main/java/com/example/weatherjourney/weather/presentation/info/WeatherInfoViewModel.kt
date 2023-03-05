@@ -57,11 +57,13 @@ class WeatherInfoViewModel @Inject constructor(
 
     private val _labels =
         combine(_temperatureUnit, _windSpeedUnit) { temperatureUnit, windSpeedUnit ->
-            Log.d(TAG, "Labels flow collected")
             WeatherSettingUiState(
                 temperatureLabel = temperatureUnit.label,
                 windSpeedLabel = windSpeedUnit.label
             )
+        }.map {
+            Log.d(TAG, "Labels flow collected: $it")
+            it
         }.shareIn(
             viewModelScope,
             SharingStarted.Eagerly,
@@ -70,33 +72,31 @@ class WeatherInfoViewModel @Inject constructor(
 
     private val _lastLocation = preferences.locationPreferencesFlow
         .map {
-            Log.d(TAG, "Location Async flow collected: $it")
-            handleLocation(it)
-        }
-        .stateIn(
+            handleLocation(it).also { result ->
+                Log.d(TAG, "Location Async flow collected: $result")
+            }
+        }.stateIn(
             viewModelScope,
             WhileUiSubscribed,
             null
         )
 
     private val _weatherAsync = _lastLocation.map { location ->
-        Log.d(TAG, "Weather Async flow collected")
-
         when (location) {
             null -> Async.Loading
             else -> {
                 location.let {
                     handleWeatherResult(
-                        weatherUseCases.getAllWeather(
-                            it.coordinate.toCoordinate(),
-                            it.timeZone
-                        ),
+                        weatherUseCases.getAllWeather(it.coordinate.toCoordinate(), it.timeZone),
                         it.cityAddress,
                         it.timeZone
                     )
                 }
             }
         }
+    }.map {
+        Log.d(TAG, "WeatherAsync flow collected: $it")
+        it
     }
 
     val uiState: StateFlow<WeatherInfoUiState> = combine(
@@ -105,7 +105,6 @@ class WeatherInfoViewModel @Inject constructor(
         _weatherAsync,
         _labels
     ) { isLoading, userMessage, weatherAsync, labels ->
-        Log.d(TAG, "UiState flow collected: $weatherAsync")
         when (weatherAsync) {
             Async.Loading -> {
                 WeatherInfoUiState(isLoading = true)
@@ -121,6 +120,9 @@ class WeatherInfoViewModel @Inject constructor(
                 )
             }
         }
+    }.map {
+        Log.d(TAG, "UiState flow collected: $it")
+        it
     }.stateIn(
         scope = viewModelScope,
         started = WhileUiSubscribed,
@@ -140,18 +142,12 @@ class WeatherInfoViewModel @Inject constructor(
         Log.d(TAG, "onRefresh($isDelay) called")
         runSuspend(
             launch { _weatherAsync.first() },
-
-            if (isDelay) {
-                launch {
-                    delay(1500)
-                }
-            } else {
-                launch { }
-            }
+            if (isDelay) launch { delay(1500) } else launch { }
         )
     }
 
     fun onNavigateFromSearch(cityAddress: String, coordinate: Coordinate, timeZone: String) {
+        Log.d(TAG, "onNavigateFromSearch($cityAddress, $coordinate, $timeZone) called")
         if (!locationUseCases.validateLocation(cityAddress, coordinate, timeZone)) return
 
         viewModelScope.launch {
@@ -168,8 +164,8 @@ class WeatherInfoViewModel @Inject constructor(
     fun onSaveInfo() {
         Log.d(TAG, "onSaveInfo() called")
         viewModelScope.launch {
-            _userMessage.update { it?.copy(message = UiText.StringResource(R.string.location_saved)) }
             _lastLocation.value?.let { locationUseCases.saveLocation(it) }
+            _userMessage.value = UserMessage(UiText.StringResource(R.string.location_saved))
         }
     }
 
@@ -202,7 +198,6 @@ class WeatherInfoViewModel @Inject constructor(
         cityAddress: String,
         timeZone: String
     ): Async<AllWeather?> {
-        Log.d(TAG, "Weather Result: $result")
         if (result == Result.Success(null)) {
             return Async.Success(null)
         }

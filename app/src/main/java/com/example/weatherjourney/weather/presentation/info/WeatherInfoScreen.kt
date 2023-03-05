@@ -106,7 +106,7 @@ fun WeatherInfoScreen(
             val snackbarText = userMessage.message.asString()
             val actionLabel = userMessage.actionLabel.label.asString()
 
-            LaunchedEffect(snackbarHostState, viewModel, userMessage, snackbarText) {
+            LaunchedEffect(snackbarHostState, snackbarText, actionLabel) {
                 val result = snackbarHostState.showSnackbar(
                     message = snackbarText,
                     actionLabel = actionLabel,
