@@ -16,11 +16,12 @@ import com.example.weatherjourney.util.WhileUiSubscribed
 import com.example.weatherjourney.weather.data.mapper.toAllWeather
 import com.example.weatherjourney.weather.data.remote.dto.AllWeatherDto
 import com.example.weatherjourney.weather.data.repository.DefaultRefreshRepository
+import com.example.weatherjourney.weather.domain.mapper.toAllUnitLabel
 import com.example.weatherjourney.weather.domain.mapper.toCoordinate
 import com.example.weatherjourney.weather.domain.model.Coordinate
+import com.example.weatherjourney.weather.domain.model.unit.AllUnit
 import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
-import com.example.weatherjourney.weather.presentation.setting.WeatherSettingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
@@ -55,13 +57,13 @@ class WeatherInfoViewModel @Inject constructor(
     private val _temperatureUnit = preferences.temperatureUnitFlow
     private val _windSpeedUnit = preferences.windSpeedUnitFlow
 
-    private val _labels =
+    private val _units =
         combine(_temperatureUnit, _windSpeedUnit) { temperatureUnit, windSpeedUnit ->
-            WeatherSettingUiState(
-                temperatureLabel = temperatureUnit.label,
-                windSpeedLabel = windSpeedUnit.label
+            AllUnit(
+                temperature = temperatureUnit,
+                windSpeed = windSpeedUnit
             )
-        }.map {
+        }.distinctUntilChanged().map {
             Log.d(TAG, "Labels flow collected: $it")
             it
         }.shareIn(
@@ -103,8 +105,8 @@ class WeatherInfoViewModel @Inject constructor(
         _isLoading,
         _userMessage,
         _weatherAsync,
-        _labels
-    ) { isLoading, userMessage, weatherAsync, labels ->
+        _units
+    ) { isLoading, userMessage, weatherAsync, units ->
         when (weatherAsync) {
             Async.Loading -> {
                 WeatherInfoUiState(isLoading = true)
@@ -113,10 +115,11 @@ class WeatherInfoViewModel @Inject constructor(
             is Async.Success -> {
                 _isInitializing.value = false
                 WeatherInfoUiState(
-                    labels = labels,
+                    labels = units.toAllUnitLabel(),
                     isLoading = isLoading,
                     userMessage = userMessage,
-                    allWeather = weatherAsync.data ?: AllWeather()
+                    allWeather = weatherAsync.data?.let { weatherUseCases.convertUnit(it, units) }
+                        ?: AllWeather()
                 )
             }
         }

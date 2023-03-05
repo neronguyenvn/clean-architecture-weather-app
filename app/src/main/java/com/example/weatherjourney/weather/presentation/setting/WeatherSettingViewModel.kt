@@ -20,13 +20,13 @@ class WeatherSettingViewModel @Inject constructor(
     private val refreshRepository: DefaultRefreshRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(WeatherSettingUiState())
+    private val _uiState = MutableStateFlow(AllUnitLabel())
     val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
             _uiState.update {
-                WeatherSettingUiState(
+                AllUnitLabel(
                     temperatureLabel = preferences.temperatureUnitFlow.first().label,
                     windSpeedLabel = preferences.windSpeedUnitFlow.first().label
                 )

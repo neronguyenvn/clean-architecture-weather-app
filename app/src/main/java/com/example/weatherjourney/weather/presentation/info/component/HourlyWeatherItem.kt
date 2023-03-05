@@ -17,7 +17,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.weatherjourney.R
+import com.example.weatherjourney.util.roundTo
 import com.example.weatherjourney.weather.domain.model.weather.HourlyWeather
+import kotlin.math.roundToInt
 
 @Composable
 fun HourlyWeatherItem(
@@ -46,12 +48,12 @@ fun HourlyWeatherItem(
             modifier = Modifier.width(40.dp)
         )
         Text(
-            stringResource(R.string.temperature, hourly.temp),
+            stringResource(R.string.temperature, hourly.temp.roundToInt()),
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.width(40.dp)
         )
         Text(
-            "${hourly.windSpeed}$windSpeedLabel",
+            "${hourly.windSpeed.roundTo(1)}$windSpeedLabel",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.weight(1f)
         )

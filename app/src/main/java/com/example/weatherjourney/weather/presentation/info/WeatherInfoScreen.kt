@@ -45,9 +45,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import com.example.weatherjourney.R
+import com.example.weatherjourney.presentation.NAVIGATE_FROM_SEARCH
 import com.example.weatherjourney.presentation.component.LoadingContent
 import com.example.weatherjourney.presentation.theme.superscript
 import com.example.weatherjourney.util.ActionLabel
+import com.example.weatherjourney.util.roundTo
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.weather.CurrentWeather
 import com.example.weatherjourney.weather.domain.model.weather.DailyWeather
@@ -63,6 +65,7 @@ fun WeatherInfoScreen(
     coordinate: Coordinate,
     timeZone: String,
     snackbarHostState: SnackbarHostState,
+    navigationKey: Int,
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
     onNotificationClick: () -> Unit,
@@ -99,7 +102,9 @@ fun WeatherInfoScreen(
         )
 
         LaunchedEffect(true) {
-            viewModel.onNavigateFromSearch(city, coordinate, timeZone)
+            if (navigationKey == NAVIGATE_FROM_SEARCH) {
+                viewModel.onNavigateFromSearch(city, coordinate, timeZone)
+            }
         }
 
         uiState.userMessage?.let { userMessage ->
@@ -190,7 +195,7 @@ fun CurrentWeatherContent(
                     style = MaterialTheme.typography.displayLarge,
                     color = Color.White,
                     text = buildAnnotatedString {
-                        append("${current.temp}")
+                        append("${current.temp.roundTo(1)}")
                         withStyle(superscript) {
                             append(temperatureLabel)
                         }
@@ -221,7 +226,7 @@ fun CurrentWeatherContent(
                         textStyle = TextStyle(color = Color.White)
                     )
                     WeatherDataDisplay(
-                        value = current.windSpeed.roundToInt(),
+                        value = current.windSpeed.roundTo(1),
                         unit = windSpeedLabel,
                         icon = ImageVector.vectorResource(R.drawable.ic_wind),
                         iconTint = Color.White,

@@ -15,6 +15,7 @@ import com.example.weatherjourney.weather.domain.usecase.location.ShouldSaveLoca
 import com.example.weatherjourney.weather.domain.usecase.location.ValidateCurrentCoordinate
 import com.example.weatherjourney.weather.domain.usecase.location.ValidateCurrentLocation
 import com.example.weatherjourney.weather.domain.usecase.location.ValidateLocation
+import com.example.weatherjourney.weather.domain.usecase.weather.ConvertUnit
 import com.example.weatherjourney.weather.domain.usecase.weather.GetAllWeather
 import com.example.weatherjourney.weather.domain.usecase.weather.GetWeatherAdvices
 import dagger.Module
@@ -50,9 +51,10 @@ class WeatherDomainModule {
     @ViewModelScoped
     fun provideWeatherUseCases(
         repository: WeatherRepository,
-        preferences: PreferenceRepository,
+        preferences: PreferenceRepository
     ): WeatherUseCases = WeatherUseCases(
-        getAllWeather = GetAllWeather(repository, preferences),
-        getWeatherAdvices = GetWeatherAdvices(repository, preferences)
+        getAllWeather = GetAllWeather(repository),
+        getWeatherAdvices = GetWeatherAdvices(repository, preferences),
+        convertUnit = ConvertUnit()
     )
 }

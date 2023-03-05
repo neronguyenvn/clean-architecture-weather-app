@@ -9,9 +9,7 @@ interface WeatherRepository {
 
     suspend fun getAllWeather(
         coordinate: Coordinate,
-        timeZone: String,
-        temperatureUnit: String,
-        windSpeedUnit: String
+        timeZone: String
     ): Result<AllWeatherDto>
 
     suspend fun getAirQuality(

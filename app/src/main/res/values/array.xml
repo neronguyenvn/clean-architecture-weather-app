@@ -3,6 +3,7 @@
     <string-array name="temperature_units">
         <item>\u00B0C</item>
         <item>\u00B0F</item>
+        <item>\u00B0K</item>
     </string-array>
 
     <string-array name="wind_speed_units">

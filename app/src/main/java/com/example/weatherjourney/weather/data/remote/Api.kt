@@ -23,8 +23,6 @@ interface Api {
         @Query("latitude") lat: Double,
         @Query("longitude") long: Double,
         @Query("timezone") timeZone: String,
-        @Query("temperature_unit") temperatureUnit: String,
-        @Query("windspeed_unit") windSpeedUnit: String,
         @Query(
             "hourly",
             encoded = true

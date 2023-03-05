@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun WeatherDataDisplay(
-    value: Int,
+    value: Number,
     unit: String,
     icon: ImageVector,
     modifier: Modifier = Modifier,

@@ -51,7 +51,7 @@ fun WeatherSettingScreen(
 
 @Composable
 fun WeatherSettingScreenContent(
-    uiState: WeatherSettingUiState,
+    uiState: AllUnitLabel,
     onTemperatureLabelUpdate: (String) -> Unit,
     onWindSpeedLabelUpdate: (String) -> Unit,
     modifier: Modifier = Modifier
