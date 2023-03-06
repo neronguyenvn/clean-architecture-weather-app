@@ -15,11 +15,11 @@ import com.example.weatherjourney.util.UserMessage
 import com.example.weatherjourney.util.WhileUiSubscribed
 import com.example.weatherjourney.weather.data.mapper.toAllWeather
 import com.example.weatherjourney.weather.data.remote.dto.AllWeatherDto
-import com.example.weatherjourney.weather.data.repository.DefaultRefreshRepository
 import com.example.weatherjourney.weather.domain.mapper.toAllUnitLabel
 import com.example.weatherjourney.weather.domain.mapper.toCoordinate
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.unit.AllUnit
+import com.example.weatherjourney.weather.domain.repository.RefreshRepository
 import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,7 +45,7 @@ class WeatherInfoViewModel @Inject constructor(
     private val locationUseCases: LocationUseCases,
     private val weatherUseCases: WeatherUseCases,
     private val preferences: PreferenceRepository,
-    private val refreshRepository: DefaultRefreshRepository
+    private val refreshRepository: RefreshRepository
 ) : BaseViewModel() {
 
     private val _isInitializing = MutableStateFlow(true)

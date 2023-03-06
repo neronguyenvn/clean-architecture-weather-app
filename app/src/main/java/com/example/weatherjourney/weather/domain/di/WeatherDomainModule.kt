@@ -10,9 +10,9 @@ import com.example.weatherjourney.weather.domain.usecase.location.GetAndSaveCurr
 import com.example.weatherjourney.weather.domain.usecase.location.GetCurrentCoordinate
 import com.example.weatherjourney.weather.domain.usecase.location.GetLocationsStream
 import com.example.weatherjourney.weather.domain.usecase.location.GetSuggestionCities
+import com.example.weatherjourney.weather.domain.usecase.location.IsCurrentLocation
 import com.example.weatherjourney.weather.domain.usecase.location.SaveLocation
 import com.example.weatherjourney.weather.domain.usecase.location.ShouldSaveLocation
-import com.example.weatherjourney.weather.domain.usecase.location.ValidateCurrentCoordinate
 import com.example.weatherjourney.weather.domain.usecase.location.ValidateCurrentLocation
 import com.example.weatherjourney.weather.domain.usecase.location.ValidateLocation
 import com.example.weatherjourney.weather.domain.usecase.weather.ConvertUnit
@@ -39,12 +39,12 @@ class WeatherDomainModule {
             shouldSaveLocation = ShouldSaveLocation(repository, preferences),
             getCurrentCoordinate = GetCurrentCoordinate(repository),
             validateLocation = ValidateLocation(),
-            validateCurrentCoordinate = ValidateCurrentCoordinate(repository),
+            validateCurrentLocation = ValidateCurrentLocation(repository),
             getAndSaveCurrentLocation = GetAndSaveCurrentLocation(repository),
             getSuggestionCities = GetSuggestionCities(repository),
             getLocationsStream = GetLocationsStream(repository),
             deleteLocation = DeleteLocation(repository),
-            validateCurrentLocation = ValidateCurrentLocation(repository)
+            isCurrentLocation = IsCurrentLocation(repository)
         )
 
     @Provides

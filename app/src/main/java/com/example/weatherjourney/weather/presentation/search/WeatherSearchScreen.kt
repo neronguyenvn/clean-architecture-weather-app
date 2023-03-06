@@ -14,24 +14,32 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.component.LoadingContent
-import com.example.weatherjourney.util.UiEvent
+import com.example.weatherjourney.util.ActionLabel
 import com.example.weatherjourney.weather.domain.model.CityUiModel
 import com.example.weatherjourney.weather.domain.model.SavedCity
+import com.example.weatherjourney.weather.domain.model.SuggestionCity
 import com.example.weatherjourney.weather.presentation.search.component.SavedCityItem
 import com.example.weatherjourney.weather.presentation.search.component.SearchBar
 import com.example.weatherjourney.weather.presentation.search.component.SuggestionCityItem
+
+private enum class SearchScreenType {
+    SavedInfoFeed,
+    SuggestionFeed,
+    NoResult
+}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -42,63 +50,53 @@ fun WeatherSearchScreen(
     modifier: Modifier = Modifier,
     viewModel: WeatherSearchViewModel = hiltViewModel()
 ) {
-    val uiState = viewModel.uiState
-    val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             SearchBar(
-                value = uiState.cityAddress,
+                value = uiState.input,
                 onBackClick = onBackClick,
-                onValueChange = { viewModel.onEvent(WeatherSearchEvent.OnCityUpdate(cityAddress = it)) },
-                onValueClear = { viewModel.onEvent(WeatherSearchEvent.OnCityUpdate(cityAddress = "")) },
+                onValueChange = viewModel::onInputUpdate,
+                onValueClear = { viewModel.onInputUpdate("") },
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
     ) { paddingValues ->
         WeatherSearchScreenContent(
             uiState = uiState,
-            onRefresh = { viewModel.onEvent(WeatherSearchEvent.OnRefresh) },
+            onRefresh = viewModel::onRefresh,
             onCityClick = onItemClick,
-            onCityLongClick = { viewModel.onEvent(WeatherSearchEvent.OnCityLongClick(it)) },
+            onCityLongClick = viewModel::onSavedCityLongClick,
             modifier = Modifier.padding(paddingValues)
         )
 
-        val keyboardController = LocalSoftwareKeyboardController.current
-        val haptic = LocalHapticFeedback.current
+        uiState.userMessage?.let { userMessage ->
+            val snackbarText = userMessage.message.asString()
+            val actionLabel = userMessage.actionLabel.label?.asString()
+            val keyboardController = LocalSoftwareKeyboardController.current
+            val haptic = LocalHapticFeedback.current
 
-        LaunchedEffect(true) {
-            viewModel.uiEvent.collect { event ->
-                when (event) {
-                    is UiEvent.ShowSnackbar -> {
-                        when (event.actionLabel) {
-                            R.string.delete -> {
-                                keyboardController?.hide()
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            }
-                        }
+            LaunchedEffect(snackbarHostState, snackbarText, actionLabel) {
+                keyboardController?.hide()
 
-                        val result = snackbarHostState.showSnackbar(
-                            message = event.message.asString(context),
-                            actionLabel = if (event.actionLabel == 0) {
-                                null
-                            } else {
-                                context.getString(event.actionLabel)
-                            },
-                            duration = SnackbarDuration.Short
-                        )
-
-                        if (result == SnackbarResult.ActionPerformed) {
-                            when (event.actionLabel) {
-                                R.string.delete -> viewModel.onEvent(WeatherSearchEvent.OnCityDelete)
-                            }
-                        }
-                    }
-
-                    else -> Unit
+                if (userMessage.actionLabel == ActionLabel.DELETE) {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
+
+                val result = snackbarHostState.showSnackbar(
+                    message = snackbarText,
+                    actionLabel = actionLabel,
+                    duration = SnackbarDuration.Short
+                )
+
+                if (result == SnackbarResult.ActionPerformed) {
+                    viewModel.onDeleteLocation()
+                }
+
+                viewModel.snackbarMessageShown()
             }
         }
     }
@@ -112,30 +110,37 @@ fun WeatherSearchScreenContent(
     onCityLongClick: (CityUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (uiState.cityAddress.isBlank()) {
-        SavedCitiesContent(
-            savedCities = uiState.savedCities,
-            isLoading = uiState.isLoading,
-            onRefresh = onRefresh,
-            onCityClick = onCityClick,
-            onCityLongClick = onCityLongClick,
-            modifier
-        )
-    } else {
-        LazyColumn(modifier.fillMaxWidth()) {
-            if (uiState.suggestionCities.isEmpty()) {
-                item {
-                    Text(
-                        stringResource(R.string.no_result),
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
-                    )
-                }
-            } else {
-                items(uiState.suggestionCities) { city ->
+    val cities = when (uiState) {
+        is WeatherSearchUiState.ShowSaveCities -> uiState.savedCities
+        is WeatherSearchUiState.ShowSuggestionCities -> uiState.suggestionCities
+    }
+
+    when (getSearchScreenType(uiState)) {
+        SearchScreenType.SavedInfoFeed -> {
+            SavedCitiesContent(
+                savedCities = cities as List<SavedCity>,
+                isLoading = uiState.isLoading,
+                onRefresh = onRefresh,
+                onCityClick = onCityClick,
+                onCityLongClick = onCityLongClick,
+                modifier
+            )
+        }
+
+        SearchScreenType.NoResult -> {
+            Text(
+                stringResource(R.string.no_result),
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            )
+        }
+
+        SearchScreenType.SuggestionFeed -> {
+            LazyColumn(modifier.fillMaxWidth()) {
+                items(cities as List<SuggestionCity>) { city ->
                     SuggestionCityItem(city = city) { selectedCity ->
                         onCityClick(selectedCity)
                     }
@@ -164,11 +169,20 @@ fun SavedCitiesContent(
                 SavedCityItem(
                     city = city,
                     onCityClick = { onCityClick(city) },
-                    onCityLongClick = {
-                        onCityLongClick(city)
-                    }
+                    onCityLongClick = { onCityLongClick(city) }
                 )
             }
         }
     }
 }
+
+private fun getSearchScreenType(uiState: WeatherSearchUiState): SearchScreenType =
+    when (uiState) {
+        is WeatherSearchUiState.ShowSaveCities -> SearchScreenType.SavedInfoFeed
+        is WeatherSearchUiState.ShowSuggestionCities ->
+            if (uiState.suggestionCities.isEmpty()) {
+                SearchScreenType.NoResult
+            } else {
+                SearchScreenType.SuggestionFeed
+            }
+    }

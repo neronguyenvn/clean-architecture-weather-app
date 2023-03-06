@@ -9,7 +9,7 @@
     <string name="add_this_location">Add this location to your list?</string>
     <string name="location_saved">Location saved</string>
     <string name="delete">Delete</string>
-    <string name="delete_this_location">Delete this location from your list?</string>
+    <string name="delete_location">Delete %s from your list?</string>
     <string name="location_deleted">Location deleted</string>
     <string name="no_result">No results</string>
     <string name="temperature">%s\u00B0</string>

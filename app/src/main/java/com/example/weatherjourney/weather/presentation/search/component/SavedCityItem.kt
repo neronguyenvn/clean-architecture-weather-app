@@ -37,9 +37,7 @@ fun SavedCityItem(
             .padding(horizontal = 16.dp)
             .combinedClickable(
                 onClick = { onCityClick(city) },
-                onLongClick = {
-                    onCityLongClick(city)
-                }
+                onLongClick = { onCityLongClick(city) }
             )
     ) {
         Spacer(Modifier.height(16.dp))

@@ -1,74 +1,92 @@
 package com.example.weatherjourney.weather.presentation.search
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.R
+import com.example.weatherjourney.presentation.BaseViewModel
+import com.example.weatherjourney.util.ActionLabel
+import com.example.weatherjourney.util.Async
 import com.example.weatherjourney.util.Result
-import com.example.weatherjourney.util.UiEvent
 import com.example.weatherjourney.util.UiText
+import com.example.weatherjourney.util.UserMessage
+import com.example.weatherjourney.weather.data.local.entity.LocationEntity
 import com.example.weatherjourney.weather.data.mapper.coordinate
 import com.example.weatherjourney.weather.data.mapper.toSavedCity
 import com.example.weatherjourney.weather.domain.model.CityUiModel
 import com.example.weatherjourney.weather.domain.model.SavedCity
+import com.example.weatherjourney.weather.domain.model.SuggestionCity
+import com.example.weatherjourney.weather.domain.repository.RefreshRepository
 import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
-import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.OnCityDelete
-import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.OnCityLongClick
-import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.OnCityUpdate
-import com.example.weatherjourney.weather.presentation.search.WeatherSearchEvent.OnRefresh
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val TAG = "WeatherSearchViewModel"
 
+private data class WeatherSearchViewModelState(
+    val input: String = "",
+    val isLoading: Boolean = false,
+    val userMessage: UserMessage? = null,
+    val savedCities: List<SavedCity> = emptyList(),
+    val suggestionCities: List<SuggestionCity> = emptyList()
+) {
+    fun toUiState(): WeatherSearchUiState =
+        if (input.isBlank()) {
+            WeatherSearchUiState.ShowSaveCities(
+                input = input,
+                isLoading = isLoading,
+                userMessage = userMessage,
+                savedCities = savedCities
+            )
+        } else {
+            WeatherSearchUiState.ShowSuggestionCities(
+                input = input,
+                isLoading = isLoading,
+                userMessage = userMessage,
+                suggestionCities = suggestionCities
+            )
+        }
+}
+
 @HiltViewModel
 class WeatherSearchViewModel @Inject constructor(
     private val locationUseCases: LocationUseCases,
-    private val weatherUseCases: WeatherUseCases
-) : ViewModel() {
+    private val weatherUseCases: WeatherUseCases,
+    private val refreshRepository: RefreshRepository
+) : BaseViewModel() {
 
-    var uiState by mutableStateOf(WeatherSearchUiState())
-        private set
-
-    private val _locations = locationUseCases.getLocationsStream().map { locations ->
+    init {
         viewModelScope.launch {
-            val channel = Channel<SavedCity>()
-            for (location in locations) {
-                launch {
-                    when (
-                        val weather = weatherUseCases.getAllWeather(
-                            location.coordinate,
-                            location.timeZone
-                        )
-                    ) {
-
-                        is Result.Success -> {
-                            val city = weather.data.toSavedCity(
-                                location.cityAddress,
-                                location.coordinate,
-                                location.timeZone,
-                                location.isCurrentLocation
-                            )
-
-                            channel.send(city)
-                        }
-
-                        is Result.Error -> handleError(weather)
-                    }
-                }
+            locationUseCases.validateCurrentLocation()
+            _viewModelState.collect { state ->
+                _uiState.update { state.toUiState() }
             }
+        }
+    }
+
+    private val _locations = locationUseCases.getLocationsStream().map {
+        Log.d(TAG, "Locations flow collected")
+        it
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _savedCities = _locations.flatMapLatest { locations ->
+        flow {
+            val channel = Channel<SavedCity>()
+            handleLocations(channel, locations)
 
             var savedCities = emptyList<SavedCity>()
 
@@ -79,84 +97,143 @@ class WeatherSearchViewModel @Inject constructor(
                 } else {
                     savedCities + city
                 }
-                uiState = uiState.copy(savedCities = savedCities)
+
+                Log.d(TAG, "SavedCities flow collected: $savedCities")
+                emit(savedCities)
             }
         }
     }
 
-    init {
-        Log.d(TAG, "$TAG init")
+    private val _input = MutableStateFlow("")
 
-        viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true)
-            if (locationUseCases.validateCurrentCoordinate()) {
-                return@launch
-            }
-
-            _locations.collect {
-                runSuspend(it)
+    private val _suggestionCitiesAsync = _input
+        .map {
+            if (it.length < 2) {
+                Async.Success(emptyList())
+            } else {
+                handleSuggestionCitiesResult(locationUseCases.getSuggestionCities(it))
             }
         }
+        .map {
+            Log.d(TAG, "SuggestCitiesAsync flow collected: $it")
+            it
+        }.onStart { Async.Loading }
+
+    private val _viewModelState = combine(
+        _input,
+        _savedCities,
+        _suggestionCitiesAsync,
+        _isLoading,
+        _userMessage
+    ) { input, savedCitiesAsync, suggestionCitiesAsync, isLoading, userMessage ->
+
+        WeatherSearchViewModelState(
+            input = input,
+            isLoading = isLoading,
+            userMessage = userMessage,
+            savedCities = savedCitiesAsync,
+            suggestionCities = if (suggestionCitiesAsync is Async.Success) suggestionCitiesAsync.data else emptyList()
+        )
+    }.map {
+        Log.d(TAG, "UiState flow collected: $it")
+        it
     }
 
-    private val _uiEvent = MutableSharedFlow<UiEvent>()
-    val uiEvent = _uiEvent.asSharedFlow()
+    private val _uiState =
+        MutableStateFlow(WeatherSearchViewModelState(isLoading = true).toUiState())
+    val uiState = _uiState.asStateFlow()
 
-    private lateinit var tempCityUiModel: CityUiModel
+    private lateinit var tempSavedCity: CityUiModel
 
-    fun onEvent(event: WeatherSearchEvent) {
-        when (event) {
-            is OnCityUpdate -> {
-                uiState = uiState.copy(cityAddress = event.cityAddress)
+    fun onInputUpdate(input: String) {
+        _input.value = input
+    }
 
-                if (event.cityAddress.isNotBlank()) {
-                    viewModelScope.launch {
-                        when (
-                            val suggestionCities =
-                                locationUseCases.getSuggestionCities(event.cityAddress)
-                        ) {
-                            is Result.Success ->
-                                uiState =
-                                    uiState.copy(suggestionCities = suggestionCities.data)
+    fun onRefresh() = viewModelScope.launch {
+        runSuspend(
+            launch { _savedCities.first() },
+            launch { delay(1500) }
+        )
+    }
 
-                            is Result.Error -> handleError(suggestionCities)
+    fun onDeleteLocation() = viewModelScope.launch {
+        locationUseCases.deleteLocation(tempSavedCity.coordinate)
+    }
+
+    fun onSavedCityLongClick(city: CityUiModel) {
+        tempSavedCity = city
+
+        _userMessage.value = UserMessage(
+            message = UiText.StringResource(R.string.delete_location, listOf(city.cityAddress)),
+            actionLabel = ActionLabel.DELETE
+        )
+    }
+
+    private fun handleLocations(channel: Channel<SavedCity>, locations: List<LocationEntity>) {
+        for (location in locations) {
+            viewModelScope.launch {
+                when (
+                    val weather = weatherUseCases.getAllWeather(
+                        location.coordinate,
+                        location.timeZone
+                    )
+                ) {
+                    is Result.Success -> {
+                        val city = weather.data.toSavedCity(
+                            location.cityAddress,
+                            location.coordinate,
+                            location.timeZone,
+                            location.isCurrentLocation
+                        )
+
+                        channel.send(city)
+                    }
+
+                    is Result.Error -> {
+                        val message = weather.toString()
+                        showSnackbarMessage(UserMessage(UiText.DynamicString(message)))
+
+                        refreshRepository.startListenWhenConnectivitySuccess()
+
+                        if (listenSuccessNetworkJob != null) return@launch
+
+                        listenSuccessNetworkJob = viewModelScope.launch {
+                            refreshRepository.outputWorkInfo.collect { info ->
+                                if (info.state.isFinished) {
+                                    showSnackbarMessage(UserMessage(UiText.StringResource(R.string.restore_internet_connection)))
+                                    onRefresh()
+                                }
+                            }
                         }
                     }
                 }
             }
-
-            is OnRefresh -> viewModelScope.launch {
-                runSuspend(_locations.first(), launch { delay(1500) })
-            }
-
-            is OnCityLongClick -> viewModelScope.launch {
-                if (locationUseCases.validateCurrentLocation(event.city.coordinate)) return@launch
-
-                tempCityUiModel = event.city
-
-                _uiEvent.emit(
-                    UiEvent.ShowSnackbar(
-                        message = UiText.StringResource(R.string.delete_this_location),
-                        actionLabel = R.string.delete
-                    )
-                )
-            }
-
-            is OnCityDelete -> viewModelScope.launch {
-                locationUseCases.deleteLocation(tempCityUiModel.coordinate)
-            }
         }
     }
 
-    private suspend fun runSuspend(vararg jobs: Job) {
-        uiState = uiState.copy(isLoading = true)
-        jobs.forEach { it.join() }
-        uiState = uiState.copy(isLoading = false)
-    }
+    private fun handleSuggestionCitiesResult(result: Result<List<SuggestionCity>>): Async<List<SuggestionCity>> {
+        return if (result is Result.Success) {
+            Async.Success(result.data)
+        } else {
+            val message = result.toString()
+            showSnackbarMessage(UserMessage(UiText.DynamicString(message)))
 
-    private suspend fun handleError(error: Result.Error) {
-        val message = error.toString()
-        Log.e(TAG, message)
-        _uiEvent.emit(UiEvent.ShowSnackbar(UiText.DynamicString(message)))
+            refreshRepository.startListenWhenConnectivitySuccess()
+
+            if (listenSuccessNetworkJob != null) {
+                Async.Success(emptyList<SuggestionCity>())
+            }
+
+            listenSuccessNetworkJob = viewModelScope.launch {
+                refreshRepository.outputWorkInfo.collect { info ->
+                    if (info.state.isFinished) {
+                        showSnackbarMessage(UserMessage(UiText.StringResource(R.string.restore_internet_connection)))
+                        onRefresh()
+                    }
+                }
+            }
+
+            Async.Success(emptyList())
+        }
     }
 }

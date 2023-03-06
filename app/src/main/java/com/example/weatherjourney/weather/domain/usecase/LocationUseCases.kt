@@ -5,9 +5,9 @@ import com.example.weatherjourney.weather.domain.usecase.location.GetAndSaveCurr
 import com.example.weatherjourney.weather.domain.usecase.location.GetCurrentCoordinate
 import com.example.weatherjourney.weather.domain.usecase.location.GetLocationsStream
 import com.example.weatherjourney.weather.domain.usecase.location.GetSuggestionCities
+import com.example.weatherjourney.weather.domain.usecase.location.IsCurrentLocation
 import com.example.weatherjourney.weather.domain.usecase.location.SaveLocation
 import com.example.weatherjourney.weather.domain.usecase.location.ShouldSaveLocation
-import com.example.weatherjourney.weather.domain.usecase.location.ValidateCurrentCoordinate
 import com.example.weatherjourney.weather.domain.usecase.location.ValidateCurrentLocation
 import com.example.weatherjourney.weather.domain.usecase.location.ValidateLocation
 
@@ -15,11 +15,11 @@ data class LocationUseCases(
     val saveLocation: SaveLocation,
     val shouldSaveLocation: ShouldSaveLocation,
     val getCurrentCoordinate: GetCurrentCoordinate,
-    val validateCurrentCoordinate: ValidateCurrentCoordinate,
+    val validateCurrentLocation: ValidateCurrentLocation,
     val validateLocation: ValidateLocation,
     val getAndSaveCurrentLocation: GetAndSaveCurrentLocation,
     val getSuggestionCities: GetSuggestionCities,
     val getLocationsStream: GetLocationsStream,
     val deleteLocation: DeleteLocation,
-    val validateCurrentLocation: ValidateCurrentLocation
+    val isCurrentLocation: IsCurrentLocation
 )

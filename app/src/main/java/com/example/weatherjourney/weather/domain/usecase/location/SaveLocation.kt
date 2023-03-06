@@ -3,7 +3,6 @@ package com.example.weatherjourney.weather.domain.usecase.location
 import com.example.weatherejourney.LocationPreferences
 import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.weather.data.local.entity.LocationEntity
-import com.example.weatherjourney.weather.data.mapper.toUnifiedCoordinate
 import com.example.weatherjourney.weather.domain.mapper.toCoordinate
 import com.example.weatherjourney.weather.domain.repository.LocationRepository
 
@@ -14,7 +13,7 @@ class SaveLocation(
     suspend operator fun invoke(location: LocationPreferences) {
         val coordinate = location.coordinate.toCoordinate()
         val currentCoordinate = repository.getCurrentCoordinate()
-            .let { if (it is Result.Success) it.data.toUnifiedCoordinate() else null }
+            .let { if (it is Result.Success) it.data else null }
 
         repository.saveLocation(
             LocationEntity(

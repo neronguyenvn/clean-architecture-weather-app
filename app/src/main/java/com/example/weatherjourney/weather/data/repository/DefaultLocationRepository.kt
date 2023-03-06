@@ -32,7 +32,7 @@ class DefaultLocationRepository(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : LocationRepository {
 
-    override suspend fun fetchLocation(coordinate: Coordinate): Result<Any> =
+    override suspend fun fetchLocation(coordinate: Coordinate): Result<Boolean> =
         when (getLocation(coordinate)) {
             null -> {
                 try {
@@ -82,24 +82,24 @@ class DefaultLocationRepository(
         try {
             val response = api.getReverseGeocoding(coordinate.toApiCoordinate())
 
-            preferences.updateLocation(
-                response.getCityAddress(),
-                coordinate,
-                response.getTimeZone()
-            )
-
             withContext(ioDispatcher) {
                 launch {
-                    dao.insertLocation(
-                        LocationEntity(
-                            cityAddress = response.getCityAddress(),
-                            latitude = coordinate.latitude,
-                            longitude = coordinate.longitude,
-                            timeZone = response.getTimeZone(),
-                            isCurrentLocation = true
-                        )
+                    preferences.updateLocation(
+                        response.getCityAddress(),
+                        coordinate,
+                        response.getTimeZone()
                     )
                 }
+
+                dao.insertLocation(
+                    LocationEntity(
+                        cityAddress = response.getCityAddress(),
+                        latitude = coordinate.latitude,
+                        longitude = coordinate.longitude,
+                        timeZone = response.getTimeZone(),
+                        isCurrentLocation = true
+                    )
+                )
             }
         } catch (ex: Exception) {
             throw ex
