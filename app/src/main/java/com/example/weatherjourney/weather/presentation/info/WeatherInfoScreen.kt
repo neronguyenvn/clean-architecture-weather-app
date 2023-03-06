@@ -48,7 +48,6 @@ import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.NAVIGATE_FROM_SEARCH
 import com.example.weatherjourney.presentation.component.LoadingContent
 import com.example.weatherjourney.presentation.theme.superscript
-import com.example.weatherjourney.util.ActionLabel
 import com.example.weatherjourney.util.roundTo
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.weather.CurrentWeather
@@ -109,7 +108,7 @@ fun WeatherInfoScreen(
 
         uiState.userMessage?.let { userMessage ->
             val snackbarText = userMessage.message.asString()
-            val actionLabel = userMessage.actionLabel.label.asString()
+            val actionLabel = userMessage.actionLabel.label?.asString()
 
             LaunchedEffect(snackbarHostState, snackbarText, actionLabel) {
                 val result = snackbarHostState.showSnackbar(
@@ -118,7 +117,7 @@ fun WeatherInfoScreen(
                     duration = SnackbarDuration.Short
                 )
 
-                if (result == SnackbarResult.ActionPerformed && userMessage.actionLabel == ActionLabel.ADD) {
+                if (result == SnackbarResult.ActionPerformed) {
                     viewModel.onSaveInfo()
                 }
 

@@ -9,12 +9,17 @@ sealed class UiText {
 
     data class DynamicString(val text: String) : UiText()
 
-    data class StringResource(@StringRes val id: Int) : UiText()
+    data class StringResource(@StringRes val id: Int, val args: List<Any> = emptyList()) : UiText()
 
     fun asString(context: Context): String {
         return when (this) {
             is DynamicString -> text
-            is StringResource -> context.getString(id)
+            is StringResource ->
+                if (args.isEmpty()) {
+                    context.getString(id)
+                } else {
+                    context.getString(id, *args.toTypedArray())
+                }
         }
     }
 
@@ -22,7 +27,12 @@ sealed class UiText {
     fun asString(): String {
         return when (this) {
             is DynamicString -> text
-            is StringResource -> stringResource(id)
+            is StringResource ->
+                if (args.isEmpty()) {
+                    stringResource(id)
+                } else {
+                    stringResource(id, *args.toTypedArray())
+                }
         }
     }
 }
