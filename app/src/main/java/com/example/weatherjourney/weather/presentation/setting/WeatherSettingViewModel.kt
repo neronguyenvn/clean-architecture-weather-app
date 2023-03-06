@@ -3,7 +3,6 @@ package com.example.weatherjourney.weather.presentation.setting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.domain.PreferenceRepository
-import com.example.weatherjourney.weather.data.repository.DefaultRefreshRepository
 import com.example.weatherjourney.weather.domain.mapper.getTemperatureUnit
 import com.example.weatherjourney.weather.domain.mapper.getWindSpeedUnit
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,8 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WeatherSettingViewModel @Inject constructor(
-    private val preferences: PreferenceRepository,
-    private val refreshRepository: DefaultRefreshRepository
+    private val preferences: PreferenceRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AllUnitLabel())
@@ -39,7 +37,6 @@ class WeatherSettingViewModel @Inject constructor(
 
         viewModelScope.launch {
             preferences.saveTemperatureUnit(getTemperatureUnit(label))
-            refreshRepository.emit()
         }
     }
 
@@ -48,7 +45,6 @@ class WeatherSettingViewModel @Inject constructor(
 
         viewModelScope.launch {
             preferences.saveWindSpeedUnit(getWindSpeedUnit(label))
-            refreshRepository.emit()
         }
     }
 }
