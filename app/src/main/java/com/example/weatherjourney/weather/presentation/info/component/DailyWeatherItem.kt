@@ -33,8 +33,8 @@ fun DailyWeatherItem(
         modifier = modifier
             .border(1.dp, MaterialTheme.colorScheme.onBackground, RoundedCornerShape(20.dp))
             .padding(16.dp)
-            .height(135.dp)
-            .width(90.dp)
+            .height(150.dp)
+            .width(100.dp)
     ) {
         val context = LocalContext.current
 
