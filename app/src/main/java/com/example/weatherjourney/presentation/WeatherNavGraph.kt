@@ -75,7 +75,8 @@ fun WeatherNavGraph(
                     navActions.navigateToInfo(
                         it.cityAddress,
                         it.coordinate,
-                        it.timeZone
+                        it.timeZone,
+                        NAVIGATE_FROM_SEARCH
                     )
                 }
             )

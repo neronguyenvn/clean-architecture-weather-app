@@ -34,7 +34,7 @@ object WeatherDestinations {
             "&$LATITUDE_ARG={$LATITUDE_ARG}" +
             "&$LONGITUDE_ARG={$LONGITUDE_ARG}" +
             "&$TIMEZONE_ARG={$TIMEZONE_ARG}" +
-            "$NAVIGATION_KEY_ARG={$NAVIGATION_KEY_ARG}"
+            "&$NAVIGATION_KEY_ARG={$NAVIGATION_KEY_ARG}"
     const val SEARCH_ROUTE = SEARCH_SCREEN
     const val SETTING_ROUTE = SETTING_SCREEN
     const val NOTIFICATION_ROUTE = NOTIFICATION_SCREEN
