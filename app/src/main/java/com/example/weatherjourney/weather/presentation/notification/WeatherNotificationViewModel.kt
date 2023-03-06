@@ -10,7 +10,7 @@ import com.example.weatherjourney.util.UiText
 import com.example.weatherjourney.util.UiText.DynamicString
 import com.example.weatherjourney.util.UserMessage
 import com.example.weatherjourney.util.WhileUiSubscribed
-import com.example.weatherjourney.weather.data.repository.DefaultRefreshRepository
+import com.example.weatherjourney.weather.domain.repository.RefreshRepository
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -29,7 +29,7 @@ private const val TAG = "WeatherNotificationViewModel"
 @HiltViewModel
 class WeatherNotificationViewModel @Inject constructor(
     private val weatherUseCases: WeatherUseCases,
-    private val refreshRepository: DefaultRefreshRepository
+    private val refreshRepository: RefreshRepository
 ) : BaseViewModel() {
 
     private val _notificationsAsync = flow { emit(weatherUseCases.getWeatherAdvices()) }
