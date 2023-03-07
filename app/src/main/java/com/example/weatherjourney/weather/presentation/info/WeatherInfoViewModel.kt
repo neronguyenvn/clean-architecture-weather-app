@@ -15,7 +15,6 @@ import com.example.weatherjourney.util.UserMessage
 import com.example.weatherjourney.util.WhileUiSubscribed
 import com.example.weatherjourney.weather.data.mapper.toAllWeather
 import com.example.weatherjourney.weather.data.remote.dto.AllWeatherDto
-import com.example.weatherjourney.weather.domain.mapper.toAllUnitLabel
 import com.example.weatherjourney.weather.domain.mapper.toCoordinate
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.unit.AllUnit
@@ -32,6 +31,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -99,7 +99,7 @@ class WeatherInfoViewModel @Inject constructor(
     }.map {
         Log.d(TAG, "WeatherAsync flow collected: $it")
         it
-    }
+    }.onStart { Async.Loading }
 
     val uiState: StateFlow<WeatherInfoUiState> = combine(
         _isLoading,
@@ -115,7 +115,7 @@ class WeatherInfoViewModel @Inject constructor(
             is Async.Success -> {
                 _isInitializing.value = false
                 WeatherInfoUiState(
-                    labels = units.toAllUnitLabel(),
+                    allUnit = units,
                     isLoading = isLoading,
                     userMessage = userMessage,
                     allWeather = weatherAsync.data?.let { weatherUseCases.convertUnit(it, units) }

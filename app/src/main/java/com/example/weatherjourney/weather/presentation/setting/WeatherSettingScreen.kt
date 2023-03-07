@@ -23,6 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.component.BasicTopBar
 import com.example.weatherjourney.presentation.theme.White70
+import com.example.weatherjourney.weather.domain.model.unit.AllUnit
 import com.example.weatherjourney.weather.presentation.setting.component.UnitItem
 
 @Composable
@@ -51,7 +52,7 @@ fun WeatherSettingScreen(
 
 @Composable
 fun WeatherSettingScreenContent(
-    uiState: AllUnitLabel,
+    uiState: AllUnit?,
     onTemperatureLabelUpdate: (String) -> Unit,
     onWindSpeedLabelUpdate: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -64,28 +65,30 @@ fun WeatherSettingScreenContent(
     val temperatureUnits = stringArrayResource(R.array.temperature_units).toList()
     val windSpeedUnits = stringArrayResource(R.array.wind_speed_units).toList()
 
-    Column(
-        modifier
-            .fillMaxWidth()
-            .padding(screenPadding)
-    ) {
-        Text(
-            stringResource(R.string.units),
-            style = MaterialTheme.typography.labelLarge.copy(color = White70)
-        )
-        Spacer(Modifier.height(12.dp))
-        UnitItem(
-            title = R.string.temperature_unit,
-            segments = temperatureUnits,
-            selectedSegment = uiState.temperatureLabel,
-            onSegmentSelected = onTemperatureLabelUpdate
-        )
-        Spacer(Modifier.height(12.dp))
-        UnitItem(
-            title = R.string.wind_speed_unit,
-            segments = windSpeedUnits,
-            selectedSegment = uiState.windSpeedLabel,
-            onSegmentSelected = onWindSpeedLabelUpdate
-        )
+    uiState?.let {
+        Column(
+            modifier
+                .fillMaxWidth()
+                .padding(screenPadding)
+        ) {
+            Text(
+                stringResource(R.string.units),
+                style = MaterialTheme.typography.labelLarge.copy(color = White70)
+            )
+            Spacer(Modifier.height(12.dp))
+            UnitItem(
+                title = R.string.temperature_unit,
+                segments = temperatureUnits,
+                selectedSegment = it.temperature.label,
+                onSegmentSelected = onTemperatureLabelUpdate
+            )
+            Spacer(Modifier.height(12.dp))
+            UnitItem(
+                title = R.string.wind_speed_unit,
+                segments = windSpeedUnits,
+                selectedSegment = it.windSpeed.label,
+                onSegmentSelected = onWindSpeedLabelUpdate
+            )
+        }
     }
 }

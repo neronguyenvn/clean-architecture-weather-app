@@ -50,6 +50,7 @@ import com.example.weatherjourney.presentation.component.LoadingContent
 import com.example.weatherjourney.presentation.theme.superscript
 import com.example.weatherjourney.util.roundTo
 import com.example.weatherjourney.weather.domain.model.Coordinate
+import com.example.weatherjourney.weather.domain.model.unit.AllUnit
 import com.example.weatherjourney.weather.domain.model.weather.CurrentWeather
 import com.example.weatherjourney.weather.domain.model.weather.DailyWeather
 import com.example.weatherjourney.weather.presentation.info.component.DailyWeatherItem
@@ -145,18 +146,12 @@ fun WeatherInfoScreenContent(
                 .fillMaxWidth()
                 .padding(screenPadding)
         ) {
-            item {
-                CurrentWeatherContent(
-                    uiState.allWeather.current,
-                    uiState.labels.temperatureLabel,
-                    uiState.labels.windSpeedLabel
-                )
-            }
+            item { CurrentWeatherContent(uiState.allWeather.current, uiState.allUnit) }
             item { Spacer(Modifier.height(32.dp)) }
             item { DailyWeatherContent(uiState.allWeather.listDaily) }
             item { Spacer(Modifier.height(32.dp)) }
             items(uiState.allWeather.listHourly) { hourly ->
-                HourlyWeatherItem(hourly, uiState.labels.windSpeedLabel)
+                HourlyWeatherItem(hourly, uiState.allUnit?.windSpeed)
             }
         }
     }
@@ -165,72 +160,73 @@ fun WeatherInfoScreenContent(
 @Composable
 fun CurrentWeatherContent(
     current: CurrentWeather?,
-    temperatureLabel: String,
-    windSpeedLabel: String,
+    allUnit: AllUnit?,
     modifier: Modifier = Modifier
 ) {
     current?.let {
-        Card(modifier) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    current.date,
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.align(Alignment.End),
-                    color = Color.White
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-                Image(
-                    painter = painterResource(current.weatherType.iconRes),
-                    contentDescription = null,
-                    modifier = Modifier.height(150.dp)
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    style = MaterialTheme.typography.displayLarge,
-                    color = Color.White,
-                    text = buildAnnotatedString {
-                        append("${current.temp.roundTo(1)}")
-                        withStyle(superscript) {
-                            append(temperatureLabel)
-                        }
-                    }
-                )
-                Text(
-                    current.weatherType.weatherDesc,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.White
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+        allUnit?.let { units ->
+            Card(modifier) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    WeatherDataDisplay(
-                        value = current.pressure.roundToInt(),
-                        unit = "hPa",
-                        icon = ImageVector.vectorResource(R.drawable.ic_pressure),
-                        iconTint = Color.White,
-                        textStyle = TextStyle(color = Color.White)
+                    Text(
+                        current.date,
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.align(Alignment.End),
+                        color = Color.White
                     )
-                    WeatherDataDisplay(
-                        value = current.humidity.roundToInt(),
-                        unit = "%",
-                        icon = ImageVector.vectorResource(R.drawable.ic_drop),
-                        iconTint = Color.White,
-                        textStyle = TextStyle(color = Color.White)
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Image(
+                        painter = painterResource(current.weatherType.iconRes),
+                        contentDescription = null,
+                        modifier = Modifier.height(150.dp)
                     )
-                    WeatherDataDisplay(
-                        value = current.windSpeed.roundTo(1),
-                        unit = windSpeedLabel,
-                        icon = ImageVector.vectorResource(R.drawable.ic_wind),
-                        iconTint = Color.White,
-                        textStyle = TextStyle(color = Color.White)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        style = MaterialTheme.typography.displayLarge,
+                        color = Color.White,
+                        text = buildAnnotatedString {
+                            append("${current.temp.roundTo(1)}")
+                            withStyle(superscript) {
+                                append(units.temperature.label)
+                            }
+                        }
                     )
+                    Text(
+                        current.weatherType.weatherDesc,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        WeatherDataDisplay(
+                            value = current.pressure.roundToInt(),
+                            unit = "hPa",
+                            icon = ImageVector.vectorResource(R.drawable.ic_pressure),
+                            iconTint = Color.White,
+                            textStyle = TextStyle(color = Color.White)
+                        )
+                        WeatherDataDisplay(
+                            value = current.humidity.roundToInt(),
+                            unit = "%",
+                            icon = ImageVector.vectorResource(R.drawable.ic_drop),
+                            iconTint = Color.White,
+                            textStyle = TextStyle(color = Color.White)
+                        )
+                        WeatherDataDisplay(
+                            value = current.windSpeed.roundTo(1),
+                            unit = units.windSpeed.label,
+                            icon = ImageVector.vectorResource(R.drawable.ic_wind),
+                            iconTint = Color.White,
+                            textStyle = TextStyle(color = Color.White)
+                        )
+                    }
                 }
             }
         }
