@@ -1,5 +1,6 @@
 package com.example.weatherjourney.weather.data.remote.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,6 +12,8 @@ data class ReverseGeocoding(
     }
 
     fun getTimeZone() = results[0].annotations.timezone.name
+
+    fun getCountryCode() = results[0].components.countryCode
 }
 
 @Serializable
@@ -23,7 +26,9 @@ data class ReverseGeocodingResult(
 data class Component(
     val county: String = "",
     val city: String = "",
-    val region: String = ""
+    val region: String = "",
+    @SerialName("country_code")
+    val countryCode: String
 )
 
 @Serializable

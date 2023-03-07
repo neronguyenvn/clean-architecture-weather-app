@@ -11,5 +11,6 @@ data class LocationEntity(
     val longitude: Double,
     val timeZone: String,
     val isCurrentLocation: Boolean = false,
+    val countryCode: String,
     @PrimaryKey val id: String = UUID.randomUUID().toString()
 )

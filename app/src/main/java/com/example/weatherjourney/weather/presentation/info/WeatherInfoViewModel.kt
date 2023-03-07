@@ -164,10 +164,10 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
-    fun onSaveInfo() {
+    fun onSaveInfo(countryCode: String) {
         Log.d(TAG, "onSaveInfo() called")
         viewModelScope.launch {
-            _lastLocation.value?.let { locationUseCases.saveLocation(it) }
+            _lastLocation.value?.let { locationUseCases.saveLocation(it, countryCode) }
             _userMessage.value = UserMessage(UiText.StringResource(R.string.location_saved))
         }
     }

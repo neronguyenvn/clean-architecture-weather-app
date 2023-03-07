@@ -22,14 +22,15 @@ import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.component.HorizontalDivider
 import com.example.weatherjourney.presentation.theme.White70
 import com.example.weatherjourney.weather.domain.model.SavedCity
+import com.example.weatherjourney.weather.presentation.component.CityAddressWithFlag
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SavedCityItem(
     city: SavedCity,
-    modifier: Modifier = Modifier,
     onCityClick: (SavedCity) -> Unit,
-    onCityLongClick: (SavedCity) -> Unit
+    onCityLongClick: (SavedCity) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -46,9 +47,9 @@ fun SavedCityItem(
         ) {
             if (city.isCurrentLocation) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = city.cityAddress,
-                        style = MaterialTheme.typography.bodyLarge
+                    CityAddressWithFlag(
+                        countryCode = city.countryCode,
+                        cityAddress = city.cityAddress
                     )
                     Text(
                         text = stringResource(R.string.your_location),
@@ -56,11 +57,12 @@ fun SavedCityItem(
                     )
                 }
             } else {
-                Text(
-                    text = city.cityAddress,
-                    style = MaterialTheme.typography.bodyLarge,
+                CityAddressWithFlag(
+                    countryCode = city.countryCode,
+                    cityAddress = city.cityAddress,
                     modifier = Modifier.weight(1f)
                 )
+
             }
             Spacer(Modifier.width(8.dp))
             Text(

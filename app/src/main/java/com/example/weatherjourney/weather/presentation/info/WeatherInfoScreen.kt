@@ -66,6 +66,7 @@ fun WeatherInfoScreen(
     timeZone: String,
     snackbarHostState: SnackbarHostState,
     navigationKey: Int,
+    countryCode: String,
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
     onNotificationClick: () -> Unit,
@@ -119,7 +120,7 @@ fun WeatherInfoScreen(
                 )
 
                 if (result == SnackbarResult.ActionPerformed) {
-                    viewModel.onSaveInfo()
+                    viewModel.onSaveInfo(countryCode)
                 }
 
                 viewModel.snackbarMessageShown()

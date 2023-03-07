@@ -97,7 +97,8 @@ class DefaultLocationRepository(
                         latitude = coordinate.latitude,
                         longitude = coordinate.longitude,
                         timeZone = response.getTimeZone(),
-                        isCurrentLocation = true
+                        isCurrentLocation = true,
+                        countryCode = response.getCountryCode()
                     )
                 )
             }

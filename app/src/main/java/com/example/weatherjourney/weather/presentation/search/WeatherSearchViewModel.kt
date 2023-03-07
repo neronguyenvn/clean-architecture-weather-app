@@ -183,7 +183,8 @@ class WeatherSearchViewModel @Inject constructor(
                             location.cityAddress,
                             location.coordinate,
                             location.timeZone,
-                            location.isCurrentLocation
+                            location.isCurrentLocation,
+                            location.countryCode
                         )
 
                         channel.send(city)

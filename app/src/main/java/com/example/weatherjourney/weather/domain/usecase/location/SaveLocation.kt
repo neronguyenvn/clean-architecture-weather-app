@@ -10,7 +10,7 @@ class SaveLocation(
     private val repository: LocationRepository
 ) {
 
-    suspend operator fun invoke(location: LocationPreferences) {
+    suspend operator fun invoke(location: LocationPreferences, countryCode: String) {
         val coordinate = location.coordinate.toCoordinate()
         val currentCoordinate = repository.getCurrentCoordinate()
             .let { if (it is Result.Success) it.data else null }
@@ -21,7 +21,8 @@ class SaveLocation(
                 latitude = coordinate.latitude,
                 longitude = coordinate.longitude,
                 timeZone = location.timeZone,
-                isCurrentLocation = currentCoordinate?.let { it == coordinate } ?: false
+                isCurrentLocation = currentCoordinate?.let { it == coordinate } ?: false,
+                countryCode = countryCode
             )
         )
     }
