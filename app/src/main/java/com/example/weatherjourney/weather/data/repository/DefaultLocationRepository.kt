@@ -32,11 +32,14 @@ class DefaultLocationRepository(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : LocationRepository {
 
-    override suspend fun fetchLocation(coordinate: Coordinate): Result<Boolean> =
+    override suspend fun fetchLocation(
+        coordinate: Coordinate,
+        shouldUpdateLastLocation: Boolean
+    ): Result<Boolean> =
         when (getLocation(coordinate)) {
             null -> {
                 try {
-                    updateCurrentLocationFromRemote(coordinate)
+                    updateCurrentLocationFromRemote(coordinate, shouldUpdateLastLocation)
                 } catch (ex: Exception) {
                     Result.Error(ex)
                 }
@@ -78,17 +81,22 @@ class DefaultLocationRepository(
     override suspend fun deleteLocation(location: LocationEntity) =
         dao.deleteLocation(location)
 
-    private suspend fun updateCurrentLocationFromRemote(coordinate: Coordinate) {
+    private suspend fun updateCurrentLocationFromRemote(
+        coordinate: Coordinate,
+        isLastLocation: Boolean
+    ) {
         try {
             val response = api.getReverseGeocoding(coordinate.toApiCoordinate())
 
             withContext(ioDispatcher) {
-                launch {
-                    preferences.updateLocation(
-                        response.getCityAddress(),
-                        coordinate,
-                        response.getTimeZone()
-                    )
+                if (isLastLocation) {
+                    launch {
+                        preferences.updateLocation(
+                            response.getCityAddress(),
+                            coordinate,
+                            response.getTimeZone()
+                        )
+                    }
                 }
 
                 dao.insertLocation(

@@ -151,16 +151,19 @@ class WeatherInfoViewModel @Inject constructor(
 
     fun onNavigateFromSearch(cityAddress: String, coordinate: Coordinate, timeZone: String) {
         Log.d(TAG, "onNavigateFromSearch($cityAddress, $coordinate, $timeZone) called")
+        _isLoading.value = true
         if (!locationUseCases.validateLocation(cityAddress, coordinate, timeZone)) return
 
         viewModelScope.launch {
+            preferences.updateLocation(cityAddress, coordinate, timeZone)
             if (locationUseCases.shouldSaveLocation(coordinate)) {
                 _userMessage.value = UserMessage(
                     message = UiText.StringResource(R.string.add_this_location),
                     actionLabel = ActionLabel.ADD
                 )
             }
-            preferences.updateLocation(cityAddress, coordinate, timeZone)
+            delay(5000)
+            _isLoading.value = false
         }
     }
 

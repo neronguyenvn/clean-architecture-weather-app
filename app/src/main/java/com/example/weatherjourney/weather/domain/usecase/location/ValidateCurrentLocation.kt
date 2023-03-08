@@ -20,14 +20,14 @@ class ValidateCurrentLocation(private val repository: LocationRepository) {
 
         // Update current location in database
         if (currentLocation == null) {
-            repository.fetchLocation(currentCoordinate)
+            repository.fetchLocation(currentCoordinate, false)
             return
         }
 
         // Update current location in database
         if (currentLocation.coordinate != currentCoordinate) {
             repository.deleteLocation(currentLocation)
-            repository.fetchLocation(currentCoordinate)
+            repository.fetchLocation(currentCoordinate, false)
         }
     }
 }

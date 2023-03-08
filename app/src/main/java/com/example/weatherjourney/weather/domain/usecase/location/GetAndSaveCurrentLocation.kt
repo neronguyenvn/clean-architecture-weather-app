@@ -7,7 +7,7 @@ class GetAndSaveCurrentLocation(private val repository: LocationRepository) {
 
     suspend operator fun invoke(): Result<Any> =
         when (val currentCoordinate = repository.getCurrentCoordinate()) {
-            is Result.Success -> repository.fetchLocation(currentCoordinate.data)
+            is Result.Success -> repository.fetchLocation(currentCoordinate.data, true)
             else -> currentCoordinate
         }
 }
