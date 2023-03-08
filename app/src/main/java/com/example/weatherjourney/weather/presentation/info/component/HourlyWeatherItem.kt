@@ -19,7 +19,6 @@ import com.example.weatherjourney.R
 import com.example.weatherjourney.util.roundTo
 import com.example.weatherjourney.weather.domain.model.unit.WindSpeedUnit
 import com.example.weatherjourney.weather.domain.model.weather.HourlyWeather
-import kotlin.math.roundToInt
 
 @Composable
 fun HourlyWeatherItem(
@@ -47,9 +46,9 @@ fun HourlyWeatherItem(
                 modifier = Modifier.width(40.dp)
             )
             Text(
-                stringResource(R.string.temperature, hourly.temp.roundToInt()),
+                stringResource(R.string.temperature, hourly.temp.roundTo(1)),
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.width(40.dp)
+                modifier = Modifier.width(40.dp).padding(start = 4.dp)
             )
             Text(
                 "${hourly.windSpeed.roundTo(1)}${windSpeedUnit.label}",
