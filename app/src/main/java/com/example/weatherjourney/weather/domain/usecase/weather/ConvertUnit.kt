@@ -2,7 +2,9 @@ package com.example.weatherjourney.weather.domain.usecase.weather
 
 import com.example.weatherjourney.weather.domain.mapper.convertTemperatureUnit
 import com.example.weatherjourney.weather.domain.mapper.convertWindSpeedUnit
+import com.example.weatherjourney.weather.domain.model.SavedCity
 import com.example.weatherjourney.weather.domain.model.unit.AllUnit
+import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit
 import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit.FAHRENHEIT
 import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit.KELVIN
 import com.example.weatherjourney.weather.domain.model.unit.WindSpeedUnit.METER_PER_SECOND
@@ -25,6 +27,18 @@ class ConvertUnit {
         }
 
         return tempWeather
+    }
+
+    operator fun invoke(cities: List<SavedCity>, tUnit: TemperatureUnit): List<SavedCity> {
+        return cities.map {
+            it.copy(
+                temp = when (tUnit) {
+                    FAHRENHEIT -> convertCelsiusToFahrenheit(it.temp)
+                    KELVIN -> convertCelsiusToKelvin((it.temp))
+                    else -> it.temp
+                }
+            )
+        }
     }
 
     private fun convertCelsiusToFahrenheit(celsius: Double): Double {

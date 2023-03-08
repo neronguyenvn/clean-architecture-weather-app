@@ -3,9 +3,9 @@ package com.example.weatherjourney.weather.presentation.search
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.R
+import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.presentation.BaseViewModel
 import com.example.weatherjourney.util.ActionLabel
-import com.example.weatherjourney.util.Async
 import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.util.UiText
 import com.example.weatherjourney.util.UserMessage
@@ -23,13 +23,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -65,7 +66,8 @@ private data class WeatherSearchViewModelState(
 class WeatherSearchViewModel @Inject constructor(
     private val locationUseCases: LocationUseCases,
     private val weatherUseCases: WeatherUseCases,
-    private val refreshRepository: RefreshRepository
+    private val refreshRepository: RefreshRepository,
+    preferences: PreferenceRepository
 ) : BaseViewModel() {
 
     init {
@@ -77,8 +79,19 @@ class WeatherSearchViewModel @Inject constructor(
         }
     }
 
+    private val _temperatureUnit = preferences.temperatureUnitFlow
+        .map {
+            Log.d(TAG, "TemperatureUnit flow collected: $it")
+            it
+        }
+        .shareIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(),
+            replay = 1
+        )
+
     private val _locations = locationUseCases.getLocationsStream().map {
-        Log.d(TAG, "Locations flow collected")
+        Log.d(TAG, "Locations flow collected: $it")
         it
     }
 
@@ -106,33 +119,29 @@ class WeatherSearchViewModel @Inject constructor(
 
     private val _input = MutableStateFlow("")
 
-    private val _suggestionCitiesAsync = _input
-        .map {
-            if (it.length < 2) {
-                Async.Success(emptyList())
-            } else {
-                handleSuggestionCitiesResult(locationUseCases.getSuggestionCities(it))
-            }
-        }
-        .map {
-            Log.d(TAG, "SuggestCitiesAsync flow collected: $it")
-            it
-        }.onStart { Async.Loading }
-
     private val _viewModelState = combine(
         _input,
         _savedCities,
-        _suggestionCitiesAsync,
+        _temperatureUnit,
         _isLoading,
-        _userMessage
-    ) { input, savedCitiesAsync, suggestionCitiesAsync, isLoading, userMessage ->
+        _userMessage,
+    ) { input, savedCitiesAsync, tUnit, isLoading, userMessage ->
+
+        val suggestionCities = input
+            .let {
+                if (it.length < 2) emptyList<SuggestionCity>()
+                else handleSuggestionCitiesResult(locationUseCases.getSuggestionCities(it))
+            }.let {
+                Log.d(TAG, "SuggestionCities: $it")
+                it
+            }
 
         WeatherSearchViewModelState(
             input = input,
             isLoading = isLoading,
             userMessage = userMessage,
-            savedCities = savedCitiesAsync,
-            suggestionCities = if (suggestionCitiesAsync is Async.Success) suggestionCitiesAsync.data else emptyList()
+            savedCities = weatherUseCases.convertUnit(savedCitiesAsync, _temperatureUnit.first()),
+            suggestionCities = suggestionCities
         )
     }.map {
         Log.d(TAG, "UiState flow collected: $it")
@@ -212,9 +221,9 @@ class WeatherSearchViewModel @Inject constructor(
         }
     }
 
-    private fun handleSuggestionCitiesResult(result: Result<List<SuggestionCity>>): Async<List<SuggestionCity>> {
+    private fun handleSuggestionCitiesResult(result: Result<List<SuggestionCity>>): List<SuggestionCity> {
         return if (result is Result.Success) {
-            Async.Success(result.data)
+          result.data
         } else {
             val message = result.toString()
             showSnackbarMessage(UserMessage(UiText.DynamicString(message)))
@@ -222,7 +231,7 @@ class WeatherSearchViewModel @Inject constructor(
             refreshRepository.startListenWhenConnectivitySuccess()
 
             if (listenSuccessNetworkJob != null) {
-                Async.Success(emptyList<SuggestionCity>())
+             emptyList<SuggestionCity>()
             }
 
             listenSuccessNetworkJob = viewModelScope.launch {
@@ -234,7 +243,7 @@ class WeatherSearchViewModel @Inject constructor(
                 }
             }
 
-            Async.Success(emptyList())
+            emptyList()
         }
     }
 }

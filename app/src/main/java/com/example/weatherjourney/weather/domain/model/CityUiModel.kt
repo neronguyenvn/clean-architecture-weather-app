@@ -25,4 +25,26 @@ class SavedCity(
     coordinate: Coordinate,
     timeZone: String,
     countryCode: String
-) : CityUiModel(cityAddress, coordinate, timeZone, countryCode)
+) : CityUiModel(cityAddress, coordinate, timeZone, countryCode) {
+    override fun toString(): String {
+        return ("${super.toString()}(temp=$temp)")
+    }
+
+    fun copy(
+        temp: Double = this.temp,
+        isCurrentLocation: Boolean = this.isCurrentLocation,
+        weatherType: WeatherType = this.weatherType,
+        cityAddress: String = this.cityAddress,
+        coordinate: Coordinate = this.coordinate,
+        timeZone: String = this.timeZone,
+        countryCode: String = this.countryCode
+    ): SavedCity = SavedCity(
+        temp,
+        isCurrentLocation,
+        weatherType,
+        cityAddress,
+        coordinate,
+        timeZone,
+        countryCode
+    )
+}

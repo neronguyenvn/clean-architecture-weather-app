@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.component.HorizontalDivider
 import com.example.weatherjourney.presentation.theme.White70
+import com.example.weatherjourney.util.roundTo
 import com.example.weatherjourney.weather.domain.model.SavedCity
 import com.example.weatherjourney.weather.presentation.component.CityAddressWithFlag
 
@@ -62,11 +63,10 @@ fun SavedCityItem(
                     cityAddress = city.cityAddress,
                     modifier = Modifier.weight(1f)
                 )
-
             }
             Spacer(Modifier.width(8.dp))
             Text(
-                stringResource(R.string.temperature, city.temp),
+                stringResource(R.string.temperature, city.temp.roundTo(1)),
                 style = MaterialTheme.typography.bodyLarge
             )
             Spacer(Modifier.width(8.dp))
