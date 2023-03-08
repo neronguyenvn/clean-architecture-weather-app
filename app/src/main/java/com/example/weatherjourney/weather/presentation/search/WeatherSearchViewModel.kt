@@ -142,7 +142,7 @@ class WeatherSearchViewModel @Inject constructor(
         _savedCities,
         _suggestionCities,
         _isLoading,
-        _userMessage,
+        _userMessage
     ) { input, savedCitiesAsync, suggestionCities, isLoading, userMessage ->
 
         WeatherSearchViewModelState(

@@ -83,6 +83,8 @@ class WeatherInfoViewModel @Inject constructor(
             null
         )
 
+    private val _isCurrentLocation = MutableStateFlow(false)
+
     private val _weatherAsync = _lastLocation.map { location ->
         when (location) {
             null -> Async.Loading
@@ -105,8 +107,9 @@ class WeatherInfoViewModel @Inject constructor(
         _isLoading,
         _userMessage,
         _weatherAsync,
-        _units
-    ) { isLoading, userMessage, weatherAsync, units ->
+        _units,
+        _isCurrentLocation
+    ) { isLoading, userMessage, weatherAsync, units, isCurrentLocation ->
         when (weatherAsync) {
             Async.Loading -> {
                 WeatherInfoUiState(isLoading = true)
@@ -119,7 +122,8 @@ class WeatherInfoViewModel @Inject constructor(
                     isLoading = isLoading,
                     userMessage = userMessage,
                     allWeather = weatherAsync.data?.let { weatherUseCases.convertUnit(it, units) }
-                        ?: AllWeather()
+                        ?: AllWeather(),
+                    isCurrentLocation = isCurrentLocation
                 )
             }
         }
@@ -155,16 +159,19 @@ class WeatherInfoViewModel @Inject constructor(
         if (!locationUseCases.validateLocation(cityAddress, coordinate, timeZone)) return
 
         viewModelScope.launch {
-            preferences.updateLocation(cityAddress, coordinate, timeZone)
+            launch {
+                _isCurrentLocation.value = locationUseCases.isCurrentLocation(coordinate)
+            }
+            launch { preferences.updateLocation(cityAddress, coordinate, timeZone) }
             if (locationUseCases.shouldSaveLocation(coordinate)) {
                 _userMessage.value = UserMessage(
                     message = UiText.StringResource(R.string.add_this_location),
                     actionLabel = ActionLabel.ADD
                 )
             }
-            delay(5000)
-            _isLoading.value = false
         }
+
+        _isLoading.value = false
     }
 
     fun onSaveInfo(countryCode: String) {
@@ -175,13 +182,15 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleLocation(location: LocationPreferences): LocationPreferences? =
-        when (location) {
+    private suspend fun handleLocation(location: LocationPreferences): LocationPreferences? {
+        return when (location) {
             LocationPreferences.getDefaultInstance() -> {
                 val result = locationUseCases.getAndSaveCurrentLocation()
                 if (result is Result.Error) {
                     _userMessage.update { it?.copy(message = UiText.DynamicString(result.toString())) }
+                    return null
                 }
+                _isCurrentLocation.value = true
                 null
             }
 
@@ -192,12 +201,16 @@ class WeatherInfoViewModel @Inject constructor(
                         location.timeZone
                     )
                 ) {
+                    if (locationUseCases.isCurrentLocation(location.coordinate.toCoordinate())) {
+                        _isCurrentLocation.value = true
+                    }
                     location
                 } else {
                     null
                 }
             }
         }
+    }
 
     private suspend fun handleWeatherResult(
         result: Result<AllWeatherDto?>,

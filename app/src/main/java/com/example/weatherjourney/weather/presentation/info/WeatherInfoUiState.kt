@@ -9,6 +9,7 @@ import com.example.weatherjourney.weather.domain.model.weather.HourlyWeather
 data class WeatherInfoUiState(
     val isLoading: Boolean = false,
     val userMessage: UserMessage? = null,
+    val isCurrentLocation: Boolean = false,
     val allUnit: AllUnit? = null,
     val allWeather: AllWeather = AllWeather()
 )

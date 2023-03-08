@@ -71,7 +71,7 @@ fun WeatherInfoScreen(
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
     onNotificationClick: () -> Unit,
-    onNavigationDone:() -> Unit,
+    onNavigationDone: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WeatherInfoViewModel = LocalView.current.findViewTreeViewModelStoreOwner()
         .let { hiltViewModel(it!!) }
@@ -151,7 +151,13 @@ fun WeatherInfoScreenContent(
                 .fillMaxWidth()
                 .padding(screenPadding)
         ) {
-            item { CurrentWeatherContent(uiState.allWeather.current, uiState.allUnit) }
+            item {
+                CurrentWeatherContent(
+                    uiState.allWeather.current,
+                    uiState.allUnit,
+                    uiState.isCurrentLocation
+                )
+            }
             item { Spacer(Modifier.height(32.dp)) }
             item { DailyWeatherContent(uiState.allWeather.listDaily) }
             item { Spacer(Modifier.height(32.dp)) }
@@ -166,6 +172,7 @@ fun WeatherInfoScreenContent(
 fun CurrentWeatherContent(
     current: CurrentWeather?,
     allUnit: AllUnit?,
+    isCurrentLocation: Boolean,
     modifier: Modifier = Modifier
 ) {
     current?.let {
@@ -177,12 +184,21 @@ fun CurrentWeatherContent(
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        current.date,
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.align(Alignment.End),
-                        color = Color.White
-                    )
+                    Row {
+                        if (isCurrentLocation) {
+                            Text(
+                                stringResource(R.string.your_location),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = Color.White
+                            )
+                        }
+                        Spacer(Modifier.weight(1f))
+                        Text(
+                            current.date,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.White
+                        )
+                    }
                     Spacer(modifier = Modifier.height(20.dp))
                     Image(
                         painter = painterResource(current.weatherType.iconRes),
