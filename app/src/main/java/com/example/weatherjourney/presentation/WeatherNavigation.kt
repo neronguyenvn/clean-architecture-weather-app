@@ -33,11 +33,11 @@ object WeatherDestinationsArgs {
 object WeatherDestinations {
     const val INFO_ROUTE =
         "$INFO_SCREEN?$CITY_ADDRESS_ARG={$CITY_ADDRESS_ARG}" +
-                "&$LATITUDE_ARG={$LATITUDE_ARG}" +
-                "&$LONGITUDE_ARG={$LONGITUDE_ARG}" +
-                "&$TIMEZONE_ARG={$TIMEZONE_ARG}" +
-                "&$NAVIGATION_KEY_ARG={$NAVIGATION_KEY_ARG}" +
-                "&$COUNTRY_CODE_ARG={$COUNTRY_CODE_ARG}"
+            "&$LATITUDE_ARG={$LATITUDE_ARG}" +
+            "&$LONGITUDE_ARG={$LONGITUDE_ARG}" +
+            "&$TIMEZONE_ARG={$TIMEZONE_ARG}" +
+            "&$NAVIGATION_KEY_ARG={$NAVIGATION_KEY_ARG}" +
+            "&$COUNTRY_CODE_ARG={$COUNTRY_CODE_ARG}"
 
     const val SEARCH_ROUTE = SEARCH_SCREEN
     const val SETTING_ROUTE = SETTING_SCREEN
@@ -51,16 +51,16 @@ class WeatherNavigationActions(private val navController: NavController) {
         coordinate: Coordinate,
         timeZone: String,
         countryCode: String,
-        navigationKey: Int = 0,
+        navigationKey: Int = 0
     ) {
         navController.navigate(
             INFO_SCREEN.let {
                 "$it?$CITY_ADDRESS_ARG=$cityAddress" +
-                        "&$LATITUDE_ARG=${coordinate.latitude}" +
-                        "&$LONGITUDE_ARG=${coordinate.longitude}" +
-                        "&$TIMEZONE_ARG=$timeZone" +
-                        "&$NAVIGATION_KEY_ARG=$navigationKey" +
-                        "&$COUNTRY_CODE_ARG=$countryCode"
+                    "&$LATITUDE_ARG=${coordinate.latitude}" +
+                    "&$LONGITUDE_ARG=${coordinate.longitude}" +
+                    "&$TIMEZONE_ARG=$timeZone" +
+                    "&$NAVIGATION_KEY_ARG=$navigationKey" +
+                    "&$COUNTRY_CODE_ARG=$countryCode"
             }
         ) {
             popUpTo(navController.graph.findStartDestination().id)
