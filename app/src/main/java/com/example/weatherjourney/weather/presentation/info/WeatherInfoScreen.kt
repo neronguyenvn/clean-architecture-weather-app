@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -70,6 +71,7 @@ fun WeatherInfoScreen(
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
     onNotificationClick: () -> Unit,
+    onNavigationDone:() -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WeatherInfoViewModel = LocalView.current.findViewTreeViewModelStoreOwner()
         .let { hiltViewModel(it!!) }
@@ -102,9 +104,11 @@ fun WeatherInfoScreen(
             modifier = Modifier.padding(paddingValues)
         )
 
-        LaunchedEffect(true) {
+        val currentOnNavigationDone by rememberUpdatedState(onNavigationDone)
+        LaunchedEffect(currentOnNavigationDone) {
             if (navigationKey == NAVIGATE_FROM_SEARCH) {
                 viewModel.onNavigateFromSearch(city, coordinate, timeZone)
+                currentOnNavigationDone()
             }
         }
 

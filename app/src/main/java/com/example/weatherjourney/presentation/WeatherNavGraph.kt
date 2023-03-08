@@ -68,7 +68,8 @@ fun WeatherNavGraph(
                     countryCode = countryCode,
                     onSearchClick = { navActions.navigateToSearch() },
                     onSettingClick = { navActions.navigateToSetting() },
-                    onNotificationClick = { navActions.navigateToNotification() }
+                    onNotificationClick = { navActions.navigateToNotification() },
+                    onNavigationDone = { entry.arguments?.putInt(NAVIGATION_KEY_ARG, 0) }
                 )
             }
         }
