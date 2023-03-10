@@ -13,8 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.weatherjourney.presentation.theme.WeatherTheme
 import com.example.weatherjourney.weather.presentation.info.WeatherInfoViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -44,17 +43,15 @@ class MainActivity : ComponentActivity() {
         )
 
         lifecycleScope.launch {
-            viewModel.isInitializing.flowWithLifecycle(lifecycle).cancellable().collect {
-                if (!it) {
+            viewModel.isInitializing.flowWithLifecycle(lifecycle)
+                .first { !it }
+                .let {
                     setContent {
                         WeatherTheme {
                             WeatherNavGraph(startDestination = viewModel.appRoute)
                         }
                     }
-
-                    cancel()
                 }
-            }
         }
     }
 }

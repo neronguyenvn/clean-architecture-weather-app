@@ -10,10 +10,11 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.example.weatherjourney.weather.data.workers.SuccessWorker
 import com.example.weatherjourney.weather.domain.repository.RefreshRepository
-import com.example.weatherjourney.weather.util.SUCCESS_CONNECTIVITY_WORK_NAME
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+
+private const val SUCCESS_CONNECTIVITY_WORK_NAME = "successConnectivityWorkName"
 
 class DefaultRefreshRepository(@ApplicationContext context: Context) : RefreshRepository {
 

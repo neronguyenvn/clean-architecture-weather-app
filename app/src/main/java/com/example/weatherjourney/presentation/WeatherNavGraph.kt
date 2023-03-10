@@ -66,18 +66,31 @@ fun WeatherNavGraph(
                     snackbarHostState = snackbarHostState,
                     navigationKey = navigationKey,
                     countryCode = countryCode,
-                    onSearchClick = { navActions.navigateToSearch() },
-                    onSettingClick = { navActions.navigateToSetting() },
-                    onNotificationClick = { navActions.navigateToNotification() },
-                    onNavigationDone = { entry.arguments?.putInt(NAVIGATION_KEY_ARG, 0) }
+                    onSearchClick = {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        navActions.navigateToSearch()
+                    },
+                    onSettingClick = {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        navActions.navigateToSetting()
+                    },
+                    onNotificationClick = {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        navActions.navigateToNotification()
+                    },
+                    onNavigationToInfoDone = { entry.arguments?.putInt(NAVIGATION_KEY_ARG, 0) }
                 )
             }
         }
         composable(WeatherDestinations.SEARCH_ROUTE) {
             WeatherSearchScreen(
                 snackbarHostState = snackbarHostState,
-                onBackClick = { navController.popBackStack() },
+                onBackClick = {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    navController.popBackStack()
+                },
                 onItemClick = {
+                    snackbarHostState.currentSnackbarData?.dismiss()
                     navActions.navigateToInfo(
                         it.cityAddress,
                         it.coordinate,
@@ -97,7 +110,10 @@ fun WeatherNavGraph(
         composable(WeatherDestinations.NOTIFICATION_ROUTE) {
             WeatherNotificationScreen(
                 snackbarHostState = snackbarHostState,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    navController.popBackStack()
+                }
             )
         }
     }

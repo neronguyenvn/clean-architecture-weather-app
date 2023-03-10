@@ -31,11 +31,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 private const val TAG = "WeatherInfoViewModel"
@@ -101,7 +100,12 @@ class WeatherInfoViewModel @Inject constructor(
     }.map {
         Log.d(TAG, "WeatherAsync flow collected: $it")
         it
-    }.onStart { Async.Loading }
+    }
+        .shareIn(
+            viewModelScope,
+            WhileUiSubscribed,
+            replay = 1
+        )
 
     val uiState: StateFlow<WeatherInfoUiState> = combine(
         _isLoading,
@@ -159,19 +163,22 @@ class WeatherInfoViewModel @Inject constructor(
         if (!locationUseCases.validateLocation(cityAddress, coordinate, timeZone)) return
 
         viewModelScope.launch {
-            launch {
-                _isCurrentLocation.value = locationUseCases.isCurrentLocation(coordinate)
-            }
-            launch { preferences.updateLocation(cityAddress, coordinate, timeZone) }
+            // Have to put this block in same coroutine with and before
+            // `preferences.updateLocation()` cuz if updateLocation run before it will update
+            // Ui state without this user message
             if (locationUseCases.shouldSaveLocation(coordinate)) {
                 _userMessage.value = UserMessage(
                     message = UiText.StringResource(R.string.add_this_location),
                     actionLabel = ActionLabel.ADD
                 )
             }
-        }
 
-        _isLoading.value = false
+            preferences.updateLocation(cityAddress, coordinate, timeZone)
+
+            uiState.first { it.allWeather.cityAddress == cityAddress }.let {
+                _isLoading.value = false
+            }
+        }
     }
 
     fun onSaveInfo(countryCode: String) {
@@ -190,24 +197,21 @@ class WeatherInfoViewModel @Inject constructor(
                     _userMessage.update { it?.copy(message = UiText.DynamicString(result.toString())) }
                     return null
                 }
+
                 _isCurrentLocation.value = true
                 null
             }
 
             else -> {
-                if (locationUseCases.validateLocation(
-                        location.cityAddress,
-                        location.coordinate.toCoordinate(),
-                        location.timeZone
-                    )
-                ) {
-                    if (locationUseCases.isCurrentLocation(location.coordinate.toCoordinate())) {
-                        _isCurrentLocation.value = true
-                    }
-                    location
-                } else {
-                    null
-                }
+                val isCurrentLocation =
+                    locationUseCases.isCurrentLocation(location.coordinate.toCoordinate())
+                Log.d(
+                    TAG,
+                    "${location.cityAddress} is ${if (!isCurrentLocation) "not" else ""} current location"
+                )
+
+                _isCurrentLocation.value = isCurrentLocation
+                location
             }
         }
     }

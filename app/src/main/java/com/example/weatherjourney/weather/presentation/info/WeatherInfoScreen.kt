@@ -71,7 +71,7 @@ fun WeatherInfoScreen(
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
     onNotificationClick: () -> Unit,
-    onNavigationDone: () -> Unit,
+    onNavigationToInfoDone: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WeatherInfoViewModel = LocalView.current.findViewTreeViewModelStoreOwner()
         .let { hiltViewModel(it!!) }
@@ -104,7 +104,7 @@ fun WeatherInfoScreen(
             modifier = Modifier.padding(paddingValues)
         )
 
-        val currentOnNavigationDone by rememberUpdatedState(onNavigationDone)
+        val currentOnNavigationDone by rememberUpdatedState(onNavigationToInfoDone)
         LaunchedEffect(currentOnNavigationDone) {
             if (navigationKey == NAVIGATE_FROM_SEARCH) {
                 viewModel.onNavigateFromSearch(city, coordinate, timeZone)

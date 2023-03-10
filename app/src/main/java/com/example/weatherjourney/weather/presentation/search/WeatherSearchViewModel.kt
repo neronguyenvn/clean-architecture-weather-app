@@ -176,6 +176,7 @@ class WeatherSearchViewModel @Inject constructor(
 
     fun onDeleteLocation() = viewModelScope.launch {
         locationUseCases.deleteLocation(tempSavedCity.coordinate)
+        _userMessage.value = UserMessage(UiText.StringResource(R.string.location_deleted))
     }
 
     fun onSavedCityLongClick(city: CityUiModel) {
