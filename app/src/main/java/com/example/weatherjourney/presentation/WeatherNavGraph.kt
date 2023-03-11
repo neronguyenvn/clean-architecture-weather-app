@@ -1,15 +1,15 @@
 package com.example.weatherjourney.presentation
 
 import android.app.Activity
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.weatherjourney.presentation.WeatherDestinationsArgs.CITY_ADDRESS_ARG
 import com.example.weatherjourney.presentation.WeatherDestinationsArgs.COUNTRY_CODE_ARG
@@ -22,11 +22,17 @@ import com.example.weatherjourney.weather.presentation.info.WeatherInfoScreen
 import com.example.weatherjourney.weather.presentation.notification.WeatherNotificationScreen
 import com.example.weatherjourney.weather.presentation.search.WeatherSearchScreen
 import com.example.weatherjourney.weather.presentation.setting.WeatherSettingScreen
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 
+private const val ANIMATION_DURATION = 400
+
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun WeatherNavGraph(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController(),
+    navController: NavHostController = rememberAnimatedNavController(),
     startDestination: String = WeatherDestinations.INFO_ROUTE,
     navActions: WeatherNavigationActions = remember(navController) {
         WeatherNavigationActions(navController)
@@ -34,13 +40,57 @@ fun WeatherNavGraph(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    NavHost(
+    AnimatedNavHost(
         navController = navController,
         startDestination = startDestination,
+        enterTransition = {
+            slideIntoContainer(
+                AnimatedContentScope.SlideDirection.Left,
+                animationSpec = tween(ANIMATION_DURATION)
+            )
+        },
+        exitTransition = {
+            slideOutOfContainer(
+                AnimatedContentScope.SlideDirection.Left,
+                animationSpec = tween(ANIMATION_DURATION)
+            )
+        },
+        popEnterTransition = {
+            slideIntoContainer(
+                AnimatedContentScope.SlideDirection.Right,
+                animationSpec = tween(ANIMATION_DURATION)
+            )
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                AnimatedContentScope.SlideDirection.Right,
+                animationSpec = tween(ANIMATION_DURATION)
+            )
+        },
         modifier = modifier
     ) {
         composable(
             WeatherDestinations.INFO_ROUTE,
+            exitTransition = {
+                when (targetState.destination.route) {
+                    WeatherDestinations.SEARCH_ROUTE -> slideOutOfContainer(
+                        AnimatedContentScope.SlideDirection.Right,
+                        animationSpec = tween(ANIMATION_DURATION)
+                    )
+
+                    else -> null
+                }
+            },
+            popEnterTransition = {
+                when (initialState.destination.route) {
+                    WeatherDestinations.SEARCH_ROUTE -> slideIntoContainer(
+                        AnimatedContentScope.SlideDirection.Left,
+                        animationSpec = tween(ANIMATION_DURATION)
+                    )
+
+                    else -> null
+                }
+            },
             arguments = listOf(
                 navArgument(CITY_ADDRESS_ARG) { type = NavType.StringType },
                 navArgument(LATITUDE_ARG) { type = NavType.FloatType },
@@ -82,7 +132,21 @@ fun WeatherNavGraph(
                 )
             }
         }
-        composable(WeatherDestinations.SEARCH_ROUTE) {
+        composable(
+            WeatherDestinations.SEARCH_ROUTE,
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(ANIMATION_DURATION)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentScope.SlideDirection.Left,
+                    animationSpec = tween(ANIMATION_DURATION)
+                )
+            }
+        ) {
             WeatherSearchScreen(
                 snackbarHostState = snackbarHostState,
                 onBackClick = {
