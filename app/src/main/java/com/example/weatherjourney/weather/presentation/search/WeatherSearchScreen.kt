@@ -1,5 +1,6 @@
 package com.example.weatherjourney.weather.presentation.search
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -41,6 +42,8 @@ private enum class SearchScreenType {
     NoResult
 }
 
+private const val TAG = "WeatherSearchView"
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun WeatherSearchScreen(
@@ -51,6 +54,7 @@ fun WeatherSearchScreen(
     viewModel: WeatherSearchViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    Log.d(TAG, "UiState flow collected: $uiState")
 
     Scaffold(
         modifier = modifier.fillMaxSize(),

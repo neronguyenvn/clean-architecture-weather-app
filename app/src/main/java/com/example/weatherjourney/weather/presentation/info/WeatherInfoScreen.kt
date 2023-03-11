@@ -1,5 +1,6 @@
 package com.example.weatherjourney.weather.presentation.info
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -60,6 +61,8 @@ import com.example.weatherjourney.weather.presentation.info.component.InfoTopBar
 import com.example.weatherjourney.weather.presentation.info.component.WeatherDataDisplay
 import kotlin.math.roundToInt
 
+private const val TAG = "WeatherInfoScreen"
+
 @Composable
 fun WeatherInfoScreen(
     city: String,
@@ -77,6 +80,7 @@ fun WeatherInfoScreen(
         .let { hiltViewModel(it!!) }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    Log.d(TAG, "UiState flow collected: $uiState")
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -100,7 +104,7 @@ fun WeatherInfoScreen(
 
         WeatherInfoScreenContent(
             uiState = uiState,
-            onRefresh = { viewModel.onRefresh(true) },
+            onRefresh = { viewModel.onRefresh() },
             modifier = Modifier.padding(paddingValues)
         )
 

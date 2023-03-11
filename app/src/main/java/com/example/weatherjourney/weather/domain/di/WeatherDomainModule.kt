@@ -14,7 +14,6 @@ import com.example.weatherjourney.weather.domain.usecase.location.IsCurrentLocat
 import com.example.weatherjourney.weather.domain.usecase.location.SaveLocation
 import com.example.weatherjourney.weather.domain.usecase.location.ShouldSaveLocation
 import com.example.weatherjourney.weather.domain.usecase.location.ValidateCurrentLocation
-import com.example.weatherjourney.weather.domain.usecase.location.ValidateLocation
 import com.example.weatherjourney.weather.domain.usecase.weather.ConvertUnit
 import com.example.weatherjourney.weather.domain.usecase.weather.GetAllWeather
 import com.example.weatherjourney.weather.domain.usecase.weather.GetWeatherAdvices
@@ -38,7 +37,6 @@ class WeatherDomainModule {
             saveLocation = SaveLocation(repository),
             shouldSaveLocation = ShouldSaveLocation(repository, preferences),
             getCurrentCoordinate = GetCurrentCoordinate(repository),
-            validateLocation = ValidateLocation(),
             validateCurrentLocation = ValidateCurrentLocation(repository),
             getAndSaveCurrentLocation = GetAndSaveCurrentLocation(repository),
             getSuggestionCities = GetSuggestionCities(repository),

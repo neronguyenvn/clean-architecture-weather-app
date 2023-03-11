@@ -41,7 +41,7 @@ fun WeatherNotificationScreen(
         WeatherNotificationScreenContent(
             uiState = uiState,
             modifier = Modifier.padding(paddingValues),
-            onRefresh = viewModel::refresh
+            onRefresh = viewModel::onRefresh
         )
 
         // Check for user messages to display on the screen

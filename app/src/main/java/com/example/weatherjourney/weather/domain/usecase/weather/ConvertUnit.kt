@@ -13,14 +13,14 @@ import com.example.weatherjourney.weather.presentation.info.AllWeather
 
 class ConvertUnit {
 
-    operator fun invoke(allWeather: AllWeather, allUnit: AllUnit): AllWeather {
-        var tempWeather = when (allUnit.temperature) {
+    operator fun invoke(allWeather: AllWeather, allUnit: AllUnit?): AllWeather {
+        var tempWeather = when (allUnit?.temperature) {
             FAHRENHEIT -> allWeather.convertTemperatureUnit { convertCelsiusToFahrenheit(it) }
             KELVIN -> allWeather.convertTemperatureUnit { convertCelsiusToKelvin(it) }
             else -> allWeather
         }
 
-        tempWeather = when (allUnit.windSpeed) {
+        tempWeather = when (allUnit?.windSpeed) {
             METER_PER_SECOND -> tempWeather.convertWindSpeedUnit { convertKmhToMs(it) }
             MILE_PER_HOUR -> tempWeather.convertWindSpeedUnit { convertKmhToMph(it) }
             else -> tempWeather
@@ -29,7 +29,7 @@ class ConvertUnit {
         return tempWeather
     }
 
-    operator fun invoke(cities: List<SavedCity>, tUnit: TemperatureUnit): List<SavedCity> {
+    operator fun invoke(cities: List<SavedCity>, tUnit: TemperatureUnit?): List<SavedCity> {
         return cities.map {
             it.copy(
                 temp = when (tUnit) {

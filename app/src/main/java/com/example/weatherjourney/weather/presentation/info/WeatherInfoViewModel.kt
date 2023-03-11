@@ -10,8 +10,6 @@ import com.example.weatherjourney.presentation.WeatherDestinations
 import com.example.weatherjourney.util.ActionLabel
 import com.example.weatherjourney.util.Async
 import com.example.weatherjourney.util.Result
-import com.example.weatherjourney.util.UiText
-import com.example.weatherjourney.util.UserMessage
 import com.example.weatherjourney.util.WhileUiSubscribed
 import com.example.weatherjourney.weather.data.mapper.toAllWeather
 import com.example.weatherjourney.weather.data.remote.dto.AllWeatherDto
@@ -22,19 +20,17 @@ import com.example.weatherjourney.weather.domain.repository.RefreshRepository
 import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
-import java.net.UnknownHostException
 import javax.inject.Inject
 
 private const val TAG = "WeatherInfoViewModel"
@@ -44,8 +40,8 @@ class WeatherInfoViewModel @Inject constructor(
     private val locationUseCases: LocationUseCases,
     private val weatherUseCases: WeatherUseCases,
     private val preferences: PreferenceRepository,
-    private val refreshRepository: RefreshRepository
-) : BaseViewModel() {
+    refreshRepository: RefreshRepository
+) : BaseViewModel(refreshRepository) {
 
     private val _isInitializing = MutableStateFlow(true)
     val isInitializing = _isInitializing.asStateFlow()
@@ -57,55 +53,30 @@ class WeatherInfoViewModel @Inject constructor(
     private val _windSpeedUnit = preferences.windSpeedUnitFlow
 
     private val _units =
-        combine(_temperatureUnit, _windSpeedUnit) { temperatureUnit, windSpeedUnit ->
+        _temperatureUnit.zip(_windSpeedUnit) { temperatureUnit, windSpeedUnit ->
             AllUnit(
                 temperature = temperatureUnit,
                 windSpeed = windSpeedUnit
             )
-        }.distinctUntilChanged().map {
-            Log.d(TAG, "Labels flow collected: $it")
-            it
-        }.shareIn(
+        }.map {
+            it.also { Log.d(TAG, "Units flow collected: $it") }
+        }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
-            replay = 1
+            null
         )
 
     private val _lastLocation = preferences.locationPreferencesFlow
-        .map {
-            handleLocation(it).also { result ->
-                Log.d(TAG, "Location Async flow collected: $result")
-            }
+        .map { location ->
+            handleLocation(location).also { Log.d(TAG, "LastLocation flow collected: $it") }
         }.stateIn(
             viewModelScope,
             WhileUiSubscribed,
             null
         )
 
+    private val _weatherAsync: MutableStateFlow<Async<AllWeather>> = MutableStateFlow(Async.Loading)
     private val _isCurrentLocation = MutableStateFlow(false)
-
-    private val _weatherAsync = _lastLocation.map { location ->
-        when (location) {
-            null -> Async.Loading
-            else -> {
-                location.let {
-                    handleWeatherResult(
-                        weatherUseCases.getAllWeather(it.coordinate.toCoordinate(), it.timeZone),
-                        it.cityAddress,
-                        it.timeZone
-                    )
-                }
-            }
-        }
-    }.map {
-        Log.d(TAG, "WeatherAsync flow collected: $it")
-        it
-    }
-        .shareIn(
-            viewModelScope,
-            WhileUiSubscribed,
-            replay = 1
-        )
 
     val uiState: StateFlow<WeatherInfoUiState> = combine(
         _isLoading,
@@ -115,9 +86,7 @@ class WeatherInfoViewModel @Inject constructor(
         _isCurrentLocation
     ) { isLoading, userMessage, weatherAsync, units, isCurrentLocation ->
         when (weatherAsync) {
-            Async.Loading -> {
-                WeatherInfoUiState(isLoading = true)
-            }
+            Async.Loading -> WeatherInfoUiState(isLoading = true)
 
             is Async.Success -> {
                 _isInitializing.value = false
@@ -125,18 +94,14 @@ class WeatherInfoViewModel @Inject constructor(
                     allUnit = units,
                     isLoading = isLoading,
                     userMessage = userMessage,
-                    allWeather = weatherAsync.data?.let { weatherUseCases.convertUnit(it, units) }
-                        ?: AllWeather(),
+                    allWeather = weatherAsync.data.let { weatherUseCases.convertUnit(it, units) },
                     isCurrentLocation = isCurrentLocation
                 )
             }
         }
-    }.map {
-        Log.d(TAG, "UiState flow collected: $it")
-        it
     }.stateIn(
         scope = viewModelScope,
-        started = WhileUiSubscribed,
+        started = SharingStarted.Eagerly,
         initialValue = WeatherInfoUiState(isLoading = true)
     )
 
@@ -145,60 +110,59 @@ class WeatherInfoViewModel @Inject constructor(
             _appRoute = WeatherDestinations.SEARCH_ROUTE
             _isInitializing.value = false
         } else {
-            viewModelScope.launch { uiState.first() }
+            onRefresh()
         }
     }
 
-    fun onRefresh(isDelay: Boolean) = viewModelScope.launch {
-        Log.d(TAG, "onRefresh($isDelay) called")
-        runSuspend(
-            launch { _weatherAsync.first() },
-            if (isDelay) launch { delay(1500) } else launch { }
-        )
-    }
+    override fun onRefresh() = onRefresh({
+        _lastLocation.filterNotNull().first().let {
+            val weather = handleWeatherResult(
+                weatherUseCases.getAllWeather(it.coordinate.toCoordinate(), it.timeZone),
+                it.cityAddress,
+                it.timeZone
+            )
+
+            _weatherAsync.value = weather
+            Log.d(TAG, "WeatherAsync flow collected: $weather")
+        }
+    })
 
     fun onNavigateFromSearch(cityAddress: String, coordinate: Coordinate, timeZone: String) {
         Log.d(TAG, "onNavigateFromSearch($cityAddress, $coordinate, $timeZone) called")
         _isLoading.value = true
-        if (!locationUseCases.validateLocation(cityAddress, coordinate, timeZone)) return
 
         viewModelScope.launch {
-            // Have to put this block in same coroutine with and before
-            // `preferences.updateLocation()` cuz if updateLocation run before it will update
-            // Ui state without this user message
             if (locationUseCases.shouldSaveLocation(coordinate)) {
-                _userMessage.value = UserMessage(
-                    message = UiText.StringResource(R.string.add_this_location),
-                    actionLabel = ActionLabel.ADD
-                )
+                showSnackbarMessage(R.string.add_this_location, ActionLabel.ADD)
             }
 
             preferences.updateLocation(cityAddress, coordinate, timeZone)
 
-            uiState.first { it.allWeather.cityAddress == cityAddress }.let {
-                _isLoading.value = false
-            }
+            _lastLocation.filterNotNull()
+                .first { it.cityAddress == cityAddress && it.timeZone == timeZone }
+                .let {
+                    onRefresh()
+                    _isLoading.value = false
+                }
         }
     }
 
     fun onSaveInfo(countryCode: String) {
-        Log.d(TAG, "onSaveInfo() called")
+        Log.d(TAG, "onSaveInfo($countryCode) called")
         viewModelScope.launch {
             _lastLocation.value?.let { locationUseCases.saveLocation(it, countryCode) }
-            _userMessage.value = UserMessage(UiText.StringResource(R.string.location_saved))
+            showSnackbarMessage(R.string.location_saved)
         }
     }
 
     private suspend fun handleLocation(location: LocationPreferences): LocationPreferences? {
         return when (location) {
             LocationPreferences.getDefaultInstance() -> {
-                val result = locationUseCases.getAndSaveCurrentLocation()
-                if (result is Result.Error) {
-                    _userMessage.update { it?.copy(message = UiText.DynamicString(result.toString())) }
-                    return null
+                when (val result = locationUseCases.getAndSaveCurrentLocation()) {
+                    is Result.Success -> _isCurrentLocation.value = true
+                    is Result.Error -> handleErrorResult(result)
                 }
 
-                _isCurrentLocation.value = true
                 null
             }
 
@@ -216,37 +180,18 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleWeatherResult(
-        result: Result<AllWeatherDto?>,
+    private fun handleWeatherResult(
+        result: Result<AllWeatherDto>,
         cityAddress: String,
         timeZone: String
-    ): Async<AllWeather?> {
-        if (result == Result.Success(null)) {
-            return Async.Success(null)
-        }
-
-        return if (result is Result.Success) {
-            Async.Success(result.data?.toAllWeather(cityAddress, timeZone))
-        } else {
-            val message = result.toString()
-            showSnackbarMessage(UserMessage(UiText.DynamicString(message)))
-
-            refreshRepository.startListenWhenConnectivitySuccess()
-
-            if (listenSuccessNetworkJob != null) {
-                Async.Success(null)
+    ): Async<AllWeather> {
+        return when (result) {
+            is Result.Success -> Async.Success(result.data.toAllWeather(cityAddress, timeZone))
+            is Result.Error -> {
+                handleErrorResult(result)
+                // Still can show city address cached without weather data
+                Async.Success(AllWeather(cityAddress = cityAddress))
             }
-
-            listenSuccessNetworkJob = viewModelScope.launch {
-                refreshRepository.outputWorkInfo.collect { info ->
-                    if (info.state.isFinished) {
-                        showSnackbarMessage(UserMessage(UiText.StringResource(R.string.restore_internet_connection)))
-                        onRefresh(true)
-                    }
-                }
-            }
-
-            Async.Success(null)
         }
     }
 }
