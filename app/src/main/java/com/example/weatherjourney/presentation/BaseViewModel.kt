@@ -29,8 +29,12 @@ abstract class BaseViewModel(
 
     abstract fun onRefresh()
 
-    fun snackbarMessageShown() {
+    fun onSnackbarMessageShown() {
         _userMessage.value = null
+    }
+
+    fun onClearListenJob() {
+        listenSuccessNetworkJob = null
     }
 
     protected fun showSnackbarMessage(

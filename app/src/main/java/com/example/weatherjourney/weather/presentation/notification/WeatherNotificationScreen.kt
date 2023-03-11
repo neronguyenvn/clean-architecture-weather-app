@@ -49,7 +49,7 @@ fun WeatherNotificationScreen(
             val snackbarText = userMessage.message.asString()
             LaunchedEffect(snackbarHostState, viewModel, userMessage, snackbarText) {
                 snackbarHostState.showSnackbar(snackbarText)
-                viewModel.snackbarMessageShown()
+                viewModel.onSnackbarMessageShown()
             }
         }
     }

@@ -100,7 +100,7 @@ fun WeatherSearchScreen(
                     viewModel.onDeleteLocation()
                 }
 
-                viewModel.snackbarMessageShown()
+                viewModel.onSnackbarMessageShown()
             }
         }
     }

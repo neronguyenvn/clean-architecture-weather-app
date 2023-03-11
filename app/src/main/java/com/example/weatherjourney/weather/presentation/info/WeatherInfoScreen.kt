@@ -88,12 +88,21 @@ fun WeatherInfoScreen(
         topBar = {
             InfoTopBar(
                 cityAddress = uiState.allWeather.cityAddress,
-                onSearchClick = onSearchClick,
-                onSettingClick = onSettingClick
+                onSearchClick = {
+                    viewModel.onClearListenJob()
+                    onSearchClick()
+                },
+                onSettingClick = {
+                    viewModel.onClearListenJob()
+                    onSettingClick()
+                }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onNotificationClick) {
+            FloatingActionButton({
+                viewModel.onClearListenJob()
+                onNotificationClick()
+            }) {
                 Icon(
                     Icons.Outlined.Notifications,
                     contentDescription = stringResource(R.string.notification)
@@ -131,7 +140,7 @@ fun WeatherInfoScreen(
                     viewModel.onSaveInfo(countryCode)
                 }
 
-                viewModel.snackbarMessageShown()
+                viewModel.onSnackbarMessageShown()
             }
         }
     }
