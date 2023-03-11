@@ -6,7 +6,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization'
     id 'kotlin-kapt'
     id 'com.google.devtools.ksp'
-    id "com.google.protobuf" version "0.9.1"
+    id 'com.google.protobuf'
 }
 android {
     namespace 'com.example.weatherjourney'
@@ -26,8 +26,6 @@ android {
 
         buildConfigField("String", "OPENCAGE_API_KEY",
                 "\"${properties.getProperty("OPENCAGE_API_KEY")}\"")
-        buildConfigField("String", "OPENWEATHER_API_KEY",
-                "\"${properties.getProperty("OPENWEATHER_API_KEY")}\"")
     }
     buildTypes {
         release {
@@ -98,7 +96,7 @@ dependencies {
     implementation "androidx.datastore:datastore:$dataStoreVersion"
 
     // Protobuf
-    implementation  "com.google.protobuf:protobuf-javalite:3.19.4"
+    implementation "com.google.protobuf:protobuf-javalite:$protobufVersion"
 
     // WorkManager
     implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
@@ -114,7 +112,7 @@ dependencies {
 }
 protobuf {
     protoc {
-        artifact = 'com.google.protobuf:protoc:3.19.4'
+        artifact = "com.google.protobuf:protoc:$protobufVersion"
     }
     generateProtoTasks {
         all().configureEach { task ->
