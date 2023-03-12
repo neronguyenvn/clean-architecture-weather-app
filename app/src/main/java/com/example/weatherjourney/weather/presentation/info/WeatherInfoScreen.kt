@@ -240,8 +240,8 @@ fun CurrentWeatherContent(
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
                         WeatherDataDisplay(
-                            value = current.pressure.roundToInt(),
-                            unit = "hPa",
+                            value = current.pressure.roundTo(1),
+                            unit = units.pressure.label,
                             icon = ImageVector.vectorResource(R.drawable.ic_pressure),
                             iconTint = Color.White,
                             textStyle = TextStyle(color = Color.White)

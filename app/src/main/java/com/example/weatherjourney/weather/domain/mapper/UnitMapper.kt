@@ -1,18 +1,20 @@
 package com.example.weatherjourney.weather.domain.mapper
 
+import com.example.weatherjourney.weather.domain.model.unit.LabeledEnum
+import com.example.weatherjourney.weather.domain.model.unit.PressureUnit
 import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit
 import com.example.weatherjourney.weather.domain.model.unit.WindSpeedUnit
 
-fun getTemperatureUnit(label: String): TemperatureUnit {
-    for (unit in TemperatureUnit.values()) {
-        if (label == unit.label) return unit
-    }
-    return TemperatureUnit.NULL
-}
+fun getTemperatureUnit(label: String) = getUnit<TemperatureUnit>(label)
 
-fun getWindSpeedUnit(label: String): WindSpeedUnit {
-    for (unit in WindSpeedUnit.values()) {
+fun getWindSpeedUnit(label: String) = getUnit<WindSpeedUnit>(label)
+
+fun getPressureUnit(label: String) = getUnit<PressureUnit>(label)
+
+inline fun <reified T> getUnit(label: String): T where T : Enum<T>, T : LabeledEnum {
+    for (unit in enumValues<T>()) {
         if (label == unit.label) return unit
     }
-    return WindSpeedUnit.NULL
+
+    return enumValueOf("NULL")
 }

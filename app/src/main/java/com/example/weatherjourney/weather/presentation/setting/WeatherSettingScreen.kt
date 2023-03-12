@@ -1,10 +1,9 @@
 package com.example.weatherjourney.weather.presentation.setting
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -15,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,6 +22,9 @@ import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.component.BasicTopBar
 import com.example.weatherjourney.presentation.theme.White70
 import com.example.weatherjourney.weather.domain.model.unit.AllUnit
+import com.example.weatherjourney.weather.domain.model.unit.PressureUnit
+import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit
+import com.example.weatherjourney.weather.domain.model.unit.WindSpeedUnit
 import com.example.weatherjourney.weather.presentation.setting.component.UnitItem
 
 @Composable
@@ -43,8 +44,9 @@ fun WeatherSettingScreen(
 
         WeatherSettingScreenContent(
             uiState = uiState,
-            onTemperatureLabelUpdate = viewModel::onTemperatureLabelUpdate,
-            onWindSpeedLabelUpdate = viewModel::onWindSpeedLabelUpdate,
+            onTemperatureUnitUpdate = viewModel::onTemperatureUnitUpdate,
+            onWindSpeedUnitUpdate = viewModel::onWindSpeedUnitUpdate,
+            onPressureUnitUpdate = viewModel::onPressureUnitUpdate,
             modifier = Modifier.padding(paddingValues)
         )
     }
@@ -53,8 +55,9 @@ fun WeatherSettingScreen(
 @Composable
 fun WeatherSettingScreenContent(
     uiState: AllUnit?,
-    onTemperatureLabelUpdate: (String) -> Unit,
-    onWindSpeedLabelUpdate: (String) -> Unit,
+    onTemperatureUnitUpdate: (String) -> Unit,
+    onWindSpeedUnitUpdate: (String) -> Unit,
+    onPressureUnitUpdate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val screenPadding = PaddingValues(
@@ -62,12 +65,15 @@ fun WeatherSettingScreenContent(
         horizontal = 16.dp
     )
 
-    val temperatureUnits = stringArrayResource(R.array.temperature_units).toList()
-    val windSpeedUnits = stringArrayResource(R.array.wind_speed_units).toList()
+    val temperatureUnits =
+        TemperatureUnit.values().filter { it != TemperatureUnit.NULL }.map { it.label }
+    val windSpeedUnits = WindSpeedUnit.values().filter { it != WindSpeedUnit.NULL }.map { it.label }
+    val pressureUnits = PressureUnit.values().filter { it != PressureUnit.NULL }.map { it.label }
 
     uiState?.let {
         Column(
-            modifier
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = modifier
                 .fillMaxWidth()
                 .padding(screenPadding)
         ) {
@@ -75,19 +81,23 @@ fun WeatherSettingScreenContent(
                 stringResource(R.string.units),
                 style = MaterialTheme.typography.labelLarge.copy(color = White70)
             )
-            Spacer(Modifier.height(12.dp))
             UnitItem(
                 title = R.string.temperature_unit,
                 segments = temperatureUnits,
                 selectedSegment = it.temperature.label,
-                onSegmentSelected = onTemperatureLabelUpdate
+                onSegmentSelected = onTemperatureUnitUpdate
             )
-            Spacer(Modifier.height(12.dp))
             UnitItem(
                 title = R.string.wind_speed_unit,
                 segments = windSpeedUnits,
                 selectedSegment = it.windSpeed.label,
-                onSegmentSelected = onWindSpeedLabelUpdate
+                onSegmentSelected = onWindSpeedUnitUpdate
+            )
+            UnitItem(
+                title = R.string.pressure_unit,
+                segments = pressureUnits,
+                selectedSegment = it.pressure.label,
+                onSegmentSelected = onPressureUnitUpdate
             )
         }
     }

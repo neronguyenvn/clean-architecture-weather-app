@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -50,14 +49,33 @@ class WeatherInfoViewModel @Inject constructor(
     val appRoute get() = _appRoute
 
     private val _temperatureUnit = preferences.temperatureUnitFlow
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            null
+        )
+
     private val _windSpeedUnit = preferences.windSpeedUnitFlow
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            null
+        )
+
+    private val _pressureUnit = preferences.pressureUnitFlow
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            null
+        )
 
     private val _units =
-        _temperatureUnit.zip(_windSpeedUnit) { temperatureUnit, windSpeedUnit ->
-            AllUnit(
-                temperature = temperatureUnit,
-                windSpeed = windSpeedUnit
-            )
+        combine(_temperatureUnit, _windSpeedUnit, _pressureUnit) { tUnit, wpUnit, psUnit ->
+            if (tUnit != null && wpUnit != null && psUnit != null) {
+                AllUnit(tUnit, wpUnit, psUnit)
+            } else {
+                null
+            }
         }.map {
             it.also { Log.d(TAG, "Units flow collected: $it") }
         }.stateIn(

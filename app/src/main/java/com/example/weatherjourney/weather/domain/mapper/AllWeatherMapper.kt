@@ -29,3 +29,9 @@ fun AllWeather.convertWindSpeedUnit(convertMethod: (Double) -> Double) = this.co
         )
     }
 )
+
+fun AllWeather.convertPressureUnit(convertMethod: (Double) -> Double) = this.copy(
+    current = current?.copy(
+        pressure = convertMethod(current.pressure)
+    )
+)

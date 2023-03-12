@@ -9,6 +9,7 @@ import com.example.weatherejourney.LocationPreferences
 import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.weather.domain.mapper.toCoordinatePreferences
 import com.example.weatherjourney.weather.domain.model.Coordinate
+import com.example.weatherjourney.weather.domain.model.unit.PressureUnit
 import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit
 import com.example.weatherjourney.weather.domain.model.unit.WindSpeedUnit
 import kotlinx.coroutines.flow.Flow
@@ -46,6 +47,13 @@ class DefaultPreferenceRepository(
             )
         }
 
+    override val pressureUnitFlow: Flow<PressureUnit> =
+        userPreferencesStore.data.map { preferences ->
+            PressureUnit.valueOf(
+                preferences[PRESSURE_UNIT] ?: PressureUnit.HECTOPASCAL.name
+            )
+        }
+
     override suspend fun updateLocation(
         cityAddress: String,
         coordinate: Coordinate,
@@ -55,24 +63,6 @@ class DefaultPreferenceRepository(
             preferences.toBuilder().setCityAddress(cityAddress)
                 .setCoordinate(coordinate.toCoordinatePreferences()).setTimeZone(timeZone)
                 .build()
-        }
-    }
-
-    override suspend fun updateCityAddress(cityAddress: String) {
-        locationPreferencesStore.updateData { preferences ->
-            preferences.toBuilder().setCityAddress(cityAddress).build()
-        }
-    }
-
-    override suspend fun updateCoordinate(coordinate: Coordinate) {
-        locationPreferencesStore.updateData { preferences ->
-            preferences.toBuilder().setCoordinate(coordinate.toCoordinatePreferences()).build()
-        }
-    }
-
-    override suspend fun updateTimeZone(timeZone: String) {
-        locationPreferencesStore.updateData { preferences ->
-            preferences.toBuilder().setTimeZone(timeZone).build()
         }
     }
 
@@ -88,8 +78,15 @@ class DefaultPreferenceRepository(
         }
     }
 
+    override suspend fun savePressureUnit(unit: PressureUnit) {
+        userPreferencesStore.edit { preferences ->
+            preferences[PRESSURE_UNIT] = unit.name
+        }
+    }
+
     private companion object {
         val TEMPERATURE_UNIT = stringPreferencesKey("temperatureUnit")
         val WIND_SPEED_UNIT = stringPreferencesKey("windSpeedUnit")
+        val PRESSURE_UNIT = stringPreferencesKey("pressureUnit")
     }
 }
