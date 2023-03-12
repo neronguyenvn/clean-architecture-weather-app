@@ -72,3 +72,7 @@ inline fun <T, R : Any> T.runCatching(block: T.() -> R): Result<R> {
         Result.Error(e)
     }
 }
+
+fun List<Long>.countPastHoursToday() =
+    this.count { it <= Instant.now().minusMillis(DateUtils.HOUR_IN_MILLIS).epochSecond }
+
