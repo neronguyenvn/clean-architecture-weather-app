@@ -7,13 +7,12 @@ import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.presentation.BaseViewModel
 import com.example.weatherjourney.util.ActionLabel
 import com.example.weatherjourney.util.Result
-import com.example.weatherjourney.util.UserMessage
 import com.example.weatherjourney.weather.data.local.entity.LocationEntity
 import com.example.weatherjourney.weather.data.mapper.coordinate
 import com.example.weatherjourney.weather.data.mapper.toSavedCity
-import com.example.weatherjourney.weather.domain.model.CityUiModel
 import com.example.weatherjourney.weather.domain.model.SavedCity
 import com.example.weatherjourney.weather.domain.model.SuggestionCity
+import com.example.weatherjourney.weather.domain.model.WeatherType
 import com.example.weatherjourney.weather.domain.repository.RefreshRepository
 import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
@@ -33,31 +32,6 @@ import javax.inject.Inject
 private const val TAG = "WeatherSearchViewModel"
 private const val REQUIRED_INPUT_LENGTH = 2
 
-private data class WeatherSearchViewModelState(
-    val input: String = "",
-    val isLoading: Boolean = false,
-    val userMessage: UserMessage? = null,
-    val savedCities: List<SavedCity> = emptyList(),
-    val suggestionCities: List<SuggestionCity> = emptyList()
-) {
-    fun toUiState(): WeatherSearchUiState =
-        if (input.isBlank()) {
-            WeatherSearchUiState.ShowSaveCities(
-                input = input,
-                isLoading = isLoading,
-                userMessage = userMessage,
-                savedCities = savedCities
-            )
-        } else {
-            WeatherSearchUiState.ShowSuggestionCities(
-                input = input,
-                isLoading = isLoading,
-                userMessage = userMessage,
-                suggestionCities = suggestionCities
-            )
-        }
-}
-
 @HiltViewModel
 class WeatherSearchViewModel @Inject constructor(
     private val locationUseCases: LocationUseCases,
@@ -74,7 +48,7 @@ class WeatherSearchViewModel @Inject constructor(
             _viewModelState.collect { state ->
                 _uiState.update {
                     state.toUiState().also {
-                        if (it is WeatherSearchUiState.ShowSuggestionCities) {
+                        if (it is WeatherSearchState.ShowSuggestionCities) {
                             refreshSuggestionCities()
                         }
                     }
@@ -112,11 +86,6 @@ class WeatherSearchViewModel @Inject constructor(
         _userMessage
     ) { input, savedCities, suggestionCities, isLoading, userMessage ->
 
-        Log.d(
-            TAG,
-            "Combine flow collected: $input, $savedCities, $suggestionCities, $isLoading, $userMessage"
-        )
-
         WeatherSearchViewModelState(
             input = input,
             isLoading = isLoading,
@@ -130,7 +99,7 @@ class WeatherSearchViewModel @Inject constructor(
         MutableStateFlow(WeatherSearchViewModelState(isLoading = true).toUiState())
     val uiState = _uiState.asStateFlow()
 
-    private lateinit var tempSavedCity: CityUiModel
+    private lateinit var tempSavedCity: SavedCity
 
     fun onInputUpdate(input: String) {
         _input.value = input
@@ -141,51 +110,55 @@ class WeatherSearchViewModel @Inject constructor(
         val locations = _locations.first { it.isNotEmpty() }
         handleLocations(channel, locations)
 
-        var savedCities = emptyList<SavedCity>()
+        val savedCities = ArrayDeque<SavedCity>()
+        var currentCity: SavedCity? = null
 
-        for (i in locations.indices) {
+        locations.forEach { _ ->
             val city = channel.receive()
 
             city?.let {
-                savedCities = if (city.isCurrentLocation) {
-                    savedCities.toMutableList().apply { add(0, city) }
+                if (city.isCurrentLocation) {
+                    currentCity = city
                 } else {
-                    savedCities + city
+                    savedCities.add(city)
                 }
             }
-
-            _savedCities.value = savedCities
-            Log.d(TAG, "SavedCities flow collected: $savedCities")
-
-            if (i == locations.size - 1 || city == null) {
-                _isLoading.value = false
-                break
-            }
         }
+
+        savedCities.sortBy { it.id }
+        _savedCities.value =
+            if (currentCity == null) savedCities else savedCities.apply { addFirst(currentCity!!) }
+
+        _isLoading.value = false
+        Log.d(TAG, "SavedCities flow collected: $savedCities")
     })
 
-    fun onDeleteLocation() = viewModelScope.launch {
-        locationUseCases.deleteLocation(tempSavedCity.coordinate)
+    fun onDeleteLocation() {
+        _savedCities.update { it.toMutableList().apply { remove(tempSavedCity) } }
         showSnackbarMessage(R.string.location_deleted)
+        viewModelScope.launch { locationUseCases.deleteLocation(tempSavedCity.coordinate) }
     }
 
-    fun onSavedCityLongClick(city: CityUiModel) {
+    fun onSavedCityLongClick(city: SavedCity) {
         tempSavedCity = city
         showSnackbarMessage(R.string.delete_location, ActionLabel.DELETE, city.cityAddress)
     }
 
     private fun handleLocations(channel: Channel<SavedCity?>, locations: List<LocationEntity>) {
-        locations.forEach {
+        locations.forEach { location ->
             viewModelScope.launch {
-                when (val weather = weatherUseCases.getAllWeather(it.coordinate, it.timeZone)) {
+                when (
+                    val weather =
+                        weatherUseCases.getAllWeather(location.coordinate, location.timeZone)
+                ) {
                     is Result.Success -> {
-                        val city = weather.data.toSavedCity(
-                            it.cityAddress,
-                            it.coordinate,
-                            it.timeZone,
-                            it.isCurrentLocation,
-                            it.countryCode
-                        )
+                        val city = weather.data.hourly.let {
+                            location.toSavedCity(
+                                it.temperatures[0],
+                                WeatherType.fromWMO(it.weatherCodes[0])
+                            )
+                        }
+
                         channel.send(city)
                     }
 

@@ -108,15 +108,15 @@ fun WeatherSearchScreen(
 
 @Composable
 fun WeatherSearchScreenContent(
-    uiState: WeatherSearchUiState,
+    uiState: WeatherSearchState,
     onRefresh: () -> Unit,
     onCityClick: (CityUiModel) -> Unit,
-    onCityLongClick: (CityUiModel) -> Unit,
+    onCityLongClick: (SavedCity) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val cities = when (uiState) {
-        is WeatherSearchUiState.ShowSaveCities -> uiState.savedCities
-        is WeatherSearchUiState.ShowSuggestionCities -> uiState.suggestionCities
+        is WeatherSearchState.ShowSaveCities -> uiState.savedCities
+        is WeatherSearchState.ShowSuggestionCities -> uiState.suggestionCities
     }
 
     when (getSearchScreenType(uiState)) {
@@ -160,7 +160,7 @@ fun SavedCitiesContent(
     isLoading: Boolean,
     onRefresh: () -> Unit,
     onCityClick: (CityUiModel) -> Unit,
-    onCityLongClick: (CityUiModel) -> Unit,
+    onCityLongClick: (SavedCity) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LoadingContent(
@@ -180,10 +180,10 @@ fun SavedCitiesContent(
     }
 }
 
-private fun getSearchScreenType(uiState: WeatherSearchUiState): SearchScreenType =
+private fun getSearchScreenType(uiState: WeatherSearchState): SearchScreenType =
     when (uiState) {
-        is WeatherSearchUiState.ShowSaveCities -> SearchScreenType.SavedInfoFeed
-        is WeatherSearchUiState.ShowSuggestionCities ->
+        is WeatherSearchState.ShowSaveCities -> SearchScreenType.SavedInfoFeed
+        is WeatherSearchState.ShowSuggestionCities ->
             if (uiState.suggestionCities.isEmpty()) {
                 SearchScreenType.NoResult
             } else {

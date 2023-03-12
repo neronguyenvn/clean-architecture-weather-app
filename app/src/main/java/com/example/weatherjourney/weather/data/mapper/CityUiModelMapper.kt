@@ -1,6 +1,6 @@
 package com.example.weatherjourney.weather.data.mapper
 
-import com.example.weatherjourney.weather.data.remote.dto.AllWeatherDto
+import com.example.weatherjourney.weather.data.local.entity.LocationEntity
 import com.example.weatherjourney.weather.data.remote.dto.ForwardGeocodingResult
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.SavedCity
@@ -14,22 +14,13 @@ fun ForwardGeocodingResult.toSuggestionCity() = SuggestionCity(
     timeZone = timezone
 )
 
-fun AllWeatherDto.toSavedCity(
-    cityAddress: String,
-    coordinate: Coordinate,
-    timeZone: String,
-    isCurrentLocation: Boolean,
-    countryCode: String
-): SavedCity {
-    this.hourly.apply {
-        return SavedCity(
-            temp = temperatures[0],
-            weatherType = WeatherType.fromWMO(weatherCodes[0]),
-            cityAddress = cityAddress,
-            coordinate = coordinate,
-            isCurrentLocation = isCurrentLocation,
-            timeZone = timeZone,
-            countryCode = countryCode
-        )
-    }
-}
+fun LocationEntity.toSavedCity(temp: Double, weatherType: WeatherType) = SavedCity(
+    temp = temp,
+    weatherType = weatherType,
+    cityAddress = cityAddress,
+    coordinate = coordinate,
+    isCurrentLocation = isCurrentLocation,
+    timeZone = timeZone,
+    countryCode = countryCode,
+    id = id
+)
