@@ -11,6 +11,7 @@ import com.example.weatherjourney.weather.domain.mapper.toCoordinatePreferences
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.unit.PressureUnit
 import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit
+import com.example.weatherjourney.weather.domain.model.unit.TimeFormatUnit
 import com.example.weatherjourney.weather.domain.model.unit.WindSpeedUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -54,6 +55,13 @@ class DefaultPreferenceRepository(
             )
         }
 
+    override val timeFormatUnitFlow: Flow<TimeFormatUnit> =
+        userPreferencesStore.data.map { preferences ->
+            TimeFormatUnit.valueOf(
+                preferences[TIME_FORMAT_UNIT] ?: TimeFormatUnit.TWENTY_FOUR.name
+            )
+        }
+
     override suspend fun updateLocation(
         cityAddress: String,
         coordinate: Coordinate,
@@ -84,9 +92,16 @@ class DefaultPreferenceRepository(
         }
     }
 
+    override suspend fun saveTimeFormatUnit(unit: TimeFormatUnit) {
+        userPreferencesStore.edit { preferences ->
+            preferences[TIME_FORMAT_UNIT] = unit.name
+        }
+    }
+
     private companion object {
         val TEMPERATURE_UNIT = stringPreferencesKey("temperatureUnit")
         val WIND_SPEED_UNIT = stringPreferencesKey("windSpeedUnit")
         val PRESSURE_UNIT = stringPreferencesKey("pressureUnit")
+        val TIME_FORMAT_UNIT = stringPreferencesKey("timeFormatUnit")
     }
 }

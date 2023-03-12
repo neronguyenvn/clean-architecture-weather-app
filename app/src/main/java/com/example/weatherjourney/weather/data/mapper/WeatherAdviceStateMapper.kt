@@ -1,6 +1,5 @@
 package com.example.weatherjourney.weather.data.mapper
 
-import com.example.weatherjourney.util.DATE_PATTERN
 import com.example.weatherjourney.util.filterPastHours
 import com.example.weatherjourney.util.toDate
 import com.example.weatherjourney.weather.data.remote.dto.HourlyAirQuality
@@ -9,6 +8,7 @@ import com.example.weatherjourney.weather.domain.model.notification.UvNotificati
 import com.example.weatherjourney.weather.domain.model.notification.toAqiLevel
 import com.example.weatherjourney.weather.domain.model.notification.toUvIndexLevel
 import com.example.weatherjourney.weather.presentation.notification.WeatherNotifications
+import com.example.weatherjourney.weather.util.DATE_24_PATTERN
 
 fun HourlyAirQuality.toWeatherAdviceState(timeZone: String): WeatherNotifications {
     val newTimeList = time.filterPastHours()
@@ -27,8 +27,8 @@ fun HourlyAirQuality.toWeatherAdviceState(timeZone: String): WeatherNotification
         ) {
             notificationState = notificationState.copy(
                 uvNotification = UvNotification(
-                    firstTimeLine = newTimeList[0].toDate(timeZone, DATE_PATTERN),
-                    secondTimeLine = newTimeList[i].toDate(timeZone, DATE_PATTERN),
+                    firstTimeLine = newTimeList[0].toDate(timeZone, DATE_24_PATTERN),
+                    secondTimeLine = newTimeList[i].toDate(timeZone, DATE_24_PATTERN),
                     infoRes = currentUvLevel.infoRes,
                     adviceRes = currentUvLevel.adviceRes
                 )
@@ -40,8 +40,8 @@ fun HourlyAirQuality.toWeatherAdviceState(timeZone: String): WeatherNotification
         ) {
             notificationState = notificationState.copy(
                 aqiNotification = AqiNotification(
-                    firstTimeLine = newTimeList[0].toDate(timeZone, DATE_PATTERN),
-                    secondTimeLine = newTimeList[i].toDate(timeZone, DATE_PATTERN),
+                    firstTimeLine = newTimeList[0].toDate(timeZone, DATE_24_PATTERN),
+                    secondTimeLine = newTimeList[i].toDate(timeZone, DATE_24_PATTERN),
                     infoRes = currentAqiLevel.infoRes,
                     adviceRes = currentAqiLevel.generalPopluationAdviceRes,
                     adviceRes2 = currentAqiLevel.sensitivePopluationAdvice

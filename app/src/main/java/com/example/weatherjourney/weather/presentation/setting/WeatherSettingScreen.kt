@@ -24,6 +24,7 @@ import com.example.weatherjourney.presentation.theme.White70
 import com.example.weatherjourney.weather.domain.model.unit.AllUnit
 import com.example.weatherjourney.weather.domain.model.unit.PressureUnit
 import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit
+import com.example.weatherjourney.weather.domain.model.unit.TimeFormatUnit
 import com.example.weatherjourney.weather.domain.model.unit.WindSpeedUnit
 import com.example.weatherjourney.weather.presentation.setting.component.UnitItem
 
@@ -47,6 +48,7 @@ fun WeatherSettingScreen(
             onTemperatureUnitUpdate = viewModel::onTemperatureUnitUpdate,
             onWindSpeedUnitUpdate = viewModel::onWindSpeedUnitUpdate,
             onPressureUnitUpdate = viewModel::onPressureUnitUpdate,
+            onTimeFormatUnitUpdate = viewModel::onTimeFormatUnitUpdate,
             modifier = Modifier.padding(paddingValues)
         )
     }
@@ -58,6 +60,7 @@ fun WeatherSettingScreenContent(
     onTemperatureUnitUpdate: (String) -> Unit,
     onWindSpeedUnitUpdate: (String) -> Unit,
     onPressureUnitUpdate: (String) -> Unit,
+    onTimeFormatUnitUpdate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val screenPadding = PaddingValues(
@@ -69,6 +72,8 @@ fun WeatherSettingScreenContent(
         TemperatureUnit.values().filter { it != TemperatureUnit.NULL }.map { it.label }
     val windSpeedUnits = WindSpeedUnit.values().filter { it != WindSpeedUnit.NULL }.map { it.label }
     val pressureUnits = PressureUnit.values().filter { it != PressureUnit.NULL }.map { it.label }
+    val timeFormatUnits =
+        TimeFormatUnit.values().filter { it != TimeFormatUnit.NULL }.map { it.label }
 
     uiState?.let {
         Column(
@@ -98,6 +103,12 @@ fun WeatherSettingScreenContent(
                 segments = pressureUnits,
                 selectedSegment = it.pressure.label,
                 onSegmentSelected = onPressureUnitUpdate
+            )
+            UnitItem(
+                title = R.string.time_format_unit,
+                segments = timeFormatUnits,
+                selectedSegment = it.timeFormat.label,
+                onSegmentSelected = onTimeFormatUnitUpdate
             )
         }
     }

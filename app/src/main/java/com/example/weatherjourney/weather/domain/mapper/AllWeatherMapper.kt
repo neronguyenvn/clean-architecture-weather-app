@@ -35,3 +35,9 @@ fun AllWeather.convertPressureUnit(convertMethod: (Double) -> Double) = this.cop
         pressure = convertMethod(current.pressure)
     )
 )
+
+fun AllWeather.convertTimeFormatUnit(convertMethod: (String) -> String) = this.copy(
+    current = current?.copy(
+        date = convertMethod(current.date)
+    )
+)

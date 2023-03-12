@@ -69,10 +69,22 @@ class WeatherInfoViewModel @Inject constructor(
             null
         )
 
+    private val _timeFormatUnit = preferences.timeFormatUnitFlow
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            null
+        )
+
     private val _units =
-        combine(_temperatureUnit, _windSpeedUnit, _pressureUnit) { tUnit, wpUnit, psUnit ->
-            if (tUnit != null && wpUnit != null && psUnit != null) {
-                AllUnit(tUnit, wpUnit, psUnit)
+        combine(
+            _temperatureUnit,
+            _windSpeedUnit,
+            _pressureUnit,
+            _timeFormatUnit
+        ) { tUnit, wpUnit, psUnit, tfUnit ->
+            if (tUnit != null && wpUnit != null && psUnit != null && tfUnit != null) {
+                AllUnit(tUnit, wpUnit, psUnit, tfUnit)
             } else {
                 null
             }

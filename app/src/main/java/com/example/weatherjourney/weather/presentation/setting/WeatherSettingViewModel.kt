@@ -6,6 +6,7 @@ import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.util.WhileUiSubscribed
 import com.example.weatherjourney.weather.domain.mapper.getPressureUnit
 import com.example.weatherjourney.weather.domain.mapper.getTemperatureUnit
+import com.example.weatherjourney.weather.domain.mapper.getTimeFormatUnit
 import com.example.weatherjourney.weather.domain.mapper.getWindSpeedUnit
 import com.example.weatherjourney.weather.domain.model.unit.AllUnit
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,10 +42,22 @@ class WeatherSettingViewModel @Inject constructor(
             null
         )
 
+    private val _timeFormatUnit = preferences.timeFormatUnitFlow
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            null
+        )
+
     val uiState =
-        combine(_temperatureUnit, _windSpeedUnit, _pressureUnit) { tUnit, wpUnit, psUnit ->
-            if (tUnit != null && wpUnit != null && psUnit != null) {
-                AllUnit(tUnit, wpUnit, psUnit)
+        combine(
+            _temperatureUnit,
+            _windSpeedUnit,
+            _pressureUnit,
+            _timeFormatUnit
+        ) { tUnit, wpUnit, psUnit, tfUnit ->
+            if (tUnit != null && wpUnit != null && psUnit != null && tfUnit != null) {
+                AllUnit(tUnit, wpUnit, psUnit, tfUnit)
             } else {
                 null
             }
@@ -64,5 +77,9 @@ class WeatherSettingViewModel @Inject constructor(
 
     fun onPressureUnitUpdate(label: String) = viewModelScope.launch {
         preferences.savePressureUnit(getPressureUnit(label))
+    }
+
+    fun onTimeFormatUnitUpdate(label: String) = viewModelScope.launch {
+        preferences.saveTimeFormatUnit(getTimeFormatUnit(label))
     }
 }

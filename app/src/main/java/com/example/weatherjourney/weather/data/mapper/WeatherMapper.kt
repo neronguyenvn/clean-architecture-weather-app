@@ -1,7 +1,5 @@
 package com.example.weatherjourney.weather.data.mapper
 
-import com.example.weatherjourney.util.DATE_PATTERN
-import com.example.weatherjourney.util.HOUR_PATTERN
 import com.example.weatherjourney.util.countPastHoursToday
 import com.example.weatherjourney.util.filterPastHours
 import com.example.weatherjourney.util.getCurrentDate
@@ -13,6 +11,7 @@ import com.example.weatherjourney.weather.domain.model.weather.CurrentWeather
 import com.example.weatherjourney.weather.domain.model.weather.DailyWeather
 import com.example.weatherjourney.weather.domain.model.weather.HourlyWeather
 import com.example.weatherjourney.weather.presentation.info.AllWeather
+import com.example.weatherjourney.weather.util.HOUR_PATTERN
 
 fun AllWeatherDto.toAllWeather(cityAddress: String, timeZone: String): AllWeather {
     val count = this.hourly.time.countPastHoursToday()
@@ -21,7 +20,7 @@ fun AllWeatherDto.toAllWeather(cityAddress: String, timeZone: String): AllWeathe
         cityAddress = cityAddress,
         current = this.hourly.run {
             CurrentWeather(
-                date = getCurrentDate(timeZone, DATE_PATTERN),
+                date = getCurrentDate(timeZone),
                 temp = temperatures[count],
                 windSpeed = windSpeeds[count],
                 humidity = humidities[count],

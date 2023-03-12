@@ -18,9 +18,10 @@
     <string name="tomorrow">Tomorrow</string>
     <string name="your_location">Your location</string>
     <string name="units">UNITS</string>
-    <string name="temperature_unit">Temperature unit</string>
-    <string name="wind_speed_unit">Wind speed unit</string>
-    <string name="pressure_unit">Pressure unit</string>
+    <string name="temperature_unit">Temperature</string>
+    <string name="wind_speed_unit">Wind speed</string>
+    <string name="pressure_unit">Pressure</string>
+    <string name="time_format_unit">Time format</string>
     <string name="notification">Notifications</string>
     <string name="uv_notification">UV notification</string>
     <string name="level_one_uv_info">The UV index is in 0 to 2</string>

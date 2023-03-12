@@ -2,25 +2,23 @@ package com.example.weatherjourney.util
 
 import android.text.format.DateUtils
 import com.example.weatherjourney.R
+import com.example.weatherjourney.weather.util.DAY_NAME_IN_WEEK_PATTERN
+import com.example.weatherjourney.weather.util.TODAY_TIME_FORMATTER
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-const val DATE_PATTERN = "MMMM dd, HH:mm"
-const val HOUR_PATTERN = "EEE HH:mm"
-const val DAY_NAME_IN_WEEK_PATTERN = "EEE"
-
 /**
  * Round a Double number to make it has a certain number of digits after decimal point.
  */
 fun Double.roundTo(n: Int): Double = String.format(Locale.US, "%.${n}f", this).toDouble()
 
-fun getCurrentDate(timeZone: String, pattern: String): String {
+fun getCurrentDate(timeZone: String): String {
     val instant = Instant.now()
-    val formatter = DateTimeFormatter.ofPattern(pattern)
-    return instant.atZone(ZoneId.of(timeZone)).format(formatter)
+    val timeZoneId = ZoneId.of(timeZone)
+    return instant.atZone(timeZoneId).format(TODAY_TIME_FORMATTER)
 }
 
 fun Long.toDate(timeZone: String, pattern: String): UiText {
@@ -75,4 +73,3 @@ inline fun <T, R : Any> T.runCatching(block: T.() -> R): Result<R> {
 
 fun List<Long>.countPastHoursToday() =
     this.count { it <= Instant.now().minusMillis(DateUtils.HOUR_IN_MILLIS).epochSecond }
-
