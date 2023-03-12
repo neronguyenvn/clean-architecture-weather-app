@@ -1,6 +1,6 @@
 package com.example.weatherjourney.domain
 
-import com.example.weatherejourney.LocationPreferences
+import com.example.weatherjourney.LocationPreferences
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.unit.PressureUnit
 import com.example.weatherjourney.weather.domain.model.unit.TemperatureUnit

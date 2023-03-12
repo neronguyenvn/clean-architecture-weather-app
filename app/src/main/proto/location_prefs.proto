@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option java_package = "com.example.weatherejourney";
+option java_package = "com.example.weatherjourney";
 option java_multiple_files = true;
 
 message LocationPreferences {

@@ -5,7 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.example.weatherejourney.LocationPreferences
+import com.example.weatherjourney.LocationPreferences
 import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.weather.domain.mapper.toCoordinatePreferences
 import com.example.weatherjourney.weather.domain.model.Coordinate
