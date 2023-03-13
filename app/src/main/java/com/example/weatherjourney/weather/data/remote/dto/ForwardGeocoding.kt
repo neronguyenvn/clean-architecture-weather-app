@@ -17,6 +17,8 @@ data class ForwardGeocodingResult(
     val longitude: Double,
     val timezone: String = ""
 ) {
-    fun getCityAddress() = listOf(name, admin1).filter { it.isNotBlank() }
-        .joinToString(", ")
+    fun getCityAddress() = when {
+        name != admin1 && admin1.isNotBlank() -> "$name, $admin1"
+        else -> name
+    }
 }
