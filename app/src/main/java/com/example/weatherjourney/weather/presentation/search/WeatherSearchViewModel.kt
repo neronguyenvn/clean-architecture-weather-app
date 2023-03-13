@@ -175,7 +175,7 @@ class WeatherSearchViewModel @Inject constructor(
         return when (result) {
             is Result.Success -> result.data
             is Result.Error -> {
-                handleErrorResult(result) { refreshSuggestionCities() }
+                handleErrorResult(result, false) { refreshSuggestionCities() }
                 emptyList()
             }
         }

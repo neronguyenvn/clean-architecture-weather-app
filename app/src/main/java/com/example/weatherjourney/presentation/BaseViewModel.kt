@@ -61,7 +61,11 @@ abstract class BaseViewModel(
         }
     }
 
-    protected fun handleErrorResult(result: Result.Error, refresh: () -> Unit = { onRefresh() }) {
+    protected fun handleErrorResult(
+        result: Result.Error,
+        shouldShouldError: Boolean = true,
+        refresh: () -> Unit = { onRefresh() }
+    ) {
         Log.d(this.javaClass.simpleName, result.toString())
 
         val messageId = when (result.exception) {
@@ -84,6 +88,6 @@ abstract class BaseViewModel(
             else -> R.string.something_went_wrong
         }
 
-        showSnackbarMessage(messageId)
+        if (shouldShouldError) showSnackbarMessage(messageId)
     }
 }
