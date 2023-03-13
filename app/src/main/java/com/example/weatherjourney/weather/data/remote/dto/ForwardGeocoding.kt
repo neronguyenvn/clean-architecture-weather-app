@@ -12,12 +12,11 @@ data class ForwardGeocoding(
 data class ForwardGeocodingResult(
     val name: String,
     val admin1: String = "",
-    val admin2: String = "",
     @SerialName("country_code") val countryCode: String,
     val latitude: Double,
     val longitude: Double,
     val timezone: String = ""
 ) {
-    fun getCityAddress() = listOf(name, admin2, admin1).filter { it.isNotBlank() }
+    fun getCityAddress() = listOf(name, admin1).filter { it.isNotBlank() }
         .joinToString(", ")
 }
