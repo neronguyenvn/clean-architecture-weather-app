@@ -140,6 +140,7 @@ class WeatherSearchViewModel @Inject constructor(
     }
 
     fun onSavedCityLongClick(city: SavedCity) {
+        if (city.isCurrentLocation) return
         tempSavedCity = city
         showSnackbarMessage(R.string.delete_location, ActionLabel.DELETE, city.cityAddress)
     }
