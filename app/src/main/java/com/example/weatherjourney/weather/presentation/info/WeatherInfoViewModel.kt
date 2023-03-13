@@ -186,12 +186,10 @@ class WeatherInfoViewModel @Inject constructor(
     }
 
     private suspend fun handleLocation(location: LocationPreferences): LocationPreferences? {
-        val shouldUpdateLastLocation = (location == LocationPreferences.getDefaultInstance())
-
-        when (val validateResult = locationUseCases.validateCurrentLocation(true)) {
+        when (val validateResult = locationUseCases.validateCurrentLocation(location)) {
             is Result.Success -> {
                 _isCurrentLocation.value = validateResult.data
-                return if (shouldUpdateLastLocation) null else location
+                if (location == LocationPreferences.getDefaultInstance()) return null
             }
 
             is Result.Error -> handleErrorResult(validateResult)
