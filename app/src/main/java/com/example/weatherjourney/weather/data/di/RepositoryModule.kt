@@ -2,7 +2,6 @@ package com.example.weatherjourney.weather.data.di
 
 import android.content.Context
 import com.example.weatherjourney.di.DefaultDispatcher
-import com.example.weatherjourney.di.IoDispatcher
 import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.weather.data.local.AppDatabase
 import com.example.weatherjourney.weather.data.remote.Api
@@ -37,15 +36,13 @@ object RepositoryModule {
         db: AppDatabase,
         client: FusedLocationProviderClient,
         preferences: PreferenceRepository,
-        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
-        @IoDispatcher ioDispatcher: CoroutineDispatcher
+        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
     ): LocationRepository = DefaultLocationRepository(
         api = api,
         dao = db.locationDao(),
         client = client,
         preferences = preferences,
-        defaultDispatcher = defaultDispatcher,
-        ioDispatcher = ioDispatcher
+        defaultDispatcher = defaultDispatcher
     )
 
     @Provides

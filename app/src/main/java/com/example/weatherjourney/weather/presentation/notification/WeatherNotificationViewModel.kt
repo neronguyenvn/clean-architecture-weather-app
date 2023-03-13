@@ -49,7 +49,7 @@ class WeatherNotificationViewModel @Inject constructor(
     )
 
     override fun onRefresh() = super.onRefresh({
-        val notifications = weatherUseCases.getWeatherAdvices()
+        val notifications = weatherUseCases.getWeatherNotifications()
         _notificationsAsync.value = handleResult(notifications)
     })
 

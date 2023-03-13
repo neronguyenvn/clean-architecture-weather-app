@@ -186,28 +186,18 @@ class WeatherInfoViewModel @Inject constructor(
     }
 
     private suspend fun handleLocation(location: LocationPreferences): LocationPreferences? {
-        return when (location) {
-            LocationPreferences.getDefaultInstance() -> {
-                when (val result = locationUseCases.getAndSaveCurrentLocation()) {
-                    is Result.Success -> _isCurrentLocation.value = true
-                    is Result.Error -> handleErrorResult(result)
-                }
+        val shouldUpdateLastLocation = (location == LocationPreferences.getDefaultInstance())
 
-                null
+        when (val validateResult = locationUseCases.validateCurrentLocation(true)) {
+            is Result.Success -> {
+                _isCurrentLocation.value = validateResult.data
+                return if (shouldUpdateLastLocation) null else location
             }
 
-            else -> {
-                val isCurrentLocation =
-                    locationUseCases.isCurrentLocation(location.coordinate.toCoordinate())
-                Log.d(
-                    TAG,
-                    "${location.cityAddress} is ${if (!isCurrentLocation) "not" else ""} current location"
-                )
-
-                _isCurrentLocation.value = isCurrentLocation
-                location
-            }
+            is Result.Error -> handleErrorResult(validateResult)
         }
+
+        return location
     }
 
     private fun handleWeatherResult(

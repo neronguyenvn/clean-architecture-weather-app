@@ -8,7 +8,7 @@ import com.example.weatherjourney.weather.domain.repository.WeatherRepository
 import com.example.weatherjourney.weather.presentation.notification.WeatherNotifications
 import kotlinx.coroutines.flow.first
 
-class GetWeatherAdvices(
+class GetWeatherNotifications(
     private val repository: WeatherRepository,
     private val preferences: PreferenceRepository
 ) {
