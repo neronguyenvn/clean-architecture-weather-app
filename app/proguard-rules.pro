@@ -20,7 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keepclassmembers class com.example.weatherjourney.LocationPreferences { *; }
+-keep class com.example.weatherjourney.locationpreferences.** { *; }
 
 # Retrofit does reflection on generic parameters. InnerClasses is required to use Signature and
 # EnclosingMethod is required to use InnerClasses.

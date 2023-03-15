@@ -9,10 +9,10 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
-import com.example.weatherjourney.LocationPreferences
 import com.example.weatherjourney.data.DefaultPreferenceRepository
 import com.example.weatherjourney.data.LocationPreferencesSerializer
 import com.example.weatherjourney.domain.PreferenceRepository
+import com.example.weatherjourney.locationpreferences.LocationPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

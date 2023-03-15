@@ -1,6 +1,6 @@
 package com.example.weatherjourney.weather.domain.usecase.location
 
-import com.example.weatherjourney.LocationPreferences
+import com.example.weatherjourney.locationpreferences.LocationPreferences
 import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.weather.data.local.entity.LocationEntity
 import com.example.weatherjourney.weather.domain.mapper.toCoordinate

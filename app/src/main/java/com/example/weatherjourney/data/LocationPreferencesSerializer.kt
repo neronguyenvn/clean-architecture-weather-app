@@ -2,7 +2,7 @@ package com.example.weatherjourney.data
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import com.example.weatherjourney.LocationPreferences
+import com.example.weatherjourney.locationpreferences.LocationPreferences
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream

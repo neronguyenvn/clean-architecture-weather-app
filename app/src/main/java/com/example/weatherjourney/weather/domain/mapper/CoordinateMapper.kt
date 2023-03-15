@@ -1,6 +1,6 @@
 package com.example.weatherjourney.weather.domain.mapper
 
-import com.example.weatherjourney.LocationPreferences.CoordinatePreferences
+import com.example.weatherjourney.locationpreferences.LocationPreferences.CoordinatePreferences
 import com.example.weatherjourney.util.roundTo
 import com.example.weatherjourney.weather.domain.model.Coordinate
 

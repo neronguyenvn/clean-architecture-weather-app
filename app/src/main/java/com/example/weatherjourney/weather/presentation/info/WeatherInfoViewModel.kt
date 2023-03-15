@@ -2,9 +2,9 @@ package com.example.weatherjourney.weather.presentation.info
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.example.weatherjourney.LocationPreferences
 import com.example.weatherjourney.R
 import com.example.weatherjourney.domain.PreferenceRepository
+import com.example.weatherjourney.locationpreferences.LocationPreferences
 import com.example.weatherjourney.presentation.BaseViewModel
 import com.example.weatherjourney.presentation.WeatherDestinations
 import com.example.weatherjourney.util.ActionLabel
