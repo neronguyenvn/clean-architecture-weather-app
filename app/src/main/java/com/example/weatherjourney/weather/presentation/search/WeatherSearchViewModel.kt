@@ -5,8 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.R
 import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.presentation.BaseViewModel
-import com.example.weatherjourney.util.ActionLabel
+import com.example.weatherjourney.util.LocationException
+import com.example.weatherjourney.util.LocationException.LocationPermissionDeniedException
+import com.example.weatherjourney.util.LocationException.LocationServiceDisabledException
 import com.example.weatherjourney.util.Result
+import com.example.weatherjourney.util.UserMessage
+import com.example.weatherjourney.util.UserMessage.RequestingLocationPermission
+import com.example.weatherjourney.util.UserMessage.RequestingTurnOnLocationService
+import com.example.weatherjourney.util.isNull
 import com.example.weatherjourney.weather.data.local.entity.LocationEntity
 import com.example.weatherjourney.weather.data.mapper.coordinate
 import com.example.weatherjourney.weather.data.mapper.toSavedCity
@@ -16,8 +22,10 @@ import com.example.weatherjourney.weather.domain.model.WeatherType
 import com.example.weatherjourney.weather.domain.repository.RefreshRepository
 import com.example.weatherjourney.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.weather.domain.usecase.WeatherUseCases
+import com.example.weatherjourney.weather.util.DELAY_TIME
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +35,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
 private const val TAG = "WeatherSearchViewModel"
@@ -39,23 +48,6 @@ class WeatherSearchViewModel @Inject constructor(
     refreshRepository: RefreshRepository,
     preferences: PreferenceRepository
 ) : BaseViewModel(refreshRepository) {
-
-    init {
-        _isLoading.value = true
-        viewModelScope.launch {
-            locationUseCases.validateCurrentLocation()
-            onRefresh()
-            _viewModelState.collect { state ->
-                _uiState.update {
-                    state.toUiState().also {
-                        if (it is WeatherSearchState.ShowSuggestionCities) {
-                            refreshSuggestionCities()
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     private val _temperatureUnit = preferences.temperatureUnitFlow
         .map {
@@ -84,7 +76,10 @@ class WeatherSearchViewModel @Inject constructor(
         _suggestionCities,
         _isLoading,
         _userMessage
+
     ) { input, savedCities, suggestionCities, isLoading, userMessage ->
+
+        Log.d(TAG, "$input, $savedCities, $suggestionCities, $isLoading, $userMessage")
 
         WeatherSearchViewModelState(
             input = input,
@@ -96,8 +91,37 @@ class WeatherSearchViewModel @Inject constructor(
     }
 
     private val _uiState =
-        MutableStateFlow(WeatherSearchViewModelState(isLoading = true).toUiState())
+        MutableStateFlow(WeatherSearchViewModelState().toUiState())
     val uiState = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val validateResult = locationUseCases.validateCurrentLocation()
+            if (validateResult is Result.Error) {
+                when (validateResult.exception) {
+                    is LocationException -> {
+                        locationUseCases.deleteLocation(true)
+                    }
+
+                    else -> {
+                        handleErrorResult(validateResult)
+                    }
+                }
+            }
+
+            onRefresh()
+
+            _viewModelState.collect { state ->
+                _uiState.update {
+                    state.toUiState().also {
+                        if (it is WeatherSearchState.ShowSuggestionCities) {
+                            refreshSuggestionCities()
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private lateinit var tempSavedCity: SavedCity
 
@@ -105,9 +129,10 @@ class WeatherSearchViewModel @Inject constructor(
         _input.value = input
     }
 
-    override fun onRefresh() = onRefresh({
+    override fun onRefresh() = runSuspend({
         val channel = Channel<SavedCity?>()
-        val locations = _locations.first { it.isNotEmpty() }
+        val locations = withTimeoutOrNull(DELAY_TIME) { _locations.first { it.isNotEmpty() } }
+            ?: return@runSuspend
         handleLocations(channel, locations)
 
         val savedCities = ArrayDeque<SavedCity>()
@@ -127,7 +152,7 @@ class WeatherSearchViewModel @Inject constructor(
 
         savedCities.sortBy { it.id }
         _savedCities.value =
-            if (currentCity == null) savedCities else savedCities.apply { addFirst(currentCity!!) }
+            if (currentCity.isNull()) savedCities else savedCities.apply { addFirst(currentCity!!) }
 
         _isLoading.value = false
         Log.d(TAG, "SavedCities flow collected: $savedCities")
@@ -135,14 +160,46 @@ class WeatherSearchViewModel @Inject constructor(
 
     fun onDeleteLocation() {
         _savedCities.update { it.toMutableList().apply { remove(tempSavedCity) } }
-        showSnackbarMessage(R.string.location_deleted)
-        viewModelScope.launch { locationUseCases.deleteLocation(tempSavedCity.coordinate) }
+        viewModelScope.launch {
+            locationUseCases.deleteLocation(tempSavedCity.coordinate)
+            showSnackbarMessage(R.string.location_deleted)
+        }
     }
 
     fun onSavedCityLongClick(city: SavedCity) {
         if (city.isCurrentLocation) return
         tempSavedCity = city
-        showSnackbarMessage(R.string.delete_location, ActionLabel.DELETE, city.cityAddress)
+        _userMessage.value = UserMessage.DeletingLocation(city.cityAddress)
+    }
+
+    fun onLocationFieldClick() {
+        viewModelScope.launch {
+            when (val result = locationUseCases.validateCurrentLocation()) {
+                is Result.Success -> onRefresh()
+                is Result.Error -> {
+                    Log.d(TAG, result.exception.toString())
+                    when (result.exception) {
+                        is LocationPermissionDeniedException ->
+                            _userMessage.value = RequestingLocationPermission
+
+                        is LocationServiceDisabledException ->
+                            _userMessage.value = RequestingTurnOnLocationService
+                    }
+                }
+            }
+        }
+    }
+
+    fun onPermissionActionResult(isGranted: Boolean, shouldDelay: Boolean = false) {
+        if (!isGranted) return
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            // Delay to wait for the location service turn on
+            if (shouldDelay) delay(DELAY_TIME)
+            locationUseCases.validateCurrentLocation()
+            onRefresh()
+        }
     }
 
     private fun handleLocations(channel: Channel<SavedCity?>, locations: List<LocationEntity>) {

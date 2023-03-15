@@ -7,4 +7,9 @@ class DeleteLocation(private val repository: LocationRepository) {
 
     suspend operator fun invoke(coordinate: Coordinate) =
         repository.getLocation(coordinate)?.let { repository.deleteLocation(it) }
+
+    suspend operator fun invoke(shouldDeleteCurrentLocation: Boolean) {
+        if (!shouldDeleteCurrentLocation) return
+        repository.getCurrentLocation()?.let { repository.deleteLocation(it) }
+    }
 }

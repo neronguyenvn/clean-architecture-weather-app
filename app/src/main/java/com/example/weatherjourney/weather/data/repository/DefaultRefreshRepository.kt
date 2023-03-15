@@ -24,7 +24,7 @@ class DefaultRefreshRepository(@ApplicationContext context: Context) : RefreshRe
         workManager.getWorkInfosForUniqueWorkLiveData(SUCCESS_CONNECTIVITY_WORK_NAME).asFlow()
             .map { it.first() }
 
-    override fun startListenWhenConnectivitySuccess() {
+    override fun startWhenConnectivitySuccess() {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()

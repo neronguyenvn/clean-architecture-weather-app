@@ -36,12 +36,14 @@ object RepositoryModule {
         db: AppDatabase,
         client: FusedLocationProviderClient,
         preferences: PreferenceRepository,
+        @ApplicationContext context: Context,
         @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
     ): LocationRepository = DefaultLocationRepository(
         api = api,
         dao = db.locationDao(),
         client = client,
         preferences = preferences,
+        context = context,
         defaultDispatcher = defaultDispatcher
     )
 

@@ -46,10 +46,12 @@ fun WeatherNotificationScreen(
 
         // Check for user messages to display on the screen
         uiState.userMessage?.let { userMessage ->
-            val snackbarText = userMessage.message.asString()
-            LaunchedEffect(snackbarHostState, viewModel, userMessage, snackbarText) {
-                snackbarHostState.showSnackbar(snackbarText)
-                viewModel.onSnackbarMessageShown()
+            val snackbarText = userMessage.message?.asString()
+            LaunchedEffect(snackbarHostState, viewModel, snackbarText) {
+                snackbarText?.let {
+                    snackbarHostState.showSnackbar(it)
+                    viewModel.onHandleUserMessageDone()
+                }
             }
         }
     }

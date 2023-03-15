@@ -51,4 +51,6 @@
     <string name="restore_internet_connection">Internet connection was restored</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="something_went_wrong">Something went wrong</string>
+    <string name="get_your_location_weather">Get your location weather</string>
+    <string name="need_permission">This feature requires location permission</string>
 </resources>

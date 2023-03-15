@@ -1,5 +1,7 @@
 package com.example.weatherjourney.util
 
+import android.content.Context
+import android.content.pm.PackageManager
 import android.text.format.DateUtils
 import com.example.weatherjourney.R
 import com.example.weatherjourney.weather.util.DAY_NAME_IN_WEEK_PATTERN
@@ -73,3 +75,8 @@ inline fun <T, R : Any> T.runCatching(block: T.() -> R): Result<R> {
 
 fun List<Long>.countPastHoursToday() =
     this.count { it <= Instant.now().minusMillis(DateUtils.HOUR_IN_MILLIS).epochSecond }
+
+fun Context.checkPermission(permission: String) =
+    this.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+
+fun Any?.isNull() = this == null

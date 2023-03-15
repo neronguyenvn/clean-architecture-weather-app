@@ -9,15 +9,15 @@ plugins {
     id 'com.google.protobuf'
 }
 android {
-    namespace 'com.example.weatherjourney'
+    namespace "com.example.weatherjourney"
     compileSdk rootProject.compileSdkVersion
 
     defaultConfig {
         applicationId "com.nero.weatherjourney"
         minSdk rootProject.minSdkVersion
         targetSdk rootProject.targetSdkVersion
-        versionCode 1
-        versionName "0.1.0"
+        versionCode 2
+        versionName "0.1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -61,7 +61,6 @@ android {
  */
 dependencies {
     // Jetpack Compose
-    implementation "androidx.activity:activity-compose:$activityComposeVersion"
     implementation "androidx.compose.material3:material3:$composeMaterial3Version"
     implementation "androidx.navigation:navigation-compose:$navigationVersion"
     implementation "me.omico.lux:lux-androidx-compose-material3-pullrefresh"
@@ -69,6 +68,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidxLifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-runtime-compose:$androidxLifecycleVersion"
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanistVersion"
+    implementation "com.google.accompanist:accompanist-permissions:$accompanistVersion"
     debugImplementation "androidx.compose.ui:ui-tooling:$composeVersion"
 
     // Splash Screen

@@ -7,5 +7,5 @@ interface RefreshRepository {
 
     val outputWorkInfo: Flow<WorkInfo>
 
-    fun startListenWhenConnectivitySuccess()
+    fun startWhenConnectivitySuccess()
 }

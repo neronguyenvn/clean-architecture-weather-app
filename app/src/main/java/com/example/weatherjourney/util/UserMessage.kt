@@ -1,11 +1,19 @@
 package com.example.weatherjourney.util
 
+import androidx.annotation.StringRes
 import com.example.weatherjourney.R
 
-data class UserMessage(val message: UiText, val actionLabel: ActionLabel = ActionLabel.NULL)
+open class UserMessage(val message: UiText? = null, @StringRes val actionLabel: Int? = null) {
+    object AddingLocation :
+        UserMessage(UiText.StringResource(R.string.add_this_location), R.string.add)
 
-enum class ActionLabel(val label: UiText?) {
-    ADD(UiText.StringResource(R.string.add)),
-    DELETE(UiText.StringResource(R.string.delete)),
-    NULL(null)
+    class DeletingLocation(cityAddress: String) :
+        UserMessage(
+            UiText.StringResource(R.string.delete_location, listOf(cityAddress)),
+            R.string.delete
+        )
+
+    object RequestingLocationPermission : UserMessage()
+
+    object RequestingTurnOnLocationService : UserMessage()
 }

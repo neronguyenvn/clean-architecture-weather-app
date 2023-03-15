@@ -48,7 +48,7 @@ class WeatherNotificationViewModel @Inject constructor(
         initialValue = WeatherNotificationUiState(isLoading = true)
     )
 
-    override fun onRefresh() = super.onRefresh({
+    override fun onRefresh() = super.runSuspend({
         val notifications = weatherUseCases.getWeatherNotifications()
         _notificationsAsync.value = handleResult(notifications)
     })

@@ -3,6 +3,7 @@ package com.example.weatherjourney.data
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.weatherjourney.domain.PreferenceRepository
@@ -15,6 +16,7 @@ import com.example.weatherjourney.weather.domain.model.unit.TimeFormatUnit
 import com.example.weatherjourney.weather.domain.model.unit.WindSpeedUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
@@ -62,6 +64,11 @@ class DefaultPreferenceRepository(
             )
         }
 
+    override suspend fun getIsFirstTime(): Boolean =
+        userPreferencesStore.data.first().toPreferences().let { preferences ->
+            preferences[IS_FIRST_TIME] ?: true
+        }
+
     override suspend fun updateLocation(
         cityAddress: String,
         coordinate: Coordinate,
@@ -98,10 +105,17 @@ class DefaultPreferenceRepository(
         }
     }
 
+    override suspend fun saveIsFirstTimeIntoFalse() {
+        userPreferencesStore.edit { preferences ->
+            preferences[IS_FIRST_TIME] = false
+        }
+    }
+
     private companion object {
         val TEMPERATURE_UNIT = stringPreferencesKey("temperatureUnit")
         val WIND_SPEED_UNIT = stringPreferencesKey("windSpeedUnit")
         val PRESSURE_UNIT = stringPreferencesKey("pressureUnit")
         val TIME_FORMAT_UNIT = stringPreferencesKey("timeFormatUnit")
+        val IS_FIRST_TIME = booleanPreferencesKey("isFirstTime")
     }
 }

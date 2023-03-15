@@ -5,10 +5,10 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.R
-import com.example.weatherjourney.util.ActionLabel
 import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.util.UiText
 import com.example.weatherjourney.util.UserMessage
+import com.example.weatherjourney.util.isNull
 import com.example.weatherjourney.weather.domain.repository.RefreshRepository
 import com.example.weatherjourney.weather.util.DELAY_TIME
 import kotlinx.coroutines.Job
@@ -29,7 +29,7 @@ abstract class BaseViewModel(
 
     abstract fun onRefresh()
 
-    fun onSnackbarMessageShown() {
+    fun onHandleUserMessageDone() {
         _userMessage.value = null
     }
 
@@ -39,13 +39,14 @@ abstract class BaseViewModel(
 
     protected fun showSnackbarMessage(
         @StringRes messageResId: Int,
-        actionLabel: ActionLabel = ActionLabel.NULL,
+        @StringRes actionLabel: Int? = null,
         vararg arg: Any
     ) {
-        _userMessage.value = UserMessage(UiText.StringResource(messageResId, arg.toList()), actionLabel)
+        _userMessage.value =
+            UserMessage(UiText.StringResource(messageResId, arg.toList()), actionLabel)
     }
 
-    protected open fun onRefresh(vararg functions: suspend () -> Unit) {
+    protected open fun runSuspend(vararg functions: suspend () -> Unit) {
         _isLoading.value = true
         viewModelScope.launch {
             val job = launch {
@@ -63,16 +64,16 @@ abstract class BaseViewModel(
 
     protected fun handleErrorResult(
         result: Result.Error,
-        shouldShouldError: Boolean = true,
+        shouldShowError: Boolean = true,
         refresh: () -> Unit = { onRefresh() }
     ) {
         Log.d(this.javaClass.simpleName, result.toString())
 
         val messageId = when (result.exception) {
             is UnknownHostException -> {
-                refreshRepository.startListenWhenConnectivitySuccess()
+                refreshRepository.startWhenConnectivitySuccess()
 
-                if (listenSuccessNetworkJob == null) {
+                if (listenSuccessNetworkJob.isNull()) {
                     listenSuccessNetworkJob = viewModelScope.launch {
                         refreshRepository.outputWorkInfo.first { it.state.isFinished }
                             .let {
@@ -88,6 +89,6 @@ abstract class BaseViewModel(
             else -> R.string.something_went_wrong
         }
 
-        if (shouldShouldError) showSnackbarMessage(messageId)
+        if (shouldShowError) showSnackbarMessage(messageId)
     }
 }

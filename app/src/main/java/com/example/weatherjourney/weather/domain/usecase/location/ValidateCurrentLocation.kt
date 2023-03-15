@@ -12,7 +12,7 @@ class ValidateCurrentLocation(private val repository: LocationRepository) {
     suspend operator fun invoke(): Result<Boolean> {
         val currentCoordinate = when (val result = repository.getCurrentCoordinate()) {
             is Result.Success -> result.data
-            is Result.Error -> return Result.Success(false) // Location permission is denied
+            is Result.Error -> return result
         }
 
         val currentLocation = repository.getCurrentLocation()
@@ -33,14 +33,14 @@ class ValidateCurrentLocation(private val repository: LocationRepository) {
             }
         }
 
-        return Result.Success(false)
+        return Result.Success(true)
     }
 
     suspend operator fun invoke(location: LocationPreferences): Result<Boolean> {
         if (location == LocationPreferences.getDefaultInstance()) {
             val currentCoordinate = when (val result = repository.getCurrentCoordinate()) {
                 is Result.Success -> result.data
-                is Result.Error -> return Result.Success(false) // Location permission is denied
+                is Result.Error -> return result
             }
 
             return when (val result = repository.fetchCurrentLocationIfNeeded(currentCoordinate)) {

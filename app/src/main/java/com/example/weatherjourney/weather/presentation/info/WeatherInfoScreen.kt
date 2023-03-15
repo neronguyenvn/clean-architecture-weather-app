@@ -50,6 +50,7 @@ import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.NAVIGATE_FROM_SEARCH
 import com.example.weatherjourney.presentation.component.LoadingContent
 import com.example.weatherjourney.presentation.theme.superscript
+import com.example.weatherjourney.util.UserMessage.AddingLocation
 import com.example.weatherjourney.util.roundTo
 import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.unit.AllUnit
@@ -126,21 +127,23 @@ fun WeatherInfoScreen(
         }
 
         uiState.userMessage?.let { userMessage ->
-            val snackbarText = userMessage.message.asString()
-            val actionLabel = userMessage.actionLabel.label?.asString()
+            val snackbarText = userMessage.message?.asString()
+            val actionLabel = userMessage.actionLabel?.let { stringResource(it) }
 
             LaunchedEffect(snackbarHostState, snackbarText, actionLabel) {
-                val result = snackbarHostState.showSnackbar(
-                    message = snackbarText,
-                    actionLabel = actionLabel,
-                    duration = SnackbarDuration.Short
-                )
+                snackbarText?.let {
+                    val result = snackbarHostState.showSnackbar(
+                        message = it,
+                        actionLabel = actionLabel,
+                        duration = SnackbarDuration.Short
+                    )
 
-                if (result == SnackbarResult.ActionPerformed) {
-                    viewModel.onSaveInfo(countryCode)
+                    if (result == SnackbarResult.ActionPerformed && userMessage is AddingLocation) {
+                        viewModel.onSaveInfo(countryCode)
+                    }
+
+                    viewModel.onHandleUserMessageDone()
                 }
-
-                viewModel.onSnackbarMessageShown()
             }
         }
     }

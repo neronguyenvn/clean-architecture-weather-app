@@ -20,6 +20,8 @@ interface PreferenceRepository {
 
     val timeFormatUnitFlow: Flow<TimeFormatUnit>
 
+    suspend fun getIsFirstTime(): Boolean
+
     suspend fun updateLocation(cityAddress: String, coordinate: Coordinate, timeZone: String)
 
     suspend fun saveTemperatureUnit(unit: TemperatureUnit)
@@ -27,5 +29,8 @@ interface PreferenceRepository {
     suspend fun saveWindSpeedUnit(unit: WindSpeedUnit)
 
     suspend fun savePressureUnit(unit: PressureUnit)
+
     suspend fun saveTimeFormatUnit(unit: TimeFormatUnit)
+
+    suspend fun saveIsFirstTimeIntoFalse()
 }

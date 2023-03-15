@@ -1,8 +1,14 @@
 package com.example.weatherjourney.weather.data.repository
 
-import com.example.weatherjourney.di.DefaultDispatcher
+import android.Manifest.permission
+import android.content.Context
+import android.location.LocationManager
 import com.example.weatherjourney.domain.PreferenceRepository
+import com.example.weatherjourney.util.LocationException
+import com.example.weatherjourney.util.LocationException.LocationPermissionDeniedException
+import com.example.weatherjourney.util.LocationException.LocationServiceDisabledException
 import com.example.weatherjourney.util.Result
+import com.example.weatherjourney.util.checkPermission
 import com.example.weatherjourney.util.runCatching
 import com.example.weatherjourney.weather.data.local.LocationDao
 import com.example.weatherjourney.weather.data.local.entity.LocationEntity
@@ -15,7 +21,6 @@ import com.example.weatherjourney.weather.domain.model.Coordinate
 import com.example.weatherjourney.weather.domain.model.SuggestionCity
 import com.example.weatherjourney.weather.domain.repository.LocationRepository
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.Tasks.await
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -27,7 +32,8 @@ class DefaultLocationRepository(
     private val api: Api,
     private val client: FusedLocationProviderClient,
     private val preferences: PreferenceRepository,
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
+    private val context: Context,
+    private val defaultDispatcher: CoroutineDispatcher
 ) : LocationRepository {
 
     override suspend fun fetchCurrentLocationIfNeeded(
@@ -49,13 +55,31 @@ class DefaultLocationRepository(
 
     override suspend fun getCurrentCoordinate(): Result<Coordinate> =
         withContext(defaultDispatcher) {
-            try {
-                val locationTask = client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-                Result.Success(await(locationTask).toCoordinate())
-            } catch (ex: Exception) {
-                Result.Error(ex)
-            } catch (ex: SecurityException) {
-                Result.Error(ex)
+            val hasAccessFineLocationPermission =
+                context.checkPermission(permission.ACCESS_FINE_LOCATION)
+            val hasAccessCoarseLocationPermission =
+                context.checkPermission(permission.ACCESS_COARSE_LOCATION)
+
+            val locationManager =
+                context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val isGpsEnabled =
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ||
+                    locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+
+            if (!isGpsEnabled) return@withContext Result.Error(LocationServiceDisabledException)
+
+            if (!hasAccessCoarseLocationPermission || !hasAccessFineLocationPermission) {
+                return@withContext Result.Error(LocationPermissionDeniedException)
+            }
+
+            return@withContext try {
+                val lastLocation = await(client.lastLocation)
+                when {
+                    lastLocation != null -> Result.Success(lastLocation.toCoordinate())
+                    else -> Result.Error(LocationException.NullLastLocation)
+                }
+            } catch (e: Exception) {
+                Result.Error(e)
             }
         }
 

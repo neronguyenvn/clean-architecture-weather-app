@@ -28,30 +28,35 @@ class MainActivity : ComponentActivity() {
         permissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) {
-            viewModel.onActivityCreate(it.containsValue(true))
+            viewModel.onAppFirstTimeStart(it.containsValue(true))
         }
 
         installSplashScreen().setKeepOnScreenCondition {
             viewModel.isInitializing.value
         }
 
-        permissionLauncher.launch(
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            )
-        )
+        lifecycleScope.launch {
+            val isFirstTime = viewModel.onFirstTimeCheck()
+            if (isFirstTime) {
+                permissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                )
+            } else {
+                viewModel.onAppStart()
+            }
+        }
 
         lifecycleScope.launch {
-            viewModel.isInitializing.flowWithLifecycle(lifecycle)
-                .first { !it }
-                .let {
-                    setContent {
-                        WeatherTheme {
-                            WeatherNavGraph(startDestination = viewModel.appRoute)
-                        }
+            viewModel.isInitializing.flowWithLifecycle(lifecycle).first { !it }.let {
+                setContent {
+                    WeatherTheme {
+                        WeatherNavGraph(startDestination = viewModel.appRoute)
                     }
                 }
+            }
         }
     }
 }

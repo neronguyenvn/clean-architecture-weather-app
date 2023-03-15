@@ -1,6 +1,7 @@
 package com.example.weatherjourney.weather.data.mapper
 
 import com.example.weatherjourney.util.filterPastHours
+import com.example.weatherjourney.util.isNull
 import com.example.weatherjourney.util.toDate
 import com.example.weatherjourney.weather.data.remote.dto.HourlyAirQuality
 import com.example.weatherjourney.weather.domain.model.notification.AqiNotification
@@ -23,7 +24,7 @@ fun HourlyAirQuality.toWeatherAdviceState(timeZone: String): WeatherNotification
         val currentAqiLevel = newAqiList[i].toAqiLevel()
 
         if (currentUvLevel != newUvIndexList[i + 1].toUvIndexLevel() ||
-            (i == lastIndex && notificationState.uvNotification == null)
+            (i == lastIndex && notificationState.uvNotification.isNull())
         ) {
             notificationState = notificationState.copy(
                 uvNotification = UvNotification(
@@ -36,7 +37,7 @@ fun HourlyAirQuality.toWeatherAdviceState(timeZone: String): WeatherNotification
         }
 
         if (currentAqiLevel != newAqiList[i + 1].toAqiLevel() ||
-            (i == lastIndex && notificationState.aqiNotification == null)
+            (i == lastIndex && notificationState.aqiNotification.isNull())
         ) {
             notificationState = notificationState.copy(
                 aqiNotification = AqiNotification(

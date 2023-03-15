@@ -7,9 +7,10 @@ import com.example.weatherjourney.domain.PreferenceRepository
 import com.example.weatherjourney.locationpreferences.LocationPreferences
 import com.example.weatherjourney.presentation.BaseViewModel
 import com.example.weatherjourney.presentation.WeatherDestinations
-import com.example.weatherjourney.util.ActionLabel
 import com.example.weatherjourney.util.Async
+import com.example.weatherjourney.util.LocationException
 import com.example.weatherjourney.util.Result
+import com.example.weatherjourney.util.UserMessage
 import com.example.weatherjourney.util.WhileUiSubscribed
 import com.example.weatherjourney.weather.data.mapper.toAllWeather
 import com.example.weatherjourney.weather.data.remote.dto.AllWeatherDto
@@ -48,53 +49,20 @@ class WeatherInfoViewModel @Inject constructor(
     private var _appRoute = WeatherDestinations.INFO_ROUTE
     val appRoute get() = _appRoute
 
-    private val _temperatureUnit = preferences.temperatureUnitFlow
-        .stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            null
-        )
-
-    private val _windSpeedUnit = preferences.windSpeedUnitFlow
-        .stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            null
-        )
-
-    private val _pressureUnit = preferences.pressureUnitFlow
-        .stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            null
-        )
-
-    private val _timeFormatUnit = preferences.timeFormatUnitFlow
-        .stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            null
-        )
-
-    private val _units =
-        combine(
-            _temperatureUnit,
-            _windSpeedUnit,
-            _pressureUnit,
-            _timeFormatUnit
-        ) { tUnit, wpUnit, psUnit, tfUnit ->
-            if (tUnit != null && wpUnit != null && psUnit != null && tfUnit != null) {
-                AllUnit(tUnit, wpUnit, psUnit, tfUnit)
-            } else {
-                null
-            }
-        }.map {
-            it.also { Log.d(TAG, "Units flow collected: $it") }
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            null
-        )
+    private val _units = combine(
+        preferences.temperatureUnitFlow,
+        preferences.windSpeedUnitFlow,
+        preferences.pressureUnitFlow,
+        preferences.timeFormatUnitFlow
+    ) { tUnit, wpUnit, psUnit, tfUnit ->
+        AllUnit(tUnit, wpUnit, psUnit, tfUnit)
+    }.map {
+        it.also { Log.d(TAG, "Units flow collected: $it") }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        null
+    )
 
     private val _lastLocation = preferences.locationPreferencesFlow
         .map { location ->
@@ -135,16 +103,29 @@ class WeatherInfoViewModel @Inject constructor(
         initialValue = WeatherInfoUiState(isLoading = true)
     )
 
-    fun onActivityCreate(isLocationPermissionGranted: Boolean) {
+    fun onAppFirstTimeStart(isLocationPermissionGranted: Boolean) {
+        Log.d(TAG, "Location permission: $isLocationPermissionGranted")
         if (!isLocationPermissionGranted) {
-            _appRoute = WeatherDestinations.SEARCH_ROUTE
-            _isInitializing.value = false
+            onNavigateToSearch()
         } else {
             onRefresh()
         }
     }
 
-    override fun onRefresh() = onRefresh({
+    fun onAppStart() {
+        onRefresh()
+    }
+
+    suspend fun onFirstTimeCheck(): Boolean {
+        if (preferences.getIsFirstTime()) {
+            viewModelScope.launch { preferences.saveIsFirstTimeIntoFalse() }
+            return true
+        }
+
+        return false
+    }
+
+    override fun onRefresh() = runSuspend({
         _lastLocation.filterNotNull().first().let {
             val weather = handleWeatherResult(
                 weatherUseCases.getAllWeather(it.coordinate.toCoordinate(), it.timeZone),
@@ -157,19 +138,24 @@ class WeatherInfoViewModel @Inject constructor(
         }
     })
 
+    fun onNavigateToSearch() {
+        _appRoute = WeatherDestinations.SEARCH_ROUTE
+        _isInitializing.value = false
+    }
+
     fun onNavigateFromSearch(cityAddress: String, coordinate: Coordinate, timeZone: String) {
         Log.d(TAG, "onNavigateFromSearch($cityAddress, $coordinate, $timeZone) called")
         _isLoading.value = true
 
         viewModelScope.launch {
             if (locationUseCases.shouldSaveLocation(coordinate)) {
-                showSnackbarMessage(R.string.add_this_location, ActionLabel.ADD)
+                _userMessage.value = UserMessage.AddingLocation
             }
 
             preferences.updateLocation(cityAddress, coordinate, timeZone)
 
             _lastLocation.filterNotNull()
-                .first { it.cityAddress == cityAddress && it.timeZone == timeZone }
+                .first { it.coordinate.toCoordinate() == coordinate }
                 .let {
                     onRefresh()
                     _isLoading.value = false
@@ -187,15 +173,17 @@ class WeatherInfoViewModel @Inject constructor(
 
     private suspend fun handleLocation(location: LocationPreferences): LocationPreferences? {
         when (val validateResult = locationUseCases.validateCurrentLocation(location)) {
-            is Result.Success -> {
-                _isCurrentLocation.value = validateResult.data
-                if (location == LocationPreferences.getDefaultInstance()) return null
+            is Result.Success -> _isCurrentLocation.value = validateResult.data
+            is Result.Error -> {
+                if (validateResult.exception is LocationException) {
+                    onNavigateToSearch()
+                } else {
+                    handleErrorResult(validateResult)
+                }
             }
-
-            is Result.Error -> handleErrorResult(validateResult)
         }
 
-        return location
+        return location.takeUnless { it == LocationPreferences.getDefaultInstance() }
     }
 
     private fun handleWeatherResult(
