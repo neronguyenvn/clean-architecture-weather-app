@@ -5,12 +5,12 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.R
+import com.example.weatherjourney.features.weather.domain.repository.RefreshRepository
+import com.example.weatherjourney.features.weather.util.DELAY_TIME
 import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.util.UiText
 import com.example.weatherjourney.util.UserMessage
 import com.example.weatherjourney.util.isNull
-import com.example.weatherjourney.weather.domain.repository.RefreshRepository
-import com.example.weatherjourney.weather.util.DELAY_TIME
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

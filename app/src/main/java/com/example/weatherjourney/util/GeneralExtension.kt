@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.text.format.DateUtils
 import com.example.weatherjourney.R
-import com.example.weatherjourney.weather.util.DAY_NAME_IN_WEEK_PATTERN
-import com.example.weatherjourney.weather.util.TODAY_TIME_FORMATTER
+import com.example.weatherjourney.features.weather.util.DAY_NAME_IN_WEEK_PATTERN
+import com.example.weatherjourney.features.weather.util.TODAY_TIME_FORMATTER
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -23,11 +23,11 @@ fun getCurrentDate(timeZone: String): String {
     return instant.atZone(timeZoneId).format(TODAY_TIME_FORMATTER)
 }
 
-fun Long.toDate(timeZone: String, pattern: String): UiText {
+fun Long.toDate(timeZone: String, pattern: String): String {
     val instant = Instant.ofEpochSecond(this)
 
     val formatter = DateTimeFormatter.ofPattern(pattern)
-    return UiText.DynamicString(instant.atZone(ZoneId.of(timeZone)).format(formatter))
+    return instant.atZone(ZoneId.of(timeZone)).format(formatter)
 }
 
 fun String.toFlagEmoji(): String {
@@ -58,7 +58,7 @@ fun Long.toDayNameInWeek(timeZone: String): UiText {
     return when (Instant.ofEpochSecond(this).atZone(ZoneId.of(timeZone))) {
         in today..<tomorrow -> UiText.StringResource(R.string.today)
         in tomorrow..<dayAfterTomorrow -> UiText.StringResource(R.string.tomorrow)
-        else -> this.toDate(timeZone, DAY_NAME_IN_WEEK_PATTERN)
+        else -> UiText.DynamicString(this.toDate(timeZone, DAY_NAME_IN_WEEK_PATTERN))
     }
 }
 

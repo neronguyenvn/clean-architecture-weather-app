@@ -2,6 +2,7 @@ package com.example.weatherjourney.presentation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.example.weatherjourney.features.weather.domain.model.Coordinate
 import com.example.weatherjourney.presentation.WeatherDestinationsArgs.CITY_ADDRESS_ARG
 import com.example.weatherjourney.presentation.WeatherDestinationsArgs.COUNTRY_CODE_ARG
 import com.example.weatherjourney.presentation.WeatherDestinationsArgs.LATITUDE_ARG
@@ -12,7 +13,6 @@ import com.example.weatherjourney.presentation.WeatherScreens.INFO_SCREEN
 import com.example.weatherjourney.presentation.WeatherScreens.NOTIFICATION_SCREEN
 import com.example.weatherjourney.presentation.WeatherScreens.SEARCH_SCREEN
 import com.example.weatherjourney.presentation.WeatherScreens.SETTING_SCREEN
-import com.example.weatherjourney.weather.domain.model.Coordinate
 
 object WeatherScreens {
     const val INFO_SCREEN = "infoScreen"

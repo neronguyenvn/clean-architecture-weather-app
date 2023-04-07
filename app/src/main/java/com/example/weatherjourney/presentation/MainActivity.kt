@@ -10,8 +10,8 @@ import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.example.weatherjourney.features.weather.presentation.info.WeatherInfoViewModel
 import com.example.weatherjourney.presentation.theme.WeatherTheme
-import com.example.weatherjourney.weather.presentation.info.WeatherInfoViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch

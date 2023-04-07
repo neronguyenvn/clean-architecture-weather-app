@@ -9,16 +9,22 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
-import com.example.weatherjourney.data.DefaultPreferenceRepository
+import com.example.weatherjourney.data.DefaultPreferences
 import com.example.weatherjourney.data.LocationPreferencesSerializer
-import com.example.weatherjourney.domain.PreferenceRepository
+import com.example.weatherjourney.features.weather.data.remote.WeatherApi
 import com.example.weatherjourney.locationpreferences.LocationPreferences
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -53,8 +59,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePreferenceRepository(userPreferencesStore: DataStore<Preferences>, locationPreferencesStore: DataStore<LocationPreferences>): PreferenceRepository =
-        DefaultPreferenceRepository(userPreferencesStore, locationPreferencesStore)
+    fun providePreferenceRepository(userPreferencesStore: DataStore<Preferences>, locationPreferencesStore: DataStore<LocationPreferences>): com.example.weatherjourney.domain.AppPreferences =
+        DefaultPreferences(userPreferencesStore, locationPreferencesStore)
 
     @Provides
     @DefaultDispatcher
@@ -63,4 +69,26 @@ object AppModule {
     @Provides
     @IoDispatcher
     fun provideIoDispatcher() = Dispatchers.IO
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(client: OkHttpClient): Retrofit {
+        val json = Json { ignoreUnknownKeys = true }
+        val contentType = "application/json".toMediaType()
+
+        return Retrofit.Builder()
+            .baseUrl(WeatherApi.OPENCAGE_BASE_URL)
+            .addConverterFactory(json.asConverterFactory(contentType))
+            .client(client)
+            .build()
+    }
+
+    @Provides
+    fun provideOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder().addInterceptor(
+            HttpLoggingInterceptor().apply {
+                setLevel(HttpLoggingInterceptor.Level.BODY)
+            }
+        ).build()
+    }
 }
