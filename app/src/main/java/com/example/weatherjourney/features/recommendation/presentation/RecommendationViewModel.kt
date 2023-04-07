@@ -23,7 +23,7 @@ data class RecommendationUiState(
 )
 
 @HiltViewModel
-class WeatherNotificationViewModel @Inject constructor(
+class RecommendationViewModel @Inject constructor(
     private val recommendationRepository: RecommendationRepository,
     refreshRepository: RefreshRepository
 ) : BaseViewModel(refreshRepository) {

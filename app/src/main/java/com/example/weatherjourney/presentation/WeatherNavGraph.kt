@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.weatherjourney.features.recommendation.presentation.WeatherNotificationScreen
+import com.example.weatherjourney.features.recommendation.presentation.RecommendationScreen
 import com.example.weatherjourney.features.weather.domain.model.Coordinate
 import com.example.weatherjourney.features.weather.presentation.info.WeatherInfoScreen
 import com.example.weatherjourney.features.weather.presentation.search.WeatherSearchScreen
@@ -172,7 +172,7 @@ fun WeatherNavGraph(
             )
         }
         composable(WeatherDestinations.NOTIFICATION_ROUTE) {
-            WeatherNotificationScreen(
+            RecommendationScreen(
                 snackbarHostState = snackbarHostState,
                 onBackClick = {
                     snackbarHostState.currentSnackbarData?.dismiss()

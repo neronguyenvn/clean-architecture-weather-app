@@ -24,11 +24,11 @@ import com.example.weatherjourney.presentation.component.BasicTopBar
 import com.example.weatherjourney.presentation.component.LoadingContent
 
 @Composable
-fun WeatherNotificationScreen(
+fun RecommendationScreen(
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: WeatherNotificationViewModel = hiltViewModel()
+    viewModel: RecommendationViewModel = hiltViewModel()
 ) {
     Scaffold(
         modifier = modifier,
