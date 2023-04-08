@@ -4,16 +4,16 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.R
 import com.example.weatherjourney.domain.AppPreferences
+import com.example.weatherjourney.domain.ConnectivityObserver
 import com.example.weatherjourney.features.weather.data.mapper.toAllWeather
 import com.example.weatherjourney.features.weather.data.remote.dto.AllWeatherDto
 import com.example.weatherjourney.features.weather.domain.mapper.coordinate
 import com.example.weatherjourney.features.weather.domain.model.Coordinate
 import com.example.weatherjourney.features.weather.domain.model.unit.AllUnit
-import com.example.weatherjourney.features.weather.domain.repository.RefreshRepository
 import com.example.weatherjourney.features.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.features.weather.domain.usecase.WeatherUseCases
 import com.example.weatherjourney.locationpreferences.LocationPreferences
-import com.example.weatherjourney.presentation.BaseViewModel
+import com.example.weatherjourney.presentation.ViewModeWithMessageAndLoading
 import com.example.weatherjourney.presentation.WeatherDestinations
 import com.example.weatherjourney.util.Async
 import com.example.weatherjourney.util.LocationException
@@ -40,8 +40,8 @@ class WeatherInfoViewModel @Inject constructor(
     private val locationUseCases: LocationUseCases,
     private val weatherUseCases: WeatherUseCases,
     private val appPreferences: AppPreferences,
-    refreshRepository: RefreshRepository
-) : BaseViewModel(refreshRepository) {
+    connectivityObserver: ConnectivityObserver
+) : ViewModeWithMessageAndLoading(connectivityObserver) {
 
     private val _isInitializing = MutableStateFlow(true)
     val isInitializing = _isInitializing.asStateFlow()

@@ -11,6 +11,8 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.example.weatherjourney.data.DefaultPreferences
 import com.example.weatherjourney.data.LocationPreferencesSerializer
+import com.example.weatherjourney.data.NetworkConnectivityObserver
+import com.example.weatherjourney.domain.ConnectivityObserver
 import com.example.weatherjourney.features.weather.data.remote.WeatherApi
 import com.example.weatherjourney.locationpreferences.LocationPreferences
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -59,7 +61,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePreferenceRepository(userPreferencesStore: DataStore<Preferences>, locationPreferencesStore: DataStore<LocationPreferences>): com.example.weatherjourney.domain.AppPreferences =
+    fun providePreferenceRepository(
+        userPreferencesStore: DataStore<Preferences>,
+        locationPreferencesStore: DataStore<LocationPreferences>
+    ): com.example.weatherjourney.domain.AppPreferences =
         DefaultPreferences(userPreferencesStore, locationPreferencesStore)
 
     @Provides
@@ -91,4 +96,9 @@ object AppModule {
             }
         ).build()
     }
+
+    @Provides
+    @Singleton
+    fun provideConnectivityObserver(@ApplicationContext context: Context): ConnectivityObserver =
+        NetworkConnectivityObserver(context)
 }

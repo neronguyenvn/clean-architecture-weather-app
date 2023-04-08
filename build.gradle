@@ -44,8 +44,6 @@ ext {
     roomVersion = '2.5.0'
     dataStoreVersion = '1.0.0'
 
-    workManagerVersion = '2.8.0'
-
     protobufVersion = '3.19.4'
 
     junitVersion = '4.13.2'

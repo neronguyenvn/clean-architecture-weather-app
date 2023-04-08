@@ -6,10 +6,8 @@ import com.example.weatherjourney.domain.AppPreferences
 import com.example.weatherjourney.features.weather.data.local.AppDatabase
 import com.example.weatherjourney.features.weather.data.remote.WeatherApi
 import com.example.weatherjourney.features.weather.data.repository.DefaultLocationRepository
-import com.example.weatherjourney.features.weather.data.repository.DefaultRefreshRepository
 import com.example.weatherjourney.features.weather.data.repository.DefaultWeatherRepository
 import com.example.weatherjourney.features.weather.domain.repository.LocationRepository
-import com.example.weatherjourney.features.weather.domain.repository.RefreshRepository
 import com.example.weatherjourney.features.weather.domain.repository.WeatherRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import dagger.Module
@@ -46,9 +44,4 @@ object WeatherRepositoryModule {
         context = context,
         defaultDispatcher = defaultDispatcher
     )
-
-    @Provides
-    @Singleton
-    fun provideRefreshRepository(@ApplicationContext context: Context): RefreshRepository =
-        DefaultRefreshRepository(context)
 }

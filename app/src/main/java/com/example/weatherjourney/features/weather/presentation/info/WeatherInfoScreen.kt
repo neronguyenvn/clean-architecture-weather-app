@@ -89,21 +89,12 @@ fun WeatherInfoScreen(
         topBar = {
             InfoTopBar(
                 cityAddress = uiState.allWeather.cityAddress,
-                onSearchClick = {
-                    viewModel.onClearListenJob()
-                    onSearchClick()
-                },
-                onSettingClick = {
-                    viewModel.onClearListenJob()
-                    onSettingClick()
-                }
+                onSearchClick = onSearchClick,
+                onSettingClick = onSettingClick
             )
         },
         floatingActionButton = {
-            FloatingActionButton({
-                viewModel.onClearListenJob()
-                onNotificationClick()
-            }) {
+            FloatingActionButton(onNotificationClick) {
                 Icon(
                     Icons.Outlined.Notifications,
                     contentDescription = stringResource(R.string.notification)

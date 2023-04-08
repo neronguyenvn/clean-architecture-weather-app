@@ -1,10 +1,10 @@
 package com.example.weatherjourney.features.recommendation.presentation
 
 import androidx.lifecycle.viewModelScope
+import com.example.weatherjourney.domain.ConnectivityObserver
 import com.example.weatherjourney.features.recommendation.domain.model.Recommendations
 import com.example.weatherjourney.features.recommendation.domain.repository.RecommendationRepository
-import com.example.weatherjourney.features.weather.domain.repository.RefreshRepository
-import com.example.weatherjourney.presentation.BaseViewModel
+import com.example.weatherjourney.presentation.ViewModeWithMessageAndLoading
 import com.example.weatherjourney.util.Async
 import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.util.UserMessage
@@ -25,14 +25,10 @@ data class RecommendationUiState(
 @HiltViewModel
 class RecommendationViewModel @Inject constructor(
     private val recommendationRepository: RecommendationRepository,
-    refreshRepository: RefreshRepository
-) : BaseViewModel(refreshRepository) {
+    connectivityObserver: ConnectivityObserver
+) : ViewModeWithMessageAndLoading(connectivityObserver) {
 
     private val _notificationsAsync = MutableStateFlow<Async<Recommendations?>>(Async.Loading)
-
-    init {
-        onRefresh()
-    }
 
     val uiState: StateFlow<RecommendationUiState> = combine(
         _userMessage,
@@ -56,6 +52,10 @@ class RecommendationViewModel @Inject constructor(
         initialValue = RecommendationUiState(isLoading = true)
     )
 
+    init {
+        onRefresh()
+    }
+
     override fun onRefresh() = super.runSuspend({
         val notifications = recommendationRepository.getRecommendations()
         _notificationsAsync.value = handleResult(notifications)
@@ -66,7 +66,11 @@ class RecommendationViewModel @Inject constructor(
             is Result.Success -> Async.Success(result.data)
             is Result.Error -> {
                 handleErrorResult(result)
-                Async.Success(null)
+                if (_notificationsAsync.value is Async.Loading) {
+                    Async.Success(null)
+                } else {
+                    _notificationsAsync.value
+                }
             }
         }
 }

@@ -5,16 +5,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.R
 import com.example.weatherjourney.constants.DELAY_TIME
 import com.example.weatherjourney.domain.AppPreferences
+import com.example.weatherjourney.domain.ConnectivityObserver
 import com.example.weatherjourney.features.weather.data.local.entity.LocationEntity
 import com.example.weatherjourney.features.weather.data.mapper.coordinate
 import com.example.weatherjourney.features.weather.data.mapper.toSavedCity
 import com.example.weatherjourney.features.weather.domain.model.SavedCity
 import com.example.weatherjourney.features.weather.domain.model.SuggestionCity
 import com.example.weatherjourney.features.weather.domain.model.WeatherType
-import com.example.weatherjourney.features.weather.domain.repository.RefreshRepository
 import com.example.weatherjourney.features.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.features.weather.domain.usecase.WeatherUseCases
-import com.example.weatherjourney.presentation.BaseViewModel
+import com.example.weatherjourney.presentation.ViewModeWithMessageAndLoading
 import com.example.weatherjourney.util.LocationException
 import com.example.weatherjourney.util.LocationException.LocationPermissionDeniedException
 import com.example.weatherjourney.util.LocationException.LocationServiceDisabledException
@@ -45,9 +45,9 @@ private const val REQUIRED_INPUT_LENGTH = 2
 class WeatherSearchViewModel @Inject constructor(
     private val locationUseCases: LocationUseCases,
     private val weatherUseCases: WeatherUseCases,
-    refreshRepository: RefreshRepository,
+    connectivityObserver: ConnectivityObserver,
     appPreferences: AppPreferences
-) : BaseViewModel(refreshRepository) {
+) : ViewModeWithMessageAndLoading(connectivityObserver) {
 
     private val _temperatureUnit = appPreferences.temperatureUnitFlow
         .map {
@@ -233,7 +233,7 @@ class WeatherSearchViewModel @Inject constructor(
         return when (result) {
             is Result.Success -> result.data
             is Result.Error -> {
-                handleErrorResult(result, false) { refreshSuggestionCities() }
+                handleErrorResult(result, false)
                 emptyList()
             }
         }
