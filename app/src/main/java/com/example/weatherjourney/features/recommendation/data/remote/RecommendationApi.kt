@@ -1,6 +1,6 @@
 package com.example.weatherjourney.features.recommendation.data.remote
 
-import com.example.weatherjourney.features.weather.data.remote.dto.AirQuality
+import com.example.weatherjourney.features.recommendation.data.remote.dto.AirQuality
 import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.Url

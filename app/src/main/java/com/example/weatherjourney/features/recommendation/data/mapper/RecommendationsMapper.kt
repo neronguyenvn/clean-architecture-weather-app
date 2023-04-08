@@ -1,12 +1,12 @@
 package com.example.weatherjourney.features.recommendation.data.mapper
 
 import com.example.weatherjourney.constants.DATE_24_PATTERN
+import com.example.weatherjourney.features.recommendation.data.remote.dto.HourlyAirQuality
 import com.example.weatherjourney.features.recommendation.domain.model.AqiRecommendation
 import com.example.weatherjourney.features.recommendation.domain.model.Recommendations
 import com.example.weatherjourney.features.recommendation.domain.model.UvRecommendation
 import com.example.weatherjourney.features.recommendation.domain.model.toAqiLevel
 import com.example.weatherjourney.features.recommendation.domain.model.toUvIndexLevel
-import com.example.weatherjourney.features.weather.data.remote.dto.HourlyAirQuality
 import com.example.weatherjourney.util.filterPastHours
 import com.example.weatherjourney.util.isNull
 import com.example.weatherjourney.util.toDate
