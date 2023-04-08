@@ -3,6 +3,7 @@ package com.example.weatherjourney.features.weather.presentation.search
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.R
+import com.example.weatherjourney.constants.DELAY_TIME
 import com.example.weatherjourney.domain.AppPreferences
 import com.example.weatherjourney.features.weather.data.local.entity.LocationEntity
 import com.example.weatherjourney.features.weather.data.mapper.coordinate
@@ -13,7 +14,6 @@ import com.example.weatherjourney.features.weather.domain.model.WeatherType
 import com.example.weatherjourney.features.weather.domain.repository.RefreshRepository
 import com.example.weatherjourney.features.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.features.weather.domain.usecase.WeatherUseCases
-import com.example.weatherjourney.features.weather.util.DELAY_TIME
 import com.example.weatherjourney.presentation.BaseViewModel
 import com.example.weatherjourney.util.LocationException
 import com.example.weatherjourney.util.LocationException.LocationPermissionDeniedException

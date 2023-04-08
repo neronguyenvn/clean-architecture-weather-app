@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.text.format.DateUtils
 import com.example.weatherjourney.R
-import com.example.weatherjourney.features.weather.util.DAY_NAME_IN_WEEK_PATTERN
-import com.example.weatherjourney.features.weather.util.TODAY_TIME_FORMATTER
+import com.example.weatherjourney.constants.DAY_NAME_IN_WEEK_PATTERN
+import com.example.weatherjourney.constants.TODAY_TIME_FORMATTER
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId

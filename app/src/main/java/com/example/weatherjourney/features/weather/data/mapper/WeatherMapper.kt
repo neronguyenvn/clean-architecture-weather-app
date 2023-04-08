@@ -1,12 +1,12 @@
 package com.example.weatherjourney.features.weather.data.mapper
 
+import com.example.weatherjourney.constants.HOUR_PATTERN
 import com.example.weatherjourney.features.weather.data.remote.dto.AllWeatherDto
 import com.example.weatherjourney.features.weather.domain.model.WeatherType
 import com.example.weatherjourney.features.weather.domain.model.weather.CurrentWeather
 import com.example.weatherjourney.features.weather.domain.model.weather.DailyWeather
 import com.example.weatherjourney.features.weather.domain.model.weather.HourlyWeather
 import com.example.weatherjourney.features.weather.presentation.info.AllWeather
-import com.example.weatherjourney.features.weather.util.HOUR_PATTERN
 import com.example.weatherjourney.util.countPastHoursToday
 import com.example.weatherjourney.util.filterPastHours
 import com.example.weatherjourney.util.getCurrentDate

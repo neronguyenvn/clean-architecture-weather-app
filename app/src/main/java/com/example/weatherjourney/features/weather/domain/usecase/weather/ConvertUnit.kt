@@ -1,5 +1,8 @@
 package com.example.weatherjourney.features.weather.domain.usecase.weather
 
+import com.example.weatherjourney.constants.DATE_24_PATTERN
+import com.example.weatherjourney.constants.DATE_AM_PM_PATTERN
+import com.example.weatherjourney.constants.TODAY_TIME_FORMATTER
 import com.example.weatherjourney.features.weather.domain.mapper.convertPressureUnit
 import com.example.weatherjourney.features.weather.domain.mapper.convertTemperatureUnit
 import com.example.weatherjourney.features.weather.domain.mapper.convertTimeFormatUnit
@@ -11,9 +14,6 @@ import com.example.weatherjourney.features.weather.domain.model.unit.Temperature
 import com.example.weatherjourney.features.weather.domain.model.unit.TimeFormatUnit
 import com.example.weatherjourney.features.weather.domain.model.unit.WindSpeedUnit
 import com.example.weatherjourney.features.weather.presentation.info.AllWeather
-import com.example.weatherjourney.features.weather.util.DATE_24_PATTERN
-import com.example.weatherjourney.features.weather.util.DATE_AM_PM_PATTERN
-import com.example.weatherjourney.features.weather.util.TODAY_TIME_FORMATTER
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -21,7 +21,12 @@ class ConvertUnit {
 
     operator fun invoke(allWeather: AllWeather, allUnit: AllUnit?): AllWeather {
         var tempWeather = when (allUnit?.temperature) {
-            TemperatureUnit.FAHRENHEIT -> allWeather.convertTemperatureUnit { convertCelsiusToFahrenheit(it) }
+            TemperatureUnit.FAHRENHEIT -> allWeather.convertTemperatureUnit {
+                convertCelsiusToFahrenheit(
+                    it
+                )
+            }
+
             else -> allWeather
         }
 

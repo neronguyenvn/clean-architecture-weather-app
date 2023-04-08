@@ -5,8 +5,8 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.R
+import com.example.weatherjourney.constants.DELAY_TIME
 import com.example.weatherjourney.features.weather.domain.repository.RefreshRepository
-import com.example.weatherjourney.features.weather.util.DELAY_TIME
 import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.util.UiText
 import com.example.weatherjourney.util.UserMessage
@@ -51,9 +51,6 @@ abstract class BaseViewModel(
         viewModelScope.launch {
             val job = launch {
                 functions.forEach { launch { it() } }
-
-                // If functions completed before DELAY_TIME, onRefresh will be delay a little bit
-                // for more real
                 launch { delay(DELAY_TIME) }
             }
 
