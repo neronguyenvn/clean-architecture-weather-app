@@ -28,19 +28,19 @@ class RecommendationViewModel @Inject constructor(
     connectivityObserver: ConnectivityObserver
 ) : ViewModeWithMessageAndLoading(connectivityObserver) {
 
-    private val _notificationsAsync = MutableStateFlow<Async<Recommendations?>>(Async.Loading)
+    private val _recommendationsAsync = MutableStateFlow<Async<Recommendations?>>(Async.Loading)
 
     val uiState: StateFlow<RecommendationUiState> = combine(
         _userMessage,
         _isLoading,
-        _notificationsAsync
-    ) { userMessage, isLoading, notificationsAsync ->
+        _recommendationsAsync
+    ) { userMessage, isLoading, recommendationsAsync ->
 
-        when (notificationsAsync) {
+        when (recommendationsAsync) {
             Async.Loading -> RecommendationUiState(isLoading = true)
             is Async.Success -> {
                 RecommendationUiState(
-                    recommendations = notificationsAsync.data,
+                    recommendations = recommendationsAsync.data,
                     isLoading = isLoading,
                     userMessage = userMessage
                 )
@@ -58,7 +58,7 @@ class RecommendationViewModel @Inject constructor(
 
     override fun onRefresh() = super.runSuspend({
         val notifications = recommendationRepository.getRecommendations()
-        _notificationsAsync.value = handleResult(notifications)
+        _recommendationsAsync.value = handleResult(notifications)
     })
 
     private fun handleResult(result: Result<Recommendations>): Async<Recommendations?> =
@@ -66,10 +66,14 @@ class RecommendationViewModel @Inject constructor(
             is Result.Success -> Async.Success(result.data)
             is Result.Error -> {
                 handleErrorResult(result)
-                if (_notificationsAsync.value is Async.Loading) {
+                // If recommendation state is still Loading mean its first init and
+                // has error, return null
+                if (_recommendationsAsync.value is Async.Loading) {
                     Async.Success(null)
-                } else {
-                    _notificationsAsync.value
+                }
+                // If recommendation state already had some valid value so just keep it
+                else {
+                    _recommendationsAsync.value
                 }
             }
         }
