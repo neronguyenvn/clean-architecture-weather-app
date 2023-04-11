@@ -6,7 +6,7 @@ import com.example.weatherjourney.R
 enum class UvIndexLevel(
     val indexRange: IntRange,
     @StringRes val infoRes: Int,
-    @StringRes val adviceRes: Int
+    @StringRes val recommendationRes: Int
 ) {
     LEVEL_1(0..2, R.string.level_one_uv_info, R.string.level_one_uv_advice),
     LEVEL_2(3..7, R.string.level_two_uv_info, R.string.level_two_uv_advice),

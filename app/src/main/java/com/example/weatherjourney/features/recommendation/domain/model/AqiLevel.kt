@@ -7,8 +7,8 @@ import com.example.weatherjourney.R
 enum class AqiLevel(
     val indexRange: IntRange,
     @StringRes val infoRes: Int,
-    @StringRes val generalPopulationAdviceRes: Int,
-    @StringRes val sensitivePopulationAdvice: Int? = null
+    @StringRes val generalPopulationRecommendationRes: Int,
+    @StringRes val sensitivePopulationRecommendationRes: Int? = null
 ) {
     GOOD(
         0..<20,

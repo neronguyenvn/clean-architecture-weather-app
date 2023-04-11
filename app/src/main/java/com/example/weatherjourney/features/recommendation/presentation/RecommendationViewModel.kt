@@ -17,9 +17,9 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 data class RecommendationUiState(
-    val recommendations: Recommendations? = null,
     val isLoading: Boolean = false,
-    val userMessage: UserMessage? = null
+    val userMessage: UserMessage? = null,
+    val recommendations: Recommendations? = null
 )
 
 @HiltViewModel

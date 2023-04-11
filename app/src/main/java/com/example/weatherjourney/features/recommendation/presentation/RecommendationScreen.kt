@@ -79,21 +79,25 @@ fun WeatherNotificationScreenContent(
                 item {
                     UvNotificationItem(
                         title = stringResource(R.string.uv_notification),
-                        firstTimeLine = it.firstTimeLine,
-                        secondTimeLine = it.secondTimeLine,
+                        firstTimeLine = it.firstTimePeriod,
+                        secondTimeLine = it.secondTimePeriod,
                         info = stringResource(it.infoRes),
-                        adviceRes = stringResource(it.adviceRes)
+                        adviceRes = stringResource(it.recommendationRes)
                     )
                 }
             }
             uiState.recommendations?.aqiRecommendation?.let {
                 item {
                     AqiNotificationItem(
-                        firstTimeLine = it.firstTimeLine,
-                        secondTimeLine = it.secondTimeLine,
+                        firstTimeLine = it.firstTimePeriod,
+                        secondTimeLine = it.secondTimePeriod,
                         info = stringResource(it.infoRes),
-                        adviceRes1 = stringResource(it.adviceRes),
-                        adviceRes2 = it.adviceRes2?.let { id -> stringResource(id) } ?: ""
+                        adviceRes1 = stringResource(it.generalPopulationRecommendationRes),
+                        adviceRes2 = it.sensitivePopulationRecommendationRes?.let { id ->
+                            stringResource(
+                                id
+                            )
+                        } ?: ""
                     )
                 }
             }

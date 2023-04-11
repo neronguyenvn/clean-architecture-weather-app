@@ -37,10 +37,10 @@ fun HourlyAirQuality.toRecommendations(timeZone: String): Recommendations {
 
                 recommendations = recommendations.copy(
                     uvRecommendation = UvRecommendation(
-                        firstTimeLine = firstTimeLine,
-                        secondTimeLine = newTimeList[i].toDate(timeZone, DATE_24_PATTERN),
+                        firstTimePeriod = firstTimeLine,
+                        secondTimePeriod = newTimeList[i].toDate(timeZone, DATE_24_PATTERN),
                         infoRes = currentUvLevel.infoRes,
-                        adviceRes = currentUvLevel.adviceRes
+                        recommendationRes = currentUvLevel.recommendationRes
                     )
                 )
             }
@@ -53,11 +53,11 @@ fun HourlyAirQuality.toRecommendations(timeZone: String): Recommendations {
 
                 recommendations = recommendations.copy(
                     aqiRecommendation = AqiRecommendation(
-                        firstTimeLine = firstTimeLine,
-                        secondTimeLine = newTimeList[i].toDate(timeZone, DATE_24_PATTERN),
+                        firstTimePeriod = firstTimeLine,
+                        secondTimePeriod = newTimeList[i].toDate(timeZone, DATE_24_PATTERN),
                         infoRes = currentAqiLevel.infoRes,
-                        adviceRes = currentAqiLevel.generalPopulationAdviceRes,
-                        adviceRes2 = currentAqiLevel.sensitivePopulationAdvice
+                        generalPopulationRecommendationRes = currentAqiLevel.generalPopulationRecommendationRes,
+                        sensitivePopulationRecommendationRes = currentAqiLevel.sensitivePopulationRecommendationRes
                     )
                 )
             }
