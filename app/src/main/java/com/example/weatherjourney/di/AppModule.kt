@@ -48,7 +48,7 @@ object AppModule {
     fun providePreferencesDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         PreferenceDataStoreFactory.create(
             corruptionHandler = ReplaceFileCorruptionHandler(produceNewData = { emptyPreferences() }),
-            produceFile = { context.preferencesDataStoreFile(USER_PREFERENCES) }
+            produceFile = { context.preferencesDataStoreFile(USER_PREFERENCES) },
         )
 
     @Provides
@@ -56,14 +56,14 @@ object AppModule {
     fun provideLocationPreferencesDataStore(@ApplicationContext context: Context): DataStore<LocationPreferences> =
         DataStoreFactory.create(
             serializer = LocationPreferencesSerializer,
-            produceFile = { context.dataStoreFile(LOCATION_PREFERENCES) }
+            produceFile = { context.dataStoreFile(LOCATION_PREFERENCES) },
         )
 
     @Provides
     @Singleton
     fun providePreferenceRepository(
         userPreferencesStore: DataStore<Preferences>,
-        locationPreferencesStore: DataStore<LocationPreferences>
+        locationPreferencesStore: DataStore<LocationPreferences>,
     ): com.example.weatherjourney.domain.AppPreferences =
         DefaultPreferences(userPreferencesStore, locationPreferencesStore)
 
@@ -93,7 +93,7 @@ object AppModule {
         return OkHttpClient.Builder().addInterceptor(
             HttpLoggingInterceptor().apply {
                 setLevel(HttpLoggingInterceptor.Level.BODY)
-            }
+            },
         ).build()
     }
 

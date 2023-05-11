@@ -2,7 +2,6 @@ package com.example.weatherjourney.features.weather.data.di
 
 import android.content.Context
 import com.example.weatherjourney.di.DefaultDispatcher
-import com.example.weatherjourney.domain.AppPreferences
 import com.example.weatherjourney.features.weather.data.local.AppDatabase
 import com.example.weatherjourney.features.weather.data.remote.WeatherApi
 import com.example.weatherjourney.features.weather.data.repository.DefaultLocationRepository
@@ -33,15 +32,13 @@ object WeatherRepositoryModule {
         api: WeatherApi,
         db: AppDatabase,
         client: FusedLocationProviderClient,
-        appPreferences: AppPreferences,
         @ApplicationContext context: Context,
-        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
+        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
     ): LocationRepository = DefaultLocationRepository(
-        api = api,
         dao = db.locationDao(),
+        api = api,
         client = client,
-        appPreferences = appPreferences,
         context = context,
-        defaultDispatcher = defaultDispatcher
+        defaultDispatcher = defaultDispatcher,
     )
 }

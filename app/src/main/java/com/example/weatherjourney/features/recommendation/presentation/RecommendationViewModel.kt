@@ -19,13 +19,13 @@ import javax.inject.Inject
 data class RecommendationUiState(
     val isLoading: Boolean = false,
     val userMessage: UserMessage? = null,
-    val recommendations: Recommendations? = null
+    val recommendations: Recommendations? = null,
 )
 
 @HiltViewModel
 class RecommendationViewModel @Inject constructor(
     private val recommendationRepository: RecommendationRepository,
-    connectivityObserver: ConnectivityObserver
+    connectivityObserver: ConnectivityObserver,
 ) : ViewModeWithMessageAndLoading(connectivityObserver) {
 
     private val _recommendationsAsync = MutableStateFlow<Async<Recommendations?>>(Async.Loading)
@@ -33,7 +33,7 @@ class RecommendationViewModel @Inject constructor(
     val uiState: StateFlow<RecommendationUiState> = combine(
         _userMessage,
         _isLoading,
-        _recommendationsAsync
+        _recommendationsAsync,
     ) { userMessage, isLoading, recommendationsAsync ->
 
         when (recommendationsAsync) {
@@ -42,14 +42,14 @@ class RecommendationViewModel @Inject constructor(
                 RecommendationUiState(
                     recommendations = recommendationsAsync.data,
                     isLoading = isLoading,
-                    userMessage = userMessage
+                    userMessage = userMessage,
                 )
             }
         }
     }.stateIn(
         scope = viewModelScope,
         started = WhileUiSubscribed,
-        initialValue = RecommendationUiState(isLoading = true)
+        initialValue = RecommendationUiState(isLoading = true),
     )
 
     init {

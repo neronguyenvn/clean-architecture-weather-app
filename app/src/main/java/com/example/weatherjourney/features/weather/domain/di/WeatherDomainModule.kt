@@ -5,11 +5,6 @@ import com.example.weatherjourney.features.weather.domain.repository.LocationRep
 import com.example.weatherjourney.features.weather.domain.repository.WeatherRepository
 import com.example.weatherjourney.features.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.features.weather.domain.usecase.WeatherUseCases
-import com.example.weatherjourney.features.weather.domain.usecase.location.DeleteLocation
-import com.example.weatherjourney.features.weather.domain.usecase.location.GetLocationsStream
-import com.example.weatherjourney.features.weather.domain.usecase.location.GetSuggestionCities
-import com.example.weatherjourney.features.weather.domain.usecase.location.SaveLocation
-import com.example.weatherjourney.features.weather.domain.usecase.location.ShouldSaveLocation
 import com.example.weatherjourney.features.weather.domain.usecase.location.ValidateCurrentLocation
 import com.example.weatherjourney.features.weather.domain.usecase.weather.ConvertUnit
 import com.example.weatherjourney.features.weather.domain.usecase.weather.GetAllWeather
@@ -27,23 +22,18 @@ class WeatherDomainModule {
     @ViewModelScoped
     fun provideLocationUseCases(
         repository: LocationRepository,
-        appPreferences: AppPreferences
+        preferences: AppPreferences,
     ): LocationUseCases =
         LocationUseCases(
-            saveLocation = SaveLocation(repository),
-            shouldSaveLocation = ShouldSaveLocation(repository, appPreferences),
-            validateCurrentLocation = ValidateCurrentLocation(repository),
-            getSuggestionCities = GetSuggestionCities(repository),
-            getLocationsStream = GetLocationsStream(repository),
-            deleteLocation = DeleteLocation(repository)
+            validateCurrentLocation = ValidateCurrentLocation(repository, preferences),
         )
 
     @Provides
     @ViewModelScoped
     fun provideWeatherUseCases(
-        repository: WeatherRepository
+        repository: WeatherRepository,
     ): WeatherUseCases = WeatherUseCases(
         getAllWeather = GetAllWeather(repository),
-        convertUnit = ConvertUnit()
+        convertUnit = ConvertUnit(),
     )
 }

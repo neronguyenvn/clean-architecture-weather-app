@@ -11,5 +11,5 @@ data class LocationEntity(
     val timeZone: String,
     val isCurrentLocation: Boolean = false,
     val countryCode: String,
-    @PrimaryKey(autoGenerate = true) val id: Int = 0
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
 )

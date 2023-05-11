@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AllWeatherDto(
     val hourly: HourlyWeatherDto,
-    val daily: DailyWeatherDto
+    val daily: DailyWeatherDto,
 )
 
 @Serializable
@@ -21,7 +21,7 @@ data class HourlyWeatherDto(
     @SerialName("windspeed_10m")
     val windSpeeds: List<Double>,
     @SerialName("relativehumidity_2m")
-    val humidities: List<Double>
+    val humidities: List<Double>,
 )
 
 @Serializable
@@ -32,5 +32,5 @@ data class DailyWeatherDto(
     @SerialName("temperature_2m_max")
     val maxTemperatures: List<Double>,
     @SerialName("temperature_2m_min")
-    val minTemperatures: List<Double>
+    val minTemperatures: List<Double>,
 )

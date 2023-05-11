@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.first
 
 class DefaultRecommendationRepository(
     private val api: RecommendationApi,
-    private val appPreferences: AppPreferences
+    private val appPreferences: AppPreferences,
 ) : RecommendationRepository {
 
     override suspend fun getRecommendations(): Result<Recommendations> {
@@ -23,12 +23,12 @@ class DefaultRecommendationRepository(
                     api.getAirQuality(
                         latitude = coordinate.latitude,
                         longitude = coordinate.longitude,
-                        timeZone = timeZone
+                        timeZone = timeZone,
                     )
                 }
             ) {
                 is Result.Success -> Result.Success(
-                    quality.data.hourly.toRecommendations(timeZone)
+                    quality.data.hourly.toRecommendations(timeZone),
                 )
 
                 is Result.Error -> quality

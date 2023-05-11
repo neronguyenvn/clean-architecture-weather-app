@@ -1,6 +1,5 @@
 package com.example.weatherjourney.features.weather.presentation.search.component
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
@@ -25,13 +24,12 @@ import com.example.weatherjourney.presentation.component.HorizontalDivider
 import com.example.weatherjourney.presentation.theme.White70
 import com.example.weatherjourney.util.roundTo
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SavedCityItem(
     city: SavedCity,
     onCityClick: (SavedCity) -> Unit,
     onCityLongClick: (SavedCity) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -39,41 +37,41 @@ fun SavedCityItem(
             .padding(horizontal = 16.dp)
             .combinedClickable(
                 onClick = { onCityClick(city) },
-                onLongClick = { onCityLongClick(city) }
-            )
+                onLongClick = { onCityLongClick(city) },
+            ),
     ) {
         Spacer(Modifier.height(16.dp))
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (city.isCurrentLocation) {
                 Column(modifier = Modifier.weight(1f)) {
                     CityAddressWithFlag(
                         countryCode = city.countryCode,
-                        cityAddress = city.cityAddress
+                        cityAddress = city.cityAddress,
                     )
                     Text(
                         text = stringResource(R.string.your_location),
-                        style = MaterialTheme.typography.labelMedium.copy(White70)
+                        style = MaterialTheme.typography.labelMedium.copy(White70),
                     )
                 }
             } else {
                 CityAddressWithFlag(
                     countryCode = city.countryCode,
                     cityAddress = city.cityAddress,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
             Spacer(Modifier.width(8.dp))
             Text(
                 stringResource(R.string.temperature, city.temp.roundTo(1)),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(Modifier.width(8.dp))
             Image(
                 painter = painterResource(city.weatherType.iconRes),
                 contentDescription = null,
-                modifier = Modifier.width(30.dp)
+                modifier = Modifier.width(30.dp),
             )
         }
         Spacer(Modifier.height(16.dp))

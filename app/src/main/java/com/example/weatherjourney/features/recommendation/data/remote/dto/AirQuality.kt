@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AirQuality(
-    val hourly: HourlyAirQuality
+    val hourly: HourlyAirQuality,
 )
 
 @Serializable
@@ -14,5 +14,5 @@ data class HourlyAirQuality(
     @SerialName("uv_index")
     val uvIndexList: List<Double?>,
     @SerialName("european_aqi")
-    val europeanAqiList: List<Int?>
+    val europeanAqiList: List<Int?>,
 )

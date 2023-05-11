@@ -24,7 +24,7 @@ class RecommendationDataModule {
     @Singleton
     fun provideRecommendationRepository(
         api: RecommendationApi,
-        preferences: AppPreferences
+        preferences: AppPreferences,
     ): RecommendationRepository =
         DefaultRecommendationRepository(api, preferences)
 }

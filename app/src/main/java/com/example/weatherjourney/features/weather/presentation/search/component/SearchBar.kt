@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -32,14 +31,13 @@ import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.component.HorizontalDivider
 import com.example.weatherjourney.presentation.theme.White70
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchBar(
     value: String,
     onBackClick: () -> Unit,
     onValueChange: (String) -> Unit,
     onValueClear: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -49,19 +47,19 @@ fun SearchBar(
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onBackClick) {
                 Icon(
                     Icons.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.back)
+                    contentDescription = stringResource(R.string.back),
                 )
             }
             Box(Modifier.weight(1.0f)) {
                 if (value.isBlank()) {
                     Text(
                         color = White70,
-                        text = stringResource(R.string.enter_location)
+                        text = stringResource(R.string.enter_location),
                     )
                 }
                 BasicTextField(
@@ -71,14 +69,14 @@ fun SearchBar(
                     singleLine = true,
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                     cursorBrush = SolidColor(Color.White),
-                    modifier = Modifier.focusRequester(focusRequester)
+                    modifier = Modifier.focusRequester(focusRequester),
                 )
             }
             if (value.isNotBlank()) {
                 IconButton(onValueClear) {
                     Icon(
                         Icons.Filled.Close,
-                        contentDescription = stringResource(R.string.delete_city_address_input)
+                        contentDescription = stringResource(R.string.delete_city_address_input),
                     )
                 }
             }

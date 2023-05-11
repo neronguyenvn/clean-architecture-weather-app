@@ -20,50 +20,50 @@ fun AqiNotificationItem(
     secondTimeLine: String,
     info: String,
     adviceRes1: String,
-    adviceRes2: String
+    adviceRes2: String,
 ) {
     Card {
         Column(Modifier.padding(16.dp)) {
             Text(
                 stringResource(R.string.aqi_notification),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
             Text(
                 "$firstTimeLine - $secondTimeLine",
-                style = MaterialTheme.typography.labelMedium.copy(White70)
+                style = MaterialTheme.typography.labelMedium.copy(White70),
             )
             Spacer(Modifier.height(16.dp))
             Text(
                 info,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
             )
             Spacer(Modifier.height(16.dp))
             if (adviceRes2.isBlank()) {
                 Text(
                     stringResource(R.string.general_and_sensitive_population),
-                    style = MaterialTheme.typography.labelMedium.copy(White70)
+                    style = MaterialTheme.typography.labelMedium.copy(White70),
                 )
                 Text(
                     adviceRes1,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             } else {
                 Text(
                     stringResource(R.string.general_population),
-                    style = MaterialTheme.typography.labelMedium.copy(White70)
+                    style = MaterialTheme.typography.labelMedium.copy(White70),
                 )
                 Text(
                     adviceRes1,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
                     stringResource(R.string.sensitive_population),
-                    style = MaterialTheme.typography.labelMedium.copy(White70)
+                    style = MaterialTheme.typography.labelMedium.copy(White70),
                 )
                 Text(
                     adviceRes2,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }

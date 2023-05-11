@@ -28,12 +28,12 @@ fun RecommendationScreen(
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: RecommendationViewModel = hiltViewModel()
+    viewModel: RecommendationViewModel = hiltViewModel(),
 ) {
     Scaffold(
         modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = { BasicTopBar(stringResource(R.string.notification), onBackClick) }
+        topBar = { BasicTopBar(stringResource(R.string.notification), onBackClick) },
     ) { paddingValues ->
 
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -41,7 +41,7 @@ fun RecommendationScreen(
         WeatherNotificationScreenContent(
             uiState = uiState,
             modifier = Modifier.padding(paddingValues),
-            onRefresh = viewModel::onRefresh
+            onRefresh = viewModel::onRefresh,
         )
 
         // Check for user messages to display on the screen
@@ -61,11 +61,11 @@ fun RecommendationScreen(
 fun WeatherNotificationScreenContent(
     uiState: RecommendationUiState,
     onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val screenPadding = PaddingValues(
         vertical = dimensionResource(R.dimen.vertical_margin),
-        horizontal = 16.dp
+        horizontal = 16.dp,
     )
 
     LoadingContent(isLoading = uiState.isLoading, onRefresh = onRefresh, modifier) {
@@ -73,7 +73,7 @@ fun WeatherNotificationScreenContent(
             Modifier
                 .fillMaxWidth()
                 .padding(screenPadding),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             uiState.recommendations?.uvRecommendation?.let {
                 item {
@@ -82,7 +82,7 @@ fun WeatherNotificationScreenContent(
                         firstTimeLine = it.firstTimePeriod,
                         secondTimeLine = it.secondTimePeriod,
                         info = stringResource(it.infoRes),
-                        adviceRes = stringResource(it.recommendationRes)
+                        adviceRes = stringResource(it.recommendationRes),
                     )
                 }
             }
@@ -95,9 +95,9 @@ fun WeatherNotificationScreenContent(
                         adviceRes1 = stringResource(it.generalPopulationRecommendationRes),
                         adviceRes2 = it.sensitivePopulationRecommendationRes?.let { id ->
                             stringResource(
-                                id
+                                id,
                             )
-                        } ?: ""
+                        } ?: "",
                     )
                 }
             }

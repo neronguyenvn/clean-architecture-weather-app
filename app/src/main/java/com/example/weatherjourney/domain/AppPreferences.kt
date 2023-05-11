@@ -19,18 +19,24 @@ interface AppPreferences {
     val pressureUnitFlow: Flow<PressureUnit>
 
     val timeFormatUnitFlow: Flow<TimeFormatUnit>
+    suspend fun isFirstTimeRunApp(): Boolean
 
-    suspend fun getIsFirstTime(): Boolean
+    suspend fun updateLocation(
+        cityAddress: String,
+        coordinate: Coordinate,
+        timeZone: String,
+        isCurrentLocation: Boolean?,
+    )
 
-    suspend fun updateLocation(cityAddress: String, coordinate: Coordinate, timeZone: String)
+    suspend fun updateIsCurrentLocation(isCurrentLocation: Boolean)
 
-    suspend fun saveTemperatureUnit(unit: TemperatureUnit)
+    suspend fun updateTemperatureUnit(unit: TemperatureUnit)
 
-    suspend fun saveWindSpeedUnit(unit: WindSpeedUnit)
+    suspend fun updateWindSpeedUnit(unit: WindSpeedUnit)
 
-    suspend fun savePressureUnit(unit: PressureUnit)
+    suspend fun updatePressureUnit(unit: PressureUnit)
 
-    suspend fun saveTimeFormatUnit(unit: TimeFormatUnit)
+    suspend fun updateTimeFormatUnit(unit: TimeFormatUnit)
 
-    suspend fun saveIsFirstTimeIntoFalse()
+    suspend fun setFirstTimeRunAppToFalse()
 }

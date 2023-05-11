@@ -17,13 +17,13 @@ import com.example.weatherjourney.presentation.component.HorizontalDivider
 fun SuggestionCityItem(
     city: SuggestionCity,
     modifier: Modifier = Modifier,
-    onCityClick: (SuggestionCity) -> Unit
+    onCityClick: (SuggestionCity) -> Unit,
 ) {
     Column(
         modifier = modifier
             .clickable { onCityClick(city) }
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp),
     ) {
         Spacer(Modifier.height(16.dp))
         CityAddressWithFlag(countryCode = city.countryCode, cityAddress = city.cityAddress)

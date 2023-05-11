@@ -11,7 +11,7 @@ fun ForwardGeocodingResult.toSuggestionCity() = SuggestionCity(
     countryCode = countryCode,
     cityAddress = getCityAddress(),
     coordinate = Coordinate(latitude, longitude),
-    timeZone = timezone
+    timeZone = timezone,
 )
 
 fun LocationEntity.toSavedCity(temp: Double, weatherType: WeatherType) = SavedCity(
@@ -22,5 +22,5 @@ fun LocationEntity.toSavedCity(temp: Double, weatherType: WeatherType) = SavedCi
     isCurrentLocation = isCurrentLocation,
     timeZone = timeZone,
     countryCode = countryCode,
-    id = id
+    id = id,
 )

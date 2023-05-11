@@ -14,7 +14,7 @@ interface RecommendationApi {
         @Query("longitude") longitude: Double,
         @Query("timezone") timeZone: String,
         @Query("hourly", encoded = true) hourlyParams: String = "uv_index,european_aqi",
-        @Query("timeformat") timeFormat: String = "unixtime"
+        @Query("timeformat") timeFormat: String = "unixtime",
     ): AirQuality
 
     companion object {

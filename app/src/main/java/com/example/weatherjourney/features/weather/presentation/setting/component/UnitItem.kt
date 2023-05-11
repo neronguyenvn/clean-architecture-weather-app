@@ -16,19 +16,19 @@ fun UnitItem(
     @StringRes title: Int,
     segments: List<String>,
     selectedSegment: String,
-    onSegmentSelected: (String) -> Unit
+    onSegmentSelected: (String) -> Unit,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             stringResource(title),
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         SegmentedControl(
             segments,
             selectedSegment,
             onSegmentSelected = { onSegmentSelected(it) },
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         ) {
             SegmentText(it)
         }

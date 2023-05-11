@@ -8,6 +8,6 @@ interface WeatherRepository {
 
     suspend fun getAllWeather(
         coordinate: Coordinate,
-        timeZone: String
+        timeZone: String,
     ): Result<AllWeatherDto>
 }

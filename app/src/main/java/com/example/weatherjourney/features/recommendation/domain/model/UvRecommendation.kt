@@ -6,5 +6,5 @@ data class UvRecommendation(
     val firstTimePeriod: String,
     val secondTimePeriod: String,
     @StringRes val infoRes: Int,
-    @StringRes val recommendationRes: Int
+    @StringRes val recommendationRes: Int,
 )

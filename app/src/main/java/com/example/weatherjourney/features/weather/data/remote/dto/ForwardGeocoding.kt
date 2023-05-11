@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ForwardGeocoding(
-    val results: List<ForwardGeocodingResult> = emptyList()
+    val results: List<ForwardGeocodingResult> = emptyList(),
 )
 
 @Serializable
@@ -15,7 +15,7 @@ data class ForwardGeocodingResult(
     @SerialName("country_code") val countryCode: String,
     val latitude: Double,
     val longitude: Double,
-    val timezone: String = ""
+    val timezone: String = "",
 ) {
     fun getCityAddress() = when {
         name != admin1 && admin1.isNotBlank() -> "$name, $admin1"

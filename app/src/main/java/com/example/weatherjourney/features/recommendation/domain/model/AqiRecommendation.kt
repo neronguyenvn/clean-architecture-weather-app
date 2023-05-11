@@ -7,5 +7,5 @@ data class AqiRecommendation(
     val secondTimePeriod: String,
     @StringRes val infoRes: Int,
     @StringRes val generalPopulationRecommendationRes: Int,
-    @StringRes val sensitivePopulationRecommendationRes: Int?
+    @StringRes val sensitivePopulationRecommendationRes: Int?,
 )

@@ -15,7 +15,7 @@ import com.example.weatherjourney.util.toFlagEmoji
 fun CityAddressWithFlag(
     countryCode: String,
     cityAddress: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         Text(countryCode.toFlagEmoji())

@@ -24,14 +24,14 @@ object WeatherDataModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "weather_journey"
+            "weather_journey",
         ).build()
     }
 
     @Provides
     @Singleton
     fun provideFusedLocationProviderClient(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ): FusedLocationProviderClient {
         return LocationServices.getFusedLocationProviderClient(context)
     }

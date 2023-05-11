@@ -5,5 +5,5 @@ import com.example.weatherjourney.features.weather.domain.usecase.weather.GetAll
 
 data class WeatherUseCases(
     val getAllWeather: GetAllWeather,
-    val convertUnit: ConvertUnit
+    val convertUnit: ConvertUnit,
 )

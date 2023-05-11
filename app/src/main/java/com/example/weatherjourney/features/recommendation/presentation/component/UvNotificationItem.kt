@@ -18,27 +18,27 @@ fun UvNotificationItem(
     firstTimeLine: String,
     secondTimeLine: String,
     info: String,
-    adviceRes: String
+    adviceRes: String,
 ) {
     Card {
         Column(Modifier.padding(16.dp)) {
             Text(
                 title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
             Text(
                 "$firstTimeLine - $secondTimeLine",
-                style = MaterialTheme.typography.labelMedium.copy(White70)
+                style = MaterialTheme.typography.labelMedium.copy(White70),
             )
             Spacer(Modifier.height(16.dp))
             Text(
                 info,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
             )
             Spacer(Modifier.height(16.dp))
             Text(
                 adviceRes,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
     }

@@ -11,7 +11,7 @@ open class UserMessage(val message: UiText? = null, @StringRes val actionLabel: 
     class DeletingLocation(cityAddress: String) :
         UserMessage(
             UiText.StringResource(R.string.delete_location, listOf(cityAddress)),
-            R.string.delete
+            R.string.delete,
         )
 
     object RequestingLocationPermission : UserMessage()

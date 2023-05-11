@@ -13,7 +13,6 @@ import com.example.weatherjourney.util.CoroutineRule
 import com.example.weatherjourney.util.UiText
 import com.example.weatherjourney.util.UserMessage
 import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -22,7 +21,6 @@ import org.junit.Rule
 import org.junit.Test
 import java.net.UnknownHostException
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class RecommendationViewModelTest {
 
     private lateinit var recommendationViewModel: RecommendationViewModel
@@ -40,7 +38,7 @@ class RecommendationViewModelTest {
 
         recommendationViewModel = RecommendationViewModel(
             recommendationRepository,
-            connectivityObserver
+            connectivityObserver,
         )
     }
 
@@ -57,8 +55,8 @@ class RecommendationViewModelTest {
                         this,
                         RecommendationUiState(
                             isLoading = true,
-                            recommendations = recommendations1
-                        )
+                            recommendations = recommendations1,
+                        ),
                     )
                 }
 
@@ -67,8 +65,8 @@ class RecommendationViewModelTest {
                         this,
                         RecommendationUiState(
                             isLoading = false,
-                            recommendations = recommendations1
-                        )
+                            recommendations = recommendations1,
+                        ),
                     )
                 }
 
@@ -93,8 +91,8 @@ class RecommendationViewModelTest {
                         this,
                         RecommendationUiState(
                             isLoading = true,
-                            userMessage = UserMessage(UiText.StringResource(R.string.something_went_wrong))
-                        )
+                            userMessage = UserMessage(UiText.StringResource(R.string.something_went_wrong)),
+                        ),
                     )
                 }
 
@@ -103,8 +101,8 @@ class RecommendationViewModelTest {
                         this,
                         RecommendationUiState(
                             isLoading = false,
-                            userMessage = UserMessage(UiText.StringResource(R.string.something_went_wrong))
-                        )
+                            userMessage = UserMessage(UiText.StringResource(R.string.something_went_wrong)),
+                        ),
                     )
                 }
 
@@ -116,8 +114,8 @@ class RecommendationViewModelTest {
                         this,
                         RecommendationUiState(
                             isLoading = false,
-                            userMessage = null
-                        )
+                            userMessage = null,
+                        ),
                     )
                 }
 
@@ -143,8 +141,8 @@ class RecommendationViewModelTest {
                         this,
                         RecommendationUiState(
                             isLoading = true,
-                            userMessage = UserMessage(UiText.StringResource(R.string.no_internet_connection))
-                        )
+                            userMessage = UserMessage(UiText.StringResource(R.string.no_internet_connection)),
+                        ),
                     )
                 }
 
@@ -153,8 +151,8 @@ class RecommendationViewModelTest {
                         this,
                         RecommendationUiState(
                             isLoading = false,
-                            userMessage = UserMessage(UiText.StringResource(R.string.no_internet_connection))
-                        )
+                            userMessage = UserMessage(UiText.StringResource(R.string.no_internet_connection)),
+                        ),
                     )
                 }
 
@@ -166,8 +164,8 @@ class RecommendationViewModelTest {
                         this,
                         RecommendationUiState(
                             isLoading = false,
-                            userMessage = null
-                        )
+                            userMessage = null,
+                        ),
                     )
                 }
 
@@ -194,8 +192,8 @@ class RecommendationViewModelTest {
                         this,
                         RecommendationUiState(
                             isLoading = false,
-                            recommendations = recommendations1
-                        )
+                            recommendations = recommendations1,
+                        ),
                     )
                 }
 
@@ -204,8 +202,8 @@ class RecommendationViewModelTest {
                         this,
                         RecommendationUiState(
                             isLoading = true,
-                            recommendations = recommendations2
-                        )
+                            recommendations = recommendations2,
+                        ),
                     )
                 }
 
@@ -214,8 +212,8 @@ class RecommendationViewModelTest {
                         this,
                         RecommendationUiState(
                             isLoading = false,
-                            recommendations = recommendations2
-                        )
+                            recommendations = recommendations2,
+                        ),
                     )
                 }
 
@@ -240,8 +238,8 @@ class RecommendationViewModelTest {
                         this,
                         RecommendationUiState(
                             isLoading = false,
-                            recommendations = recommendations1
-                        )
+                            recommendations = recommendations1,
+                        ),
                     )
                 }
 
@@ -251,8 +249,8 @@ class RecommendationViewModelTest {
                         RecommendationUiState(
                             isLoading = true,
                             recommendations = recommendations1,
-                            userMessage = UserMessage(UiText.StringResource(R.string.something_went_wrong))
-                        )
+                            userMessage = UserMessage(UiText.StringResource(R.string.something_went_wrong)),
+                        ),
                     )
                 }
 
@@ -262,8 +260,8 @@ class RecommendationViewModelTest {
                         RecommendationUiState(
                             isLoading = false,
                             recommendations = recommendations1,
-                            userMessage = UserMessage(UiText.StringResource(R.string.something_went_wrong))
-                        )
+                            userMessage = UserMessage(UiText.StringResource(R.string.something_went_wrong)),
+                        ),
                     )
                 }
 
@@ -276,8 +274,8 @@ class RecommendationViewModelTest {
                         RecommendationUiState(
                             isLoading = false,
                             recommendations = recommendations1,
-                            userMessage = null
-                        )
+                            userMessage = null,
+                        ),
                     )
                 }
 
@@ -304,8 +302,8 @@ class RecommendationViewModelTest {
                             RecommendationUiState(
                                 isLoading = false,
                                 userMessage = null,
-                                recommendations = null
-                            )
+                                recommendations = null,
+                            ),
                         )
                     }
 
@@ -315,8 +313,8 @@ class RecommendationViewModelTest {
                             RecommendationUiState(
                                 isLoading = true,
                                 userMessage = UserMessage(UiText.StringResource(R.string.restore_internet_connection)),
-                                recommendations = recommendations1
-                            )
+                                recommendations = recommendations1,
+                            ),
                         )
                     }
 
@@ -326,8 +324,8 @@ class RecommendationViewModelTest {
                             RecommendationUiState(
                                 isLoading = false,
                                 userMessage = UserMessage(UiText.StringResource(R.string.restore_internet_connection)),
-                                recommendations = recommendations1
-                            )
+                                recommendations = recommendations1,
+                            ),
                         )
                     }
 
@@ -339,8 +337,8 @@ class RecommendationViewModelTest {
                             RecommendationUiState(
                                 isLoading = false,
                                 userMessage = null,
-                                recommendations = recommendations1
-                            )
+                                recommendations = recommendations1,
+                            ),
                         )
                     }
                 }

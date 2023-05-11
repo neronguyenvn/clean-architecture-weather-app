@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class NetworkConnectivityObserver(
-    context: Context
+    context: Context,
 ) : ConnectivityObserver {
 
     private val connectivityManager =

@@ -21,19 +21,19 @@ import com.example.weatherjourney.presentation.component.HorizontalDivider
 @Composable
 fun CurrentLocationField(
     onFieldClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onFieldClick() }
+            .clickable { onFieldClick() },
     ) {
         Row(Modifier.padding(16.dp)) {
             Icon(painterResource(R.drawable.ic_my_location), null)
             Spacer(Modifier.width(8.dp))
             Text(
                 stringResource(R.string.get_your_location_weather),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
             )
         }
         HorizontalDivider(Modifier.padding(horizontal = 16.dp))

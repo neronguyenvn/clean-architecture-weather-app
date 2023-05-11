@@ -13,14 +13,14 @@ sealed interface WeatherSearchState {
         val savedCities: List<SavedCity>,
         override val input: String,
         override val isLoading: Boolean,
-        override val userMessage: UserMessage?
+        override val userMessage: UserMessage?,
     ) : WeatherSearchState
 
     data class ShowSuggestionCities(
         val suggestionCities: List<SuggestionCity>,
         override val input: String,
         override val isLoading: Boolean,
-        override val userMessage: UserMessage?
+        override val userMessage: UserMessage?,
     ) : WeatherSearchState
 }
 
@@ -30,7 +30,7 @@ data class WeatherSearchViewModelState(
     val userMessage: UserMessage? = null,
     val savedCities: List<SavedCity> = emptyList(),
     val suggestionCities: List<SuggestionCity> = emptyList(),
-    val hasLocationException: Boolean = false
+    val hasLocationException: Boolean = false,
 ) {
     fun toUiState(): WeatherSearchState =
         if (input.isBlank()) {
@@ -38,14 +38,14 @@ data class WeatherSearchViewModelState(
                 input = input,
                 isLoading = isLoading,
                 userMessage = userMessage,
-                savedCities = savedCities
+                savedCities = savedCities,
             )
         } else {
             WeatherSearchState.ShowSuggestionCities(
                 input = input,
                 isLoading = isLoading,
                 userMessage = userMessage,
-                suggestionCities = suggestionCities
+                suggestionCities = suggestionCities,
             )
         }
 }

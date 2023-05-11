@@ -2,7 +2,7 @@ package com.example.weatherjourney.features.weather.domain.usecase.weather
 
 import com.example.weatherjourney.constants.DATE_24_PATTERN
 import com.example.weatherjourney.constants.DATE_AM_PM_PATTERN
-import com.example.weatherjourney.constants.TODAY_TIME_FORMATTER
+import com.example.weatherjourney.constants.GENERAL_TIME_FORMATTER
 import com.example.weatherjourney.features.weather.domain.mapper.convertPressureUnit
 import com.example.weatherjourney.features.weather.domain.mapper.convertTemperatureUnit
 import com.example.weatherjourney.features.weather.domain.mapper.convertTimeFormatUnit
@@ -17,14 +17,13 @@ import com.example.weatherjourney.features.weather.presentation.info.AllWeather
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+@Suppress("MagicNumber")
 class ConvertUnit {
 
     operator fun invoke(allWeather: AllWeather, allUnit: AllUnit?): AllWeather {
         var tempWeather = when (allUnit?.temperature) {
             TemperatureUnit.FAHRENHEIT -> allWeather.convertTemperatureUnit {
-                convertCelsiusToFahrenheit(
-                    it
-                )
+                convertCelsiusToFahrenheit(it)
             }
 
             else -> allWeather
@@ -54,7 +53,7 @@ class ConvertUnit {
             temp = when (tUnit) {
                 TemperatureUnit.FAHRENHEIT -> convertCelsiusToFahrenheit(it.temp)
                 else -> it.temp
-            }
+            },
         )
     }
 
@@ -67,12 +66,12 @@ class ConvertUnit {
     private fun convertHPaToInHg(hPa: Double) = hPa * 0.0295299830714
 
     private fun convertTimeFormatToAmPm(timeStr: String): String {
-        val todayDateTime = LocalDateTime.parse(timeStr, TODAY_TIME_FORMATTER)
+        val todayDateTime = LocalDateTime.parse(timeStr, GENERAL_TIME_FORMATTER)
         return todayDateTime.format(DateTimeFormatter.ofPattern(DATE_AM_PM_PATTERN))
     }
 
     private fun convertTimeFormatTo24(timeStr: String): String {
-        val todayDateTime = LocalDateTime.parse(timeStr, TODAY_TIME_FORMATTER)
+        val todayDateTime = LocalDateTime.parse(timeStr, GENERAL_TIME_FORMATTER)
         return todayDateTime.format(DateTimeFormatter.ofPattern(DATE_24_PATTERN))
     }
 }

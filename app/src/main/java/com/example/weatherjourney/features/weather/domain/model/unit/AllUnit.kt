@@ -4,7 +4,7 @@ data class AllUnit(
     val temperature: TemperatureUnit,
     val windSpeed: WindSpeedUnit,
     val pressure: PressureUnit,
-    val timeFormat: TimeFormatUnit
+    val timeFormat: TimeFormatUnit,
 )
 
 interface LabeledEnum {

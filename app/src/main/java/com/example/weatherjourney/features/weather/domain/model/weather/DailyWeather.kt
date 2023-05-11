@@ -7,5 +7,5 @@ data class DailyWeather(
     val date: UiText,
     val maxTemp: Double,
     val minTemp: Double,
-    val weatherType: WeatherType
+    val weatherType: WeatherType,
 )

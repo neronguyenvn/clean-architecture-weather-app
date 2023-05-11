@@ -14,11 +14,11 @@ fun LoadingContent(
     isLoading: Boolean,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isLoading,
-        onRefresh = onRefresh
+        onRefresh = onRefresh,
     )
 
     Box(modifier.pullRefresh(pullRefreshState)) {
@@ -27,7 +27,7 @@ fun LoadingContent(
             isLoading,
             pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter),
-            backgroundColor = Color.Transparent
+            backgroundColor = Color.Transparent,
         )
     }
 }

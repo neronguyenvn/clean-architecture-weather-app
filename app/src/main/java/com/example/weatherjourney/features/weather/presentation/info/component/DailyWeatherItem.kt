@@ -25,7 +25,7 @@ import kotlin.math.roundToInt
 @Composable
 fun DailyWeatherItem(
     daily: DailyWeather,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -34,27 +34,27 @@ fun DailyWeatherItem(
             .border(1.dp, MaterialTheme.colorScheme.onBackground, RoundedCornerShape(20.dp))
             .padding(16.dp)
             .height(150.dp)
-            .width(100.dp)
+            .width(100.dp),
     ) {
         val context = LocalContext.current
 
         Text(
             text = "${daily.date.asString(context)}\n${daily.weatherType.weatherDesc}",
             style = MaterialTheme.typography.titleSmall,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Image(
             painter = painterResource(daily.weatherType.iconRes),
             contentDescription = null,
-            modifier = Modifier.width(40.dp)
+            modifier = Modifier.width(40.dp),
         )
         Text(
             text = stringResource(
                 R.string.max_min_temperature,
                 daily.maxTemp.roundToInt(),
-                daily.minTemp.roundToInt()
+                daily.minTemp.roundToInt(),
             ),
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
         )
     }
 }

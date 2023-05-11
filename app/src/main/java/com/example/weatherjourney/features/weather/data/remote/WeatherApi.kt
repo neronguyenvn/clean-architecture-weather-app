@@ -13,7 +13,7 @@ interface WeatherApi {
     @GET("geocode/v1/json")
     suspend fun getReverseGeocoding(
         @Query("q") coordinate: String,
-        @Query("key") key: String = BuildConfig.OPENCAGE_API_KEY
+        @Query("key") key: String = BuildConfig.OPENCAGE_API_KEY,
     ): ReverseGeocoding
 
     @GET
@@ -24,19 +24,19 @@ interface WeatherApi {
         @Query("timezone") timeZone: String,
         @Query(
             "hourly",
-            encoded = true
+            encoded = true,
         ) hourlyParams: String = "temperature_2m,relativehumidity_2m,weathercode,pressure_msl,windspeed_10m",
         @Query(
             "daily",
-            encoded = true
+            encoded = true,
         ) dailyParams: String = "weathercode,temperature_2m_max,temperature_2m_min",
-        @Query("timeformat") timeFormat: String = "unixtime"
+        @Query("timeformat") timeFormat: String = "unixtime",
     ): AllWeatherDto
 
     @GET
     suspend fun getForwardGeocoding(
         @Url url: String = OPENMETEO_GEOCODING_URL,
-        @Query("name", encoded = true) cityAddress: String
+        @Query("name", encoded = true) cityAddress: String,
     ): ForwardGeocoding
 
     companion object {

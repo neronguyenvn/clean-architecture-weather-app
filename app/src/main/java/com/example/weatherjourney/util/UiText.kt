@@ -19,7 +19,7 @@ sealed class UiText {
                 if (args.isEmpty()) {
                     context.getString(id)
                 } else {
-                    context.getString(id, *args.toTypedArray())
+                    context.getString(id, args.toTypedArray())
                 }
         }
     }
@@ -32,7 +32,7 @@ sealed class UiText {
                 if (args.isEmpty()) {
                     stringResource(id)
                 } else {
-                    stringResource(id, *args.toTypedArray())
+                    stringResource(id, args.toTypedArray())
                 }
         }
     }

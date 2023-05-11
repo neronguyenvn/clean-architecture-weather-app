@@ -14,12 +14,12 @@ import androidx.compose.ui.unit.Dp
 fun HorizontalDivider(
     modifier: Modifier = Modifier,
     thickness: Dp = DividerDefaults.Thickness,
-    color: Color = DividerDefaults.color
+    color: Color = DividerDefaults.color,
 ) {
     Spacer(
         modifier = modifier
             .fillMaxWidth()
             .height(thickness)
-            .background(color)
+            .background(color),
     )
 }

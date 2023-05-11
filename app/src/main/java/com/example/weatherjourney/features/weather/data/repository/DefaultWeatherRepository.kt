@@ -8,17 +8,17 @@ import com.example.weatherjourney.util.Result
 import com.example.weatherjourney.util.runCatching
 
 class DefaultWeatherRepository(
-    private val api: WeatherApi
+    private val api: WeatherApi,
 ) : WeatherRepository {
 
     override suspend fun getAllWeather(
         coordinate: Coordinate,
-        timeZone: String
+        timeZone: String,
     ): Result<AllWeatherDto> = runCatching {
         api.getAllWeather(
             lat = coordinate.latitude,
             long = coordinate.longitude,
-            timeZone = timeZone
+            timeZone = timeZone,
         )
     }
 }

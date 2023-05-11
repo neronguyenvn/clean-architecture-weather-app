@@ -17,7 +17,7 @@ fun InfoTopBar(
     cityAddress: String,
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     CenterAlignedTopAppBar(
         modifier = modifier,
@@ -25,7 +25,7 @@ fun InfoTopBar(
             IconButton(onSearchClick) {
                 Icon(
                     painter = painterResource(R.drawable.ic_search),
-                    contentDescription = stringResource(R.string.search)
+                    contentDescription = stringResource(R.string.search),
                 )
             }
         },
@@ -34,7 +34,7 @@ fun InfoTopBar(
                 cityAddress,
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         },
         actions = {
@@ -42,9 +42,9 @@ fun InfoTopBar(
                 Icon(
                     painter = painterResource(R.drawable.ic_setting),
                     contentDescription = stringResource(R.string.setting),
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
-        }
+        },
     )
 }

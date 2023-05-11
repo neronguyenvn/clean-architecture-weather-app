@@ -2,12 +2,13 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.detekt)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kapt)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlinter)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.ktlint.gradle)
     alias(libs.plugins.protobuf)
 }
 
@@ -35,7 +36,7 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             buildConfigField("String", "OPENCAGE_API_KEY", opencageApiKey)
         }

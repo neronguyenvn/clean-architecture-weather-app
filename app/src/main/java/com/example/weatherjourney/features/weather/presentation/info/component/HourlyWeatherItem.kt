@@ -21,11 +21,12 @@ import com.example.weatherjourney.features.weather.domain.model.unit.WindSpeedUn
 import com.example.weatherjourney.features.weather.domain.model.weather.HourlyWeather
 import com.example.weatherjourney.util.roundTo
 
+@Suppress("MagicNumber")
 @Composable
 fun HourlyWeatherItem(
     hourly: HourlyWeather,
     windSpeedUnit: WindSpeedUnit?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     windSpeedUnit?.let {
         Row(
@@ -33,29 +34,29 @@ fun HourlyWeatherItem(
                 .height(50.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
                 hourly.date,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             Image(
                 painter = painterResource(hourly.weatherType.iconRes),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth,
-                modifier = Modifier.width(40.dp)
+                modifier = Modifier.width(40.dp),
             )
             Text(
                 stringResource(R.string.temperature, hourly.temp.roundTo(1)),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.weight(0.6f)
+                modifier = Modifier.weight(0.6f),
             )
             Text(
                 "${hourly.windSpeed.roundTo(1)}${windSpeedUnit.label}",
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(2f)
+                modifier = Modifier.weight(2f),
             )
         }
     }

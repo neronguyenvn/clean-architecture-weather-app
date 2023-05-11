@@ -6,7 +6,7 @@ open class CityUiModel(
     val cityAddress: String,
     val coordinate: Coordinate,
     val timeZone: String,
-    val countryCode: String
+    val countryCode: String,
 ) {
     override fun toString(): String = "CityUiModel(cityAddress=$cityAddress)"
 
@@ -26,7 +26,7 @@ class SuggestionCity(
     cityAddress: String,
     coordinate: Coordinate,
     timeZone: String,
-    countryCode: String
+    countryCode: String,
 ) : CityUiModel(cityAddress, coordinate, timeZone, countryCode)
 
 class SavedCity(
@@ -37,7 +37,7 @@ class SavedCity(
     cityAddress: String,
     coordinate: Coordinate,
     timeZone: String,
-    countryCode: String
+    countryCode: String,
 ) : CityUiModel(cityAddress, coordinate, timeZone, countryCode) {
 
     fun copy(
@@ -48,7 +48,7 @@ class SavedCity(
         coordinate: Coordinate = this.coordinate,
         timeZone: String = this.timeZone,
         countryCode: String = this.countryCode,
-        id: Int = this.id
+        id: Int = this.id,
     ): SavedCity = SavedCity(
         temp = temp,
         isCurrentLocation = isCurrentLocation,
@@ -57,6 +57,6 @@ class SavedCity(
         coordinate = coordinate,
         timeZone = timeZone,
         countryCode = countryCode,
-        id = id
+        id = id,
     )
 }

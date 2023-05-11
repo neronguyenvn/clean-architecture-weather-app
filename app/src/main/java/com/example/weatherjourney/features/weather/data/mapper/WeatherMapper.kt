@@ -13,11 +13,10 @@ import com.example.weatherjourney.util.getCurrentDate
 import com.example.weatherjourney.util.toDate
 import com.example.weatherjourney.util.toDayNameInWeek
 
-fun AllWeatherDto.toAllWeather(cityAddress: String, timeZone: String): AllWeather {
+fun AllWeatherDto.toAllWeather(timeZone: String): AllWeather {
     val count = this.hourly.time.countPastHoursToday()
 
     return AllWeather(
-        cityAddress = cityAddress,
         current = this.hourly.run {
             CurrentWeather(
                 date = getCurrentDate(timeZone),
@@ -25,7 +24,7 @@ fun AllWeatherDto.toAllWeather(cityAddress: String, timeZone: String): AllWeathe
                 windSpeed = windSpeeds[count],
                 humidity = humidities[count],
                 pressure = pressures[count],
-                weatherType = WeatherType.fromWMO(weatherCodes[count])
+                weatherType = WeatherType.fromWMO(weatherCodes[count]),
             )
         },
         listDaily = this.daily.run {
@@ -34,7 +33,7 @@ fun AllWeatherDto.toAllWeather(cityAddress: String, timeZone: String): AllWeathe
                     date = time.toDayNameInWeek(timeZone),
                     maxTemp = maxTemperatures[index],
                     minTemp = minTemperatures[index],
-                    weatherType = WeatherType.fromWMO(weatherCodes[index])
+                    weatherType = WeatherType.fromWMO(weatherCodes[index]),
                 )
             }
         },
@@ -44,9 +43,9 @@ fun AllWeatherDto.toAllWeather(cityAddress: String, timeZone: String): AllWeathe
                     date = time.toDate(timeZone, HOUR_PATTERN),
                     temp = temperatures[index + count],
                     windSpeed = windSpeeds[index + count],
-                    weatherType = WeatherType.fromWMO(weatherCodes[index + count])
+                    weatherType = WeatherType.fromWMO(weatherCodes[index + count]),
                 )
             }
-        }
+        },
     )
 }

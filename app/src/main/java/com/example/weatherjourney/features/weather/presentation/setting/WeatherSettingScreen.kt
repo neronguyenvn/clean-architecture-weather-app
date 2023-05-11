@@ -33,12 +33,12 @@ fun WeatherSettingScreen(
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: WeatherSettingViewModel = hiltViewModel()
+    viewModel: WeatherSettingViewModel = hiltViewModel(),
 ) {
     Scaffold(
         modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = { BasicTopBar(stringResource(R.string.setting), onBackClick) }
+        topBar = { BasicTopBar(stringResource(R.string.setting), onBackClick) },
     ) { paddingValues ->
 
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -49,7 +49,7 @@ fun WeatherSettingScreen(
             onWindSpeedUnitUpdate = viewModel::onWindSpeedUnitUpdate,
             onPressureUnitUpdate = viewModel::onPressureUnitUpdate,
             onTimeFormatUnitUpdate = viewModel::onTimeFormatUnitUpdate,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
         )
     }
 }
@@ -61,11 +61,11 @@ fun WeatherSettingScreenContent(
     onWindSpeedUnitUpdate: (String) -> Unit,
     onPressureUnitUpdate: (String) -> Unit,
     onTimeFormatUnitUpdate: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val screenPadding = PaddingValues(
         vertical = dimensionResource(R.dimen.vertical_margin),
-        horizontal = 16.dp
+        horizontal = 16.dp,
     )
 
     val temperatureUnits =
@@ -80,35 +80,35 @@ fun WeatherSettingScreenContent(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = modifier
                 .fillMaxWidth()
-                .padding(screenPadding)
+                .padding(screenPadding),
         ) {
             Text(
                 stringResource(R.string.units),
-                style = MaterialTheme.typography.labelLarge.copy(color = White70)
+                style = MaterialTheme.typography.labelLarge.copy(color = White70),
             )
             UnitItem(
                 title = R.string.temperature_unit,
                 segments = temperatureUnits,
                 selectedSegment = it.temperature.label,
-                onSegmentSelected = onTemperatureUnitUpdate
+                onSegmentSelected = onTemperatureUnitUpdate,
             )
             UnitItem(
                 title = R.string.wind_speed_unit,
                 segments = windSpeedUnits,
                 selectedSegment = it.windSpeed.label,
-                onSegmentSelected = onWindSpeedUnitUpdate
+                onSegmentSelected = onWindSpeedUnitUpdate,
             )
             UnitItem(
                 title = R.string.pressure_unit,
                 segments = pressureUnits,
                 selectedSegment = it.pressure.label,
-                onSegmentSelected = onPressureUnitUpdate
+                onSegmentSelected = onPressureUnitUpdate,
             )
             UnitItem(
                 title = R.string.time_format_unit,
                 segments = timeFormatUnits,
                 selectedSegment = it.timeFormat.label,
-                onSegmentSelected = onTimeFormatUnitUpdate
+                onSegmentSelected = onTimeFormatUnitUpdate,
             )
         }
     }

@@ -21,22 +21,22 @@ fun WeatherDataDisplay(
     icon: ImageVector,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = TextStyle(),
-    iconTint: Color = Color.White
+    iconTint: Color = Color.White,
 ) {
     Row(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
             tint = iconTint,
-            modifier = Modifier.size(25.dp)
+            modifier = Modifier.size(25.dp),
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = "$value$unit",
-            style = textStyle
+            style = textStyle,
         )
     }
 }

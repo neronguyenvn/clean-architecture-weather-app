@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ReverseGeocoding(
-    val results: List<ReverseGeocodingResult>
+    val results: List<ReverseGeocodingResult>,
 ) {
     fun getCityAddress() = results[0].components.run {
         listOf(suburb, county, city, region).filter { it.isNotBlank() }.joinToString(", ")
@@ -19,7 +19,7 @@ data class ReverseGeocoding(
 @Serializable
 data class ReverseGeocodingResult(
     val components: Component,
-    val annotations: Annotation
+    val annotations: Annotation,
 )
 
 @Serializable
@@ -29,15 +29,15 @@ data class Component(
     val city: String = "",
     val region: String = "",
     @SerialName("country_code")
-    val countryCode: String
+    val countryCode: String,
 )
 
 @Serializable
 data class Annotation(
-    val timezone: TimeZone
+    val timezone: TimeZone,
 )
 
 @Serializable
 data class TimeZone(
-    val name: String
+    val name: String,
 )

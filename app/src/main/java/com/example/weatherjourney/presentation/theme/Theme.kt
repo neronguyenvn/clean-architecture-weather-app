@@ -11,17 +11,17 @@ private val AppLightColorScheme = lightColorScheme().copy(
     surfaceVariant = DeepBlue,
     background = DarkBlue,
     onBackground = Color.White,
-    onSurface = Color.White
+    onSurface = Color.White,
 )
 
 @Composable
 fun WeatherTheme(
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val colorScheme = AppLightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
-        content = content
+        content = content,
     )
 }
