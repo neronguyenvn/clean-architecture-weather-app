@@ -12,7 +12,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-includeBuild("androidx-compose-material3-pullrefresh-2023.01.00") {
+includeBuild("androidx-compose-material3-pullrefresh-2023.04.01") {
     dependencySubstitution {
         substitute(module("me.omico.lux:lux-androidx-compose-material3-pullrefresh")).using(project(":library"))
     }
