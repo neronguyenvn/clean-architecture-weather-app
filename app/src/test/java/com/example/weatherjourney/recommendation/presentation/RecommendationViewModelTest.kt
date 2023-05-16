@@ -3,9 +3,9 @@ package com.example.weatherjourney.recommendation.presentation
 import app.cash.turbine.test
 import com.example.weatherjourney.R
 import com.example.weatherjourney.domain.ConnectivityObserver
+import com.example.weatherjourney.fake.FakeConnectivityObserver
 import com.example.weatherjourney.features.recommendation.presentation.RecommendationUiState
 import com.example.weatherjourney.features.recommendation.presentation.RecommendationViewModel
-import com.example.weatherjourney.recommendation.fake.FakeConnectivityObserver
 import com.example.weatherjourney.recommendation.fake.FakeRecommendationRepository
 import com.example.weatherjourney.recommendation.recommendations1
 import com.example.weatherjourney.recommendation.recommendations2

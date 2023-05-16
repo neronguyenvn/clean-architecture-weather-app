@@ -1,4 +1,4 @@
-package com.example.weatherjourney.recommendation.fake
+package com.example.weatherjourney.fake
 
 import com.example.weatherjourney.domain.ConnectivityObserver
 import com.example.weatherjourney.domain.ConnectivityObserver.Status
