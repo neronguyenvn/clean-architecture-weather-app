@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -71,7 +71,7 @@ fun SegmentedDemo() {
                 SegmentedControl(
                     twoSegments,
                     selectedTwoSegment,
-                    onSegmentSelected = { selectedTwoSegment = it }
+                    onSegmentSelected = { selectedTwoSegment = it },
                 ) {
                     SegmentText(it)
                 }
@@ -81,7 +81,7 @@ fun SegmentedDemo() {
                 SegmentedControl(
                     threeSegments,
                     selectedThreeSegment,
-                    onSegmentSelected = { selectedThreeSegment = it }
+                    onSegmentSelected = { selectedThreeSegment = it },
                 ) {
                     SegmentText(it)
                 }
@@ -113,7 +113,7 @@ fun <T : Any> SegmentedControl(
     selectedSegment: T,
     onSegmentSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable (T) -> Unit
+    content: @Composable (T) -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
     val state = remember { SegmentedControlState() }
@@ -140,7 +140,7 @@ fun <T : Any> SegmentedControl(
             .fillMaxWidth()
             .then(state.inputModifier)
             .background(TRACK_COLOR, BACKGROUND_SHAPE)
-            .padding(TRACK_PADDING)
+            .padding(TRACK_PADDING),
     ) { measurables, constraints ->
         val (thumbMeasurable, segmentsMeasurable) = measurables
 
@@ -152,8 +152,8 @@ fun <T : Any> SegmentedControl(
         val thumbPlaceable = thumbMeasurable.measure(
             Constraints.fixed(
                 width = segmentsPlaceable.width / segments.size,
-                height = segmentsPlaceable.height
-            )
+                height = segmentsPlaceable.height,
+            ),
         )
 
         layout(segmentsPlaceable.width, segmentsPlaceable.height) {
@@ -162,7 +162,7 @@ fun <T : Any> SegmentedControl(
             // Place the thumb first since it should be drawn below the segments.
             thumbPlaceable.placeRelative(
                 x = (selectedIndexOffset * segmentWidth).toInt(),
-                y = 0
+                y = 0,
             )
             segmentsPlaceable.placeRelative(IntOffset.Zero)
         }
@@ -187,11 +187,11 @@ private fun Thumb(state: SegmentedControlState) {
             .then(
                 state.segmentScaleModifier(
                     pressed = state.pressedSegment == state.selectedSegment,
-                    segment = state.selectedSegment
-                )
+                    segment = state.selectedSegment,
+                ),
             )
             .shadow(4.dp, BACKGROUND_SHAPE)
-            .background(Color.White, BACKGROUND_SHAPE)
+            .background(Color.White, BACKGROUND_SHAPE),
     )
 }
 
@@ -202,16 +202,16 @@ private fun Thumb(state: SegmentedControlState) {
 private fun <T> Segments(
     state: SegmentedControlState,
     segments: List<T>,
-    content: @Composable (T) -> Unit
+    content: @Composable (T) -> Unit,
 ) {
     CompositionLocalProvider(
-        LocalTextStyle provides TextStyle(fontWeight = FontWeight.Medium, color = Color.Black)
+        LocalTextStyle provides TextStyle(fontWeight = FontWeight.Medium, color = Color.Black),
     ) {
         Row(
             horizontalArrangement = spacedBy(TRACK_PADDING),
             modifier = Modifier
                 .fillMaxWidth()
-                .selectableGroup()
+                .selectableGroup(),
         ) {
             segments.forEachIndexed { i, segment ->
                 val isSelected = i == state.selectedSegment
@@ -241,7 +241,7 @@ private fun <T> Segments(
                         // Selected presses are represented by scaling.
                         .then(state.segmentScaleModifier(isPressed && isSelected, i))
                         // Center the segment content.
-                        .wrapContentWidth()
+                        .wrapContentWidth(),
                 ) {
                     content(segment)
                 }
@@ -286,7 +286,7 @@ private class SegmentedControlState {
     @SuppressLint("ModifierFactoryExtensionFunction")
     fun segmentScaleModifier(
         pressed: Boolean,
-        segment: Int
+        segment: Int,
     ): Modifier = Modifier.composed {
         val scale by animateFloatAsState(if (pressed) pressedSelectedScale else 1f)
         val xOffset by animateDpAsState(if (pressed) PRESSED_TRACK_PADDING else 0.dp)
@@ -302,7 +302,7 @@ private class SegmentedControlState {
                     segmentCount - 1 -> 1f
                     else -> .5f
                 },
-                pivotFractionY = .5f
+                pivotFractionY = .5f,
             )
 
             // But should still move inwards to keep the pressed padding consistent with top and bottom.
@@ -329,43 +329,41 @@ private class SegmentedControlState {
                 .toInt()
                 .coerceIn(0, segmentCount - 1)
 
-        forEachGesture {
-            awaitPointerEventScope {
-                val down = awaitFirstDown()
+        awaitEachGesture {
+            val down = awaitFirstDown()
 
-                pressedSegment = segmentIndex(down)
-                val downOnSelected = pressedSegment == selectedSegment
-                val segmentBounds = Rect(
-                    left = pressedSegment * segmentWidth.toFloat(),
-                    right = (pressedSegment + 1) * segmentWidth.toFloat(),
-                    top = 0f,
-                    bottom = size.height.toFloat()
-                )
+            pressedSegment = segmentIndex(down)
+            val downOnSelected = pressedSegment == selectedSegment
+            val segmentBounds = Rect(
+                left = pressedSegment * segmentWidth.toFloat(),
+                right = (pressedSegment + 1) * segmentWidth.toFloat(),
+                top = 0f,
+                bottom = size.height.toFloat(),
+            )
 
-                // Now that the pointer is down, the rest of the gesture depends on whether the segment that
-                // was "pressed" was selected.
-                if (downOnSelected) {
-                    // When the selected segment is pressed, it can be dragged to other segments to animate the
-                    // thumb moving and the segments scaling.
-                    horizontalDrag(down.id) { change ->
-                        pressedSegment = segmentIndex(change)
+            // Now that the pointer is down, the rest of the gesture depends on whether the segment that
+            // was "pressed" was selected.
+            if (downOnSelected) {
+                // When the selected segment is pressed, it can be dragged to other segments to animate the
+                // thumb moving and the segments scaling.
+                horizontalDrag(down.id) { change ->
+                    pressedSegment = segmentIndex(change)
 
-                        // Notify the SegmentedControl caller when the pointer changes segments.
-                        if (pressedSegment != selectedSegment) {
-                            onSegmentSelected(pressedSegment)
-                        }
+                    // Notify the SegmentedControl caller when the pointer changes segments.
+                    if (pressedSegment != selectedSegment) {
+                        onSegmentSelected(pressedSegment)
                     }
-                } else {
-                    // When an unselected segment is pressed, we just animate the alpha of the segment while
-                    // the pointer is down. No dragging is supported.
-                    waitForUpOrCancellation(inBounds = segmentBounds)
-                        // Null means the gesture was cancelled (e.g. dragged out of bounds).
-                        ?.let { onSegmentSelected(pressedSegment) }
                 }
-
-                // In either case, once the gesture is cancelled, stop showing the pressed indication.
-                pressedSegment = NO_SEGMENT_INDEX
+            } else {
+                // When an unselected segment is pressed, we just animate the alpha of the segment while
+                // the pointer is down. No dragging is supported.
+                waitForUpOrCancellation(inBounds = segmentBounds)
+                    // Null means the gesture was cancelled (e.g. dragged out of bounds).
+                    ?.let { onSegmentSelected(pressedSegment) }
             }
+
+            // In either case, once the gesture is cancelled, stop showing the pressed indication.
+            pressedSegment = NO_SEGMENT_INDEX
         }
     }
 }
@@ -373,6 +371,7 @@ private class SegmentedControlState {
 /**
  * Copy of nullary waitForUpOrCancellation that works with bounds that may not be at 0,0.
  */
+@Suppress("ReturnCount")
 private suspend fun AwaitPointerEventScope.waitForUpOrCancellation(inBounds: Rect): PointerInputChange? {
     while (true) {
         val event = awaitPointerEvent(PointerEventPass.Main)

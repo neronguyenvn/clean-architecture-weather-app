@@ -10,8 +10,8 @@ import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.example.weatherjourney.features.weather.presentation.info.WeatherInfoViewModel
 import com.example.weatherjourney.presentation.theme.WeatherTheme
-import com.example.weatherjourney.weather.presentation.info.WeatherInfoViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -26,9 +26,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         permissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
+            ActivityResultContracts.RequestMultiplePermissions(),
         ) {
-            viewModel.onAppFirstTimeStart(it.containsValue(true))
+            viewModel.onFirstTimeLocationPermissionResult(it.containsValue(true))
         }
 
         installSplashScreen().setKeepOnScreenCondition {
@@ -36,16 +36,16 @@ class MainActivity : ComponentActivity() {
         }
 
         lifecycleScope.launch {
-            val isFirstTime = viewModel.onFirstTimeCheck()
-            if (isFirstTime) {
+            val isFirstTimeRunApp = viewModel.isFirstTimeRunApp()
+            if (isFirstTimeRunApp) {
                 permissionLauncher.launch(
                     arrayOf(
                         Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    )
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                    ),
                 )
             } else {
-                viewModel.onAppStart()
+                viewModel.onRefresh()
             }
         }
 
@@ -56,6 +56,12 @@ class MainActivity : ComponentActivity() {
                         WeatherNavGraph(startDestination = viewModel.appRoute)
                     }
                 }
+            }
+        }
+
+        setContent {
+            WeatherTheme {
+                WeatherNavGraph()
             }
         }
     }

@@ -19,16 +19,16 @@ fun BasicTopBar(title: String, onBackClick: () -> Unit, modifier: Modifier = Mod
             IconButton(onBackClick) {
                 Icon(
                     Icons.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.back)
+                    contentDescription = stringResource(R.string.back),
                 )
             }
         },
         title = {
             Text(
                 title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }

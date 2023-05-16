@@ -5,12 +5,8 @@ option java_multiple_files = true;
 
 message LocationPreferences {
   string city_address = 1;
-
-  message CoordinatePreferences {
-    double latitude = 1;
-    double longitude = 2;
-  }
-
-  CoordinatePreferences coordinate = 2;
-  string time_zone = 3;
+  double latitude = 2;
+  double longitude = 3;
+  string time_zone = 4;
+  optional bool is_current_location = 5;
 }
