@@ -138,28 +138,15 @@ class WeatherInfoViewModel @Inject constructor(
         }
     })
 
-    fun onNavigateToSearch() {
-        _appRoute = WeatherDestinations.SEARCH_ROUTE
-        _isInitializing.value = false
-    }
-
-    fun onNavigateFromSearch(cityAddress: String, coordinate: Coordinate, timeZone: String) {
-        Log.d(TAG, "onNavigateFromSearch($cityAddress, $coordinate, $timeZone) called")
-        _isLoading.value = true
-
+    fun onNavigateFromSearch(coordinate: Coordinate) {
+        Log.d(TAG, "onNavigateFromSearch($coordinate)")
         viewModelScope.launch {
-            if (locationUseCases.shouldSaveLocation(coordinate)) {
-                _userMessage.value = UserMessage.AddingLocation
+            onRefresh()
+            if (locationRepository.getLocation(coordinate)
+                    .isNull() && _lastLocation.value?.isCurrentLocation != true
+            ) {
+                userMessage.value = UserMessage.AddingLocation
             }
-
-            appPreferences.updateLocation(cityAddress, coordinate, timeZone)
-
-            _lastLocation.filterNotNull()
-                .first { it.coordinate == coordinate }
-                .let {
-                    onRefresh()
-                    _isLoading.value = false
-                }
         }
     }
 

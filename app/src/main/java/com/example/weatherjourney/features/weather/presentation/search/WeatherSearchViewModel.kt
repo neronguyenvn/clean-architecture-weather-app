@@ -9,9 +9,11 @@ import com.example.weatherjourney.domain.ConnectivityObserver
 import com.example.weatherjourney.features.weather.data.local.entity.LocationEntity
 import com.example.weatherjourney.features.weather.data.mapper.coordinate
 import com.example.weatherjourney.features.weather.data.mapper.toSavedCity
+import com.example.weatherjourney.features.weather.domain.model.CityUiModel
 import com.example.weatherjourney.features.weather.domain.model.SavedCity
 import com.example.weatherjourney.features.weather.domain.model.SuggestionCity
 import com.example.weatherjourney.features.weather.domain.model.WeatherType
+import com.example.weatherjourney.features.weather.domain.repository.LocationRepository
 import com.example.weatherjourney.features.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.features.weather.domain.usecase.WeatherUseCases
 import com.example.weatherjourney.presentation.ViewModeWithMessageAndLoading
@@ -45,25 +47,22 @@ private const val REQUIRED_INPUT_LENGTH = 2
 class WeatherSearchViewModel @Inject constructor(
     private val locationUseCases: LocationUseCases,
     private val weatherUseCases: WeatherUseCases,
+    private val locationRepository: LocationRepository,
     connectivityObserver: ConnectivityObserver,
-    appPreferences: AppPreferences
+    private val appPreferences: AppPreferences,
 ) : ViewModeWithMessageAndLoading(connectivityObserver) {
 
     private val _temperatureUnit = appPreferences.temperatureUnitFlow
         .map {
             it.also { Log.d(TAG, "TemperatureUnit flow collected: $it") }
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            null
-        )
+        }
 
-    private val _locations = locationUseCases.getLocationsStream().map {
+    private val _locations = locationRepository.getLocationsStream().map {
         it.also { Log.d(TAG, "Locations flow collected: $it") }
     }.stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
-        emptyList()
+        emptyList(),
     )
 
     private val _input = MutableStateFlow("")
@@ -74,10 +73,10 @@ class WeatherSearchViewModel @Inject constructor(
         _input,
         _savedCities,
         _suggestionCities,
-        _isLoading,
-        _userMessage
+        isLoading,
+        userMessage,
 
-    ) { input, savedCities, suggestionCities, isLoading, userMessage ->
+        ) { input, savedCities, suggestionCities, isLoading, userMessage ->
 
         Log.d(TAG, "$input, $savedCities, $suggestionCities, $isLoading, $userMessage")
 
@@ -85,8 +84,8 @@ class WeatherSearchViewModel @Inject constructor(
             input = input,
             isLoading = isLoading,
             userMessage = userMessage,
-            savedCities = weatherUseCases.convertUnit(savedCities, _temperatureUnit.value),
-            suggestionCities = suggestionCities
+            savedCities = weatherUseCases.convertUnit(savedCities, _temperatureUnit.first()),
+            suggestionCities = suggestionCities,
         )
     }
 
@@ -99,13 +98,11 @@ class WeatherSearchViewModel @Inject constructor(
             val validateResult = locationUseCases.validateCurrentLocation()
             if (validateResult is Result.Error) {
                 when (validateResult.exception) {
-                    is LocationException -> {
-                        locationUseCases.deleteLocation(true)
+                    is LocationException -> locationRepository.apply {
+                        getCurrentLocation()?.let { deleteLocation(it) }
                     }
 
-                    else -> {
-                        handleErrorResult(validateResult)
-                    }
+                    else -> handleErrorResult(validateResult)
                 }
             }
 
@@ -154,14 +151,16 @@ class WeatherSearchViewModel @Inject constructor(
         _savedCities.value =
             if (currentCity.isNull()) savedCities else savedCities.apply { addFirst(currentCity!!) }
 
-        _isLoading.value = false
+        isLoading.value = false
         Log.d(TAG, "SavedCities flow collected: $savedCities")
     })
 
     fun onDeleteLocation() {
         _savedCities.update { it.toMutableList().apply { remove(tempSavedCity) } }
         viewModelScope.launch {
-            locationUseCases.deleteLocation(tempSavedCity.coordinate)
+            locationRepository.apply {
+                deleteLocation(getLocation(tempSavedCity.coordinate)!!)
+            }
             showSnackbarMessage(R.string.location_deleted)
         }
     }
@@ -169,7 +168,7 @@ class WeatherSearchViewModel @Inject constructor(
     fun onSavedCityLongClick(city: SavedCity) {
         if (city.isCurrentLocation) return
         tempSavedCity = city
-        _userMessage.value = UserMessage.DeletingLocation(city.cityAddress)
+        userMessage.value = UserMessage.DeletingLocation(city.cityAddress)
     }
 
     fun onLocationFieldClick() {
@@ -180,10 +179,10 @@ class WeatherSearchViewModel @Inject constructor(
                     Log.d(TAG, result.exception.toString())
                     when (result.exception) {
                         is LocationPermissionDeniedException ->
-                            _userMessage.value = RequestingLocationPermission
+                            userMessage.value = RequestingLocationPermission
 
                         is LocationServiceDisabledException ->
-                            _userMessage.value = RequestingTurnOnLocationService
+                            userMessage.value = RequestingTurnOnLocationService
                     }
                 }
             }
@@ -194,11 +193,33 @@ class WeatherSearchViewModel @Inject constructor(
         if (!isGranted) return
 
         viewModelScope.launch {
-            _isLoading.value = true
+            isLoading.value = true
             // Delay to wait for the location service turn on
             if (shouldDelay) delay(DELAY_TIME)
             locationUseCases.validateCurrentLocation()
             onRefresh()
+        }
+    }
+
+    fun onItemClick(city: CityUiModel) = viewModelScope.launch {
+        when (city) {
+            is SavedCity -> {
+                appPreferences.updateLocation(
+                    cityAddress = city.cityAddress,
+                    coordinate = city.coordinate,
+                    timeZone = city.timeZone,
+                    isCurrentLocation = city.isCurrentLocation,
+                )
+            }
+
+            is SuggestionCity -> {
+                appPreferences.updateLocation(
+                    cityAddress = city.cityAddress,
+                    coordinate = city.coordinate,
+                    timeZone = city.timeZone,
+                    isCurrentLocation = null,
+                )
+            }
         }
     }
 
@@ -213,7 +234,7 @@ class WeatherSearchViewModel @Inject constructor(
                         val city = weather.data.hourly.let {
                             location.toSavedCity(
                                 it.temperatures[0],
-                                WeatherType.fromWMO(it.weatherCodes[0])
+                                WeatherType.fromWMO(it.weatherCodes[0]),
                             )
                         }
 
@@ -245,7 +266,7 @@ class WeatherSearchViewModel @Inject constructor(
                 if (it.length < REQUIRED_INPUT_LENGTH) {
                     emptyList()
                 } else {
-                    handleSuggestionCitiesResult(locationUseCases.getSuggestionCities(it))
+                    handleSuggestionCitiesResult(locationRepository.getSuggestionCities(it))
                 }
             }
         }

@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
@@ -41,7 +40,6 @@ import com.example.weatherjourney.features.weather.presentation.search.component
 import com.example.weatherjourney.presentation.component.LoadingContent
 import com.example.weatherjourney.util.UserMessage
 import com.example.weatherjourney.util.UserMessage.RequestingTurnOnLocationService
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.common.api.ResolvableApiException
@@ -54,17 +52,17 @@ private enum class SearchScreenType {
     SavedInfoFeed,
     SavedInfoFeedWithYourLocationButton,
     SuggestionFeed,
-    NoResult
+    NoResult,
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalPermissionsApi::class)
+@Suppress("LongMethod", "MagicNumber")
 @Composable
 fun WeatherSearchScreen(
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     onItemClick: (CityUiModel) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: WeatherSearchViewModel = hiltViewModel()
+    viewModel: WeatherSearchViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -77,9 +75,9 @@ fun WeatherSearchScreen(
                 onBackClick = onBackClick,
                 onValueChange = viewModel::onInputUpdate,
                 onValueClear = { viewModel.onInputUpdate("") },
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = 8.dp),
             )
-        }
+        },
     ) { paddingValues ->
 
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -87,7 +85,7 @@ fun WeatherSearchScreen(
         val context = LocalContext.current
 
         val activityResultLauncher = rememberLauncherForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult()
+            ActivityResultContracts.StartIntentSenderForResult(),
         ) { result ->
             viewModel.onPermissionActionResult(result.resultCode == Activity.RESULT_OK, true)
         }
@@ -95,17 +93,20 @@ fun WeatherSearchScreen(
         val locationPermissionState = rememberMultiplePermissionsState(
             listOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            )
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            ),
         ) { viewModel.onPermissionActionResult(it.any { permission -> permission.value }) }
 
         WeatherSearchScreenContent(
             uiState = uiState,
             onRefresh = viewModel::onRefresh,
-            onCityClick = onItemClick,
+            onCityClick = {
+                viewModel.onItemClick(it)
+                onItemClick(it)
+            },
             onCityLongClick = viewModel::onSavedCityLongClick,
             onCurrentLocationFieldClick = viewModel::onLocationFieldClick,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
         )
 
         uiState.userMessage?.let { userMessage ->
@@ -116,10 +117,10 @@ fun WeatherSearchScreen(
                         .addLocationRequest(
                             LocationRequest.Builder(
                                 Priority.PRIORITY_HIGH_ACCURACY,
-                                5000
-                            ).build()
+                                5000,
+                            ).build(),
                         )
-                        .build()
+                        .build(),
                 )
                 task.addOnFailureListener { exception ->
                     if (exception is ResolvableApiException) {
@@ -162,7 +163,7 @@ fun WeatherSearchScreen(
                     val result = snackbarHostState.showSnackbar(
                         message = snackbarText,
                         actionLabel = actionLabel,
-                        duration = SnackbarDuration.Short
+                        duration = SnackbarDuration.Short,
                     )
 
                     if (result == SnackbarResult.ActionPerformed) {
@@ -183,7 +184,7 @@ fun WeatherSearchScreenContent(
     onCityClick: (CityUiModel) -> Unit,
     onCityLongClick: (SavedCity) -> Unit,
     onCurrentLocationFieldClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     when (val screenType = getSearchScreenType(uiState)) {
         SearchScreenType.NoResult -> {
@@ -193,7 +194,7 @@ fun WeatherSearchScreenContent(
                 textAlign = TextAlign.Center,
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp)
+                    .padding(top = 8.dp),
             )
         }
 
@@ -218,7 +219,7 @@ fun WeatherSearchScreenContent(
                 onCityClick = onCityClick,
                 onCityLongClick = onCityLongClick,
                 onCurrentLocationFieldClick = onCurrentLocationFieldClick,
-                modifier = modifier
+                modifier = modifier,
             )
         }
     }
@@ -233,12 +234,12 @@ private fun SavedCitiesContent(
     onCityClick: (CityUiModel) -> Unit,
     onCityLongClick: (SavedCity) -> Unit,
     onCurrentLocationFieldClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LoadingContent(
         isLoading = isLoading,
         onRefresh = onRefresh,
-        modifier = modifier
+        modifier = modifier,
     ) {
         LazyColumn(Modifier.fillMaxWidth()) {
             if (screenType == SearchScreenType.SavedInfoFeedWithYourLocationButton) {
@@ -248,7 +249,7 @@ private fun SavedCitiesContent(
                 SavedCityItem(
                     city = city,
                     onCityClick = { onCityClick(city) },
-                    onCityLongClick = { onCityLongClick(city) }
+                    onCityLongClick = { onCityLongClick(city) },
                 )
             }
         }
