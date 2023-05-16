@@ -77,8 +77,8 @@ class WeatherInfoViewModel @Inject constructor(
     private val _isCurrentLocation = MutableStateFlow(false)
 
     val uiState: StateFlow<WeatherInfoUiState> = combine(
-        _isLoading,
-        _userMessage,
+        isLoading,
+        userMessage,
         _weatherAsync,
         _units,
         _isCurrentLocation

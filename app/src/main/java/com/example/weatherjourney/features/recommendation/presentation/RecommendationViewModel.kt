@@ -31,8 +31,8 @@ class RecommendationViewModel @Inject constructor(
     private val _recommendationsAsync = MutableStateFlow<Async<Recommendations?>>(Async.Loading)
 
     val uiState: StateFlow<RecommendationUiState> = combine(
-        _userMessage,
-        _isLoading,
+        userMessage,
+        isLoading,
         _recommendationsAsync,
     ) { userMessage, isLoading, recommendationsAsync ->
 
