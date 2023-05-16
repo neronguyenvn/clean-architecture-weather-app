@@ -8,7 +8,6 @@ import com.example.weatherjourney.features.recommendation.domain.model.UvRecomme
 import com.example.weatherjourney.features.recommendation.domain.model.toAqiLevel
 import com.example.weatherjourney.features.recommendation.domain.model.toUvIndexLevel
 import com.example.weatherjourney.util.filterPastHours
-import com.example.weatherjourney.util.isNull
 import com.example.weatherjourney.util.toDate
 
 fun HourlyAirQuality.toRecommendations(timeZone: String): Recommendations {
@@ -25,42 +24,35 @@ fun HourlyAirQuality.toRecommendations(timeZone: String): Recommendations {
     for (i in 0..lastIndex) {
         val currentUvLevel = newUvIndexList[i].toUvIndexLevel()
         val nextUvLevel = newUvIndexList[i + 1].toUvIndexLevel()
+
+        if (currentUvLevel != nextUvLevel || i == lastIndex) {
+            recommendations = recommendations.copy(
+                uvRecommendation = UvRecommendation(
+                    firstTimePeriod = firstTimeLine,
+                    secondTimePeriod = newTimeList[i].toDate(timeZone, DATE_24_PATTERN),
+                    infoRes = currentUvLevel.infoRes,
+                    recommendationRes = currentUvLevel.recommendationRes,
+                ),
+            )
+            break
+        }
+    }
+
+    for (i in 0..lastIndex) {
         val currentAqiLevel = newAqiList[i].toAqiLevel()
         val nextAqiLevel = newAqiList[i + 1].toAqiLevel()
 
-        when {
-            recommendations.uvRecommendation.isNull() -> {
-                // Uv level haven't changed yet and i isn't the last index so continue
-                if (currentUvLevel == nextUvLevel || i == lastIndex) {
-                    continue
-                }
-
-                recommendations = recommendations.copy(
-                    uvRecommendation = UvRecommendation(
-                        firstTimePeriod = firstTimeLine,
-                        secondTimePeriod = newTimeList[i].toDate(timeZone, DATE_24_PATTERN),
-                        infoRes = currentUvLevel.infoRes,
-                        recommendationRes = currentUvLevel.recommendationRes
-                    )
-                )
-            }
-
-            recommendations.aqiRecommendation.isNull() -> {
-                // Aqi level haven't changed yet and i isn't the last index so continue
-                if (currentAqiLevel == nextAqiLevel || i == lastIndex) {
-                    continue
-                }
-
-                recommendations = recommendations.copy(
-                    aqiRecommendation = AqiRecommendation(
-                        firstTimePeriod = firstTimeLine,
-                        secondTimePeriod = newTimeList[i].toDate(timeZone, DATE_24_PATTERN),
-                        infoRes = currentAqiLevel.infoRes,
-                        generalPopulationRecommendationRes = currentAqiLevel.generalPopulationRecommendationRes,
-                        sensitivePopulationRecommendationRes = currentAqiLevel.sensitivePopulationRecommendationRes
-                    )
-                )
-            }
+        if (currentAqiLevel != nextAqiLevel || i == lastIndex) {
+            recommendations = recommendations.copy(
+                aqiRecommendation = AqiRecommendation(
+                    firstTimePeriod = firstTimeLine,
+                    secondTimePeriod = newTimeList[i].toDate(timeZone, DATE_24_PATTERN),
+                    infoRes = currentAqiLevel.infoRes,
+                    generalPopulationRecommendationRes = currentAqiLevel.generalPopulationRecommendationRes,
+                    sensitivePopulationRecommendationRes = currentAqiLevel.sensitivePopulationRecommendationRes,
+                ),
+            )
+            break
         }
     }
 
