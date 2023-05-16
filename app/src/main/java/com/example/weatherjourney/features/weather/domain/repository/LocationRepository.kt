@@ -10,9 +10,9 @@ interface LocationRepository {
 
     suspend fun getCurrentCoordinate(): Result<Coordinate>
 
-    suspend fun getSuggestionLocations(cityAddress: String): Result<List<SuggestionCity>>
+    suspend fun getSuggestionCities(cityAddress: String): Result<List<SuggestionCity>>
 
-    suspend fun fetchCurrentLocationIfNeeded(currentCoordinate: Coordinate): Result<Any>
+    suspend fun checkAndUpdateCurrentLocationIfNeeded(currentCoordinate: Coordinate): Result<Boolean>
 
     suspend fun getLocation(coordinate: Coordinate): LocationEntity?
 
@@ -23,6 +23,4 @@ interface LocationRepository {
     suspend fun saveLocation(location: LocationEntity)
 
     suspend fun deleteLocation(location: LocationEntity)
-
-    suspend fun updateLastLocationFromCurrentOne()
 }
