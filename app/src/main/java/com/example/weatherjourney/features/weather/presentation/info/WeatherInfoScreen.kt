@@ -29,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -66,9 +65,7 @@ private const val TAG = "WeatherInfoScreen"
 
 @Composable
 fun WeatherInfoScreen(
-    city: String,
     coordinate: Coordinate,
-    timeZone: String,
     snackbarHostState: SnackbarHostState,
     navigationKey: Int,
     countryCode: String,
@@ -78,7 +75,7 @@ fun WeatherInfoScreen(
     onNavigationToInfoDone: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WeatherInfoViewModel = LocalView.current.findViewTreeViewModelStoreOwner()
-        .let { hiltViewModel(it!!) }
+        .let { hiltViewModel(it!!) },
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     Log.d(TAG, "UiState flow collected: $uiState")
@@ -88,32 +85,31 @@ fun WeatherInfoScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             InfoTopBar(
-                cityAddress = uiState.allWeather.cityAddress,
+                cityAddress = uiState.cityAddress,
                 onSearchClick = onSearchClick,
-                onSettingClick = onSettingClick
+                onSettingClick = onSettingClick,
             )
         },
         floatingActionButton = {
             FloatingActionButton(onNotificationClick) {
                 Icon(
                     Icons.Outlined.Notifications,
-                    contentDescription = stringResource(R.string.notification)
+                    contentDescription = stringResource(R.string.notification),
                 )
             }
-        }
+        },
     ) { paddingValues ->
 
         WeatherInfoScreenContent(
             uiState = uiState,
             onRefresh = { viewModel.onRefresh() },
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
         )
 
-        val currentOnNavigationDone by rememberUpdatedState(onNavigationToInfoDone)
-        LaunchedEffect(currentOnNavigationDone) {
+        LaunchedEffect(true) {
             if (navigationKey == NAVIGATE_FROM_SEARCH) {
-                viewModel.onNavigateFromSearch(city, coordinate, timeZone)
-                currentOnNavigationDone()
+                viewModel.onNavigateFromSearch(coordinate)
+                onNavigationToInfoDone()
             }
         }
 
@@ -126,7 +122,7 @@ fun WeatherInfoScreen(
                     val result = snackbarHostState.showSnackbar(
                         message = it,
                         actionLabel = actionLabel,
-                        duration = SnackbarDuration.Short
+                        duration = SnackbarDuration.Short,
                     )
 
                     if (result == SnackbarResult.ActionPerformed && userMessage is AddingLocation) {
@@ -144,25 +140,25 @@ fun WeatherInfoScreen(
 fun WeatherInfoScreenContent(
     uiState: WeatherInfoUiState,
     onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val screenPadding = PaddingValues(
         start = dimensionResource(R.dimen.horizontal_margin),
         end = dimensionResource(R.dimen.horizontal_margin),
-        top = dimensionResource(R.dimen.vertical_margin)
+        top = dimensionResource(R.dimen.vertical_margin),
     )
 
     LoadingContent(uiState.isLoading, onRefresh, modifier) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(screenPadding)
+                .padding(screenPadding),
         ) {
             item {
                 CurrentWeatherContent(
                     uiState.allWeather.current,
                     uiState.allUnit,
-                    uiState.isCurrentLocation
+                    uiState.isCurrentLocation,
                 )
             }
             item { Spacer(Modifier.height(32.dp)) }
@@ -175,12 +171,13 @@ fun WeatherInfoScreenContent(
     }
 }
 
+@Suppress("LongMethod")
 @Composable
 fun CurrentWeatherContent(
     current: CurrentWeather?,
     allUnit: AllUnit?,
     isCurrentLocation: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     current?.let {
         allUnit?.let { units ->
@@ -189,28 +186,28 @@ fun CurrentWeatherContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Row {
                         if (isCurrentLocation) {
                             Text(
                                 stringResource(R.string.your_location),
                                 style = MaterialTheme.typography.labelMedium,
-                                color = Color.White
+                                color = Color.White,
                             )
                         }
                         Spacer(Modifier.weight(1f))
                         Text(
                             current.date,
                             style = MaterialTheme.typography.labelMedium,
-                            color = Color.White
+                            color = Color.White,
                         )
                     }
                     Spacer(modifier = Modifier.height(20.dp))
                     Image(
                         painter = painterResource(current.weatherType.iconRes),
                         contentDescription = null,
-                        modifier = Modifier.height(150.dp)
+                        modifier = Modifier.height(150.dp),
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
@@ -221,38 +218,38 @@ fun CurrentWeatherContent(
                             withStyle(superscript) {
                                 append(units.temperature.label)
                             }
-                        }
+                        },
                     )
                     Text(
                         current.weatherType.weatherDesc,
                         style = MaterialTheme.typography.titleLarge,
-                        color = Color.White
+                        color = Color.White,
                     )
                     Spacer(modifier = Modifier.height(32.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround
+                        horizontalArrangement = Arrangement.SpaceAround,
                     ) {
                         WeatherDataDisplay(
                             value = current.pressure.roundTo(1),
                             unit = units.pressure.label,
                             icon = ImageVector.vectorResource(R.drawable.ic_pressure),
                             iconTint = Color.White,
-                            textStyle = TextStyle(color = Color.White)
+                            textStyle = TextStyle(color = Color.White),
                         )
                         WeatherDataDisplay(
                             value = current.humidity.roundToInt(),
                             unit = "%",
                             icon = ImageVector.vectorResource(R.drawable.ic_drop),
                             iconTint = Color.White,
-                            textStyle = TextStyle(color = Color.White)
+                            textStyle = TextStyle(color = Color.White),
                         )
                         WeatherDataDisplay(
                             value = current.windSpeed.roundTo(1),
                             unit = units.windSpeed.label,
                             icon = ImageVector.vectorResource(R.drawable.ic_wind),
                             iconTint = Color.White,
-                            textStyle = TextStyle(color = Color.White)
+                            textStyle = TextStyle(color = Color.White),
                         )
                     }
                 }
