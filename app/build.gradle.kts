@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.kapt)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kotlinter)
     alias(libs.plugins.ksp)
     alias(libs.plugins.protobuf)
 }
@@ -122,6 +121,9 @@ dependencies {
     implementation(libs.retrofit.kotlin.serialization)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp.logging)
+
+    // Detekt Formatting
+    detektPlugins(libs.detekt.formatting)
 
     // Dependencies for local unit tests
     testImplementation(libs.junit4)
