@@ -1,6 +1,5 @@
 package com.example.weatherjourney.data
 
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -19,18 +18,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
-private const val TAG = "DefaultPreferenceRepository"
-
 class DefaultPreferences(
     private val userPreferencesStore: DataStore<Preferences>,
-    private val locationPreferencesStore: DataStore<LocationPreferences>
+    private val locationPreferencesStore: DataStore<LocationPreferences>,
 ) : AppPreferences {
 
     override val locationPreferencesFlow: Flow<LocationPreferences> = locationPreferencesStore.data
         .catch { exception ->
-            // dataStore.data throws an IOException when an error is encountered when reading data
             if (exception is IOException) {
-                Log.e(TAG, "Error reading sort order preferences.", exception)
                 emit(LocationPreferences.getDefaultInstance())
             } else {
                 throw exception
@@ -45,25 +40,25 @@ class DefaultPreferences(
     override val windSpeedUnitFlow: Flow<WindSpeedUnit> =
         userPreferencesStore.data.map { preferences ->
             WindSpeedUnit.valueOf(
-                preferences[WIND_SPEED_UNIT] ?: WindSpeedUnit.KILOMETER_PER_HOUR.name
+                preferences[WIND_SPEED_UNIT] ?: WindSpeedUnit.KILOMETER_PER_HOUR.name,
             )
         }
 
     override val pressureUnitFlow: Flow<PressureUnit> =
         userPreferencesStore.data.map { preferences ->
             PressureUnit.valueOf(
-                preferences[PRESSURE_UNIT] ?: PressureUnit.HECTOPASCAL.name
+                preferences[PRESSURE_UNIT] ?: PressureUnit.HECTOPASCAL.name,
             )
         }
 
     override val timeFormatUnitFlow: Flow<TimeFormatUnit> =
         userPreferencesStore.data.map { preferences ->
             TimeFormatUnit.valueOf(
-                preferences[TIME_FORMAT_UNIT] ?: TimeFormatUnit.TWENTY_FOUR.name
+                preferences[TIME_FORMAT_UNIT] ?: TimeFormatUnit.TWENTY_FOUR.name,
             )
         }
 
-    override suspend fun getIsFirstTime(): Boolean =
+    override suspend fun isFirstTimeRunApp(): Boolean =
         userPreferencesStore.data.first().toPreferences().let { preferences ->
             preferences[IS_FIRST_TIME] ?: true
         }
@@ -71,43 +66,57 @@ class DefaultPreferences(
     override suspend fun updateLocation(
         cityAddress: String,
         coordinate: Coordinate,
-        timeZone: String
+        timeZone: String,
+        isCurrentLocation: Boolean?,
     ) {
         locationPreferencesStore.updateData { preferences ->
-            preferences.toBuilder()
+            val builder = preferences.toBuilder()
                 .setCityAddress(cityAddress)
                 .setLatitude(coordinate.latitude)
                 .setLongitude(coordinate.longitude)
                 .setTimeZone(timeZone)
+
+            if (isCurrentLocation != null) {
+                builder.setIsCurrentLocation(isCurrentLocation).build()
+            } else {
+                builder.build()
+            }
+        }
+    }
+
+    override suspend fun updateIsCurrentLocation(isCurrentLocation: Boolean) {
+        locationPreferencesStore.updateData { preferences ->
+            preferences.toBuilder()
+                .setIsCurrentLocation(isCurrentLocation)
                 .build()
         }
     }
 
-    override suspend fun saveTemperatureUnit(unit: TemperatureUnit) {
+    override suspend fun updateTemperatureUnit(unit: TemperatureUnit) {
         userPreferencesStore.edit { preferences ->
             preferences[TEMPERATURE_UNIT] = unit.name
         }
     }
 
-    override suspend fun saveWindSpeedUnit(unit: WindSpeedUnit) {
+    override suspend fun updateWindSpeedUnit(unit: WindSpeedUnit) {
         userPreferencesStore.edit { preferences ->
             preferences[WIND_SPEED_UNIT] = unit.name
         }
     }
 
-    override suspend fun savePressureUnit(unit: PressureUnit) {
+    override suspend fun updatePressureUnit(unit: PressureUnit) {
         userPreferencesStore.edit { preferences ->
             preferences[PRESSURE_UNIT] = unit.name
         }
     }
 
-    override suspend fun saveTimeFormatUnit(unit: TimeFormatUnit) {
+    override suspend fun updateTimeFormatUnit(unit: TimeFormatUnit) {
         userPreferencesStore.edit { preferences ->
             preferences[TIME_FORMAT_UNIT] = unit.name
         }
     }
 
-    override suspend fun saveIsFirstTimeIntoFalse() {
+    override suspend fun setFirstTimeRunAppToFalse() {
         userPreferencesStore.edit { preferences ->
             preferences[IS_FIRST_TIME] = false
         }

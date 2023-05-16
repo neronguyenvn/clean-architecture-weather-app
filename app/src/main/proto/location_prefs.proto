@@ -8,4 +8,5 @@ message LocationPreferences {
   double latitude = 2;
   double longitude = 3;
   string time_zone = 4;
+  optional bool is_current_location = 5;
 }
