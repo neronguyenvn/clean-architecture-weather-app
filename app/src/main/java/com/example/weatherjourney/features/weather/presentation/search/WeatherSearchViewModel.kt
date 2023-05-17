@@ -201,7 +201,7 @@ class WeatherSearchViewModel @Inject constructor(
         }
     }
 
-    fun onItemClick(city: CityUiModel) = viewModelScope.launch {
+    fun onItemClick(city: CityUiModel, onItemClick: (CityUiModel) -> Unit) = viewModelScope.launch {
         when (city) {
             is SavedCity -> {
                 appPreferences.updateLocation(
@@ -221,6 +221,8 @@ class WeatherSearchViewModel @Inject constructor(
                 )
             }
         }
+
+        onItemClick(city)
     }
 
     private fun handleLocations(channel: Channel<SavedCity?>, locations: List<LocationEntity>) {

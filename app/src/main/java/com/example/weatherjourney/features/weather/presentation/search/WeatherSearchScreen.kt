@@ -100,10 +100,7 @@ fun WeatherSearchScreen(
         WeatherSearchScreenContent(
             uiState = uiState,
             onRefresh = viewModel::onRefresh,
-            onCityClick = {
-                viewModel.onItemClick(it)
-                onItemClick(it)
-            },
+            onCityClick = { viewModel.onItemClick(it, onItemClick) },
             onCityLongClick = viewModel::onSavedCityLongClick,
             onCurrentLocationFieldClick = viewModel::onLocationFieldClick,
             modifier = Modifier.padding(paddingValues),
