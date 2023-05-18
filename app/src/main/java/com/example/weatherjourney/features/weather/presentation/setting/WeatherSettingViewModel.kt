@@ -8,8 +8,8 @@ import com.example.weatherjourney.features.weather.domain.mapper.getTemperatureU
 import com.example.weatherjourney.features.weather.domain.mapper.getTimeFormatUnit
 import com.example.weatherjourney.features.weather.domain.mapper.getWindSpeedUnit
 import com.example.weatherjourney.features.weather.domain.model.unit.AllUnit
-import com.example.weatherjourney.util.WhileUiSubscribed
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -29,7 +29,7 @@ class WeatherSettingViewModel @Inject constructor(
         AllUnit(tUnit, wpUnit, psUnit, tfUnit)
     }.stateIn(
         viewModelScope,
-        WhileUiSubscribed,
+        SharingStarted.Eagerly,
         null,
     )
 

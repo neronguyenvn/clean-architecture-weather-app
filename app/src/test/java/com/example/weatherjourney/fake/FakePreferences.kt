@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class FakePreferences : AppPreferences {
 
-    var isFirstTimeRunApp = true
+    private var isFirstTimeRunApp = true
 
     override val locationPreferencesFlow =
         MutableStateFlow(LocationPreferences.getDefaultInstance())
