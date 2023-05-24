@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val TAG = "WeatherSearchViewModel"
-private const val REQUIRED_INPUT_LENGTH = 2
+private const val REQUIRED_INPUT_LENGTH = 3
 
 @HiltViewModel
 class WeatherSearchViewModel @Inject constructor(
@@ -127,6 +127,7 @@ class WeatherSearchViewModel @Inject constructor(
 
     fun onInputUpdate(input: String) {
         _input.value = input
+        refreshSuggestionCities()
     }
 
     override fun onRefresh() = runSuspend({
