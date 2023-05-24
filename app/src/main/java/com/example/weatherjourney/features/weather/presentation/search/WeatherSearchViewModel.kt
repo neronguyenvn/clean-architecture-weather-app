@@ -17,6 +17,7 @@ import com.example.weatherjourney.features.weather.domain.repository.LocationRep
 import com.example.weatherjourney.features.weather.domain.usecase.LocationUseCases
 import com.example.weatherjourney.features.weather.domain.usecase.WeatherUseCases
 import com.example.weatherjourney.presentation.ViewModeWithMessageAndLoading
+import com.example.weatherjourney.util.Async
 import com.example.weatherjourney.util.LocationException
 import com.example.weatherjourney.util.LocationException.LocationPermissionDeniedException
 import com.example.weatherjourney.util.LocationException.LocationServiceDisabledException
@@ -32,12 +33,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
 private const val TAG = "WeatherSearchViewModel"
@@ -71,31 +70,33 @@ class WeatherSearchViewModel @Inject constructor(
     )
 
     private val _input = MutableStateFlow("")
-    private val _savedCities = MutableStateFlow<List<SavedCity>>(emptyList())
+    private val _savedCitiesAsync = MutableStateFlow<Async<List<SavedCity>>>(Async.Loading)
     private val _suggestionCities = MutableStateFlow<List<SuggestionCity>>(emptyList())
 
     private val _viewModelState = combine(
         _input,
-        _savedCities,
+        _savedCitiesAsync,
         _suggestionCities,
         isLoading,
         userMessage,
+    ) { input, savedCitiesAsync, suggestionCities, isLoading, userMessage ->
 
-        ) { input, savedCities, suggestionCities, isLoading, userMessage ->
-
-        Log.d(TAG, "$input, $savedCities, $suggestionCities, $isLoading, $userMessage")
-
-        WeatherSearchViewModelState(
-            input = input,
-            isLoading = isLoading,
-            userMessage = userMessage,
-            savedCities = weatherUseCases.convertUnit(savedCities, _temperatureUnit.first()),
-            suggestionCities = suggestionCities,
-        )
+        when (savedCitiesAsync) {
+            Async.Loading -> WeatherSearchViewModelState(isLoading = true)
+            is Async.Success -> WeatherSearchViewModelState(
+                input = input,
+                isLoading = isLoading,
+                userMessage = userMessage,
+                suggestionCities = suggestionCities,
+                savedCities = weatherUseCases.convertUnit(
+                    savedCitiesAsync.data, _temperatureUnit.value
+                ),
+            )
+        }
     }
 
     private val _uiState =
-        MutableStateFlow(WeatherSearchViewModelState().toUiState())
+        MutableStateFlow(WeatherSearchViewModelState(isLoading = true).toUiState())
     val uiState = _uiState.asStateFlow()
 
     init {
@@ -107,21 +108,18 @@ class WeatherSearchViewModel @Inject constructor(
                         getCurrentLocation()?.let { deleteLocation(it) }
                     }
 
-                    else -> handleErrorResult(validateResult)
-                }
-            }
-
-            onRefresh()
-
-            _viewModelState.collect { state ->
-                _uiState.update {
-                    state.toUiState().also {
-                        if (it is WeatherSearchState.ShowSuggestionCities) {
-                            refreshSuggestionCities()
-                        }
+                    else -> {
+                        _savedCitiesAsync.value = Async.Success(emptyList())
+                        handleErrorResult(validateResult)
                     }
                 }
             }
+
+            launch {
+                _viewModelState.collect { _uiState.value = it.toUiState() }
+            }
+
+            onRefresh()
         }
     }
 
