@@ -55,7 +55,12 @@ class WeatherSearchViewModel @Inject constructor(
     private val _temperatureUnit = appPreferences.temperatureUnitFlow
         .map {
             it.also { Log.d(TAG, "TemperatureUnit flow collected: $it") }
-        }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            null,
+        )
+
 
     private val _locations = locationRepository.getLocationsStream().map {
         it.also { Log.d(TAG, "Locations flow collected: $it") }

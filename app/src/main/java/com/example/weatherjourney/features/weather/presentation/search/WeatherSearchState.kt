@@ -30,7 +30,6 @@ data class WeatherSearchViewModelState(
     val userMessage: UserMessage? = null,
     val savedCities: List<SavedCity> = emptyList(),
     val suggestionCities: List<SuggestionCity> = emptyList(),
-    val hasLocationException: Boolean = false,
 ) {
     fun toUiState(): WeatherSearchState =
         if (input.isBlank()) {
