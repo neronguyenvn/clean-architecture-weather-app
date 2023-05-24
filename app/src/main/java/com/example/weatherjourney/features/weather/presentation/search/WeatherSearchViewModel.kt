@@ -159,11 +159,16 @@ class WeatherSearchViewModel @Inject constructor(
     })
 
     fun onDeleteLocation() {
-        _savedCities.update { it.toMutableList().apply { remove(tempSavedCity) } }
         viewModelScope.launch {
             locationRepository.apply {
                 deleteLocation(getLocation(tempSavedCity.coordinate)!!)
             }
+
+            _savedCitiesAsync.update {
+                Async.Success((it as Async.Success).data.toMutableList()
+                    .apply { remove(tempSavedCity) })
+            }
+
             showSnackbarMessage(R.string.location_deleted)
         }
     }
