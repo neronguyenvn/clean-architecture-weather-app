@@ -131,32 +131,45 @@ class WeatherSearchViewModel @Inject constructor(
     }
 
     override fun onRefresh() = runSuspend({
-        val channel = Channel<SavedCity?>()
-        val locations = withTimeoutOrNull(DELAY_TIME) { _locations.first { it.isNotEmpty() } }
-            ?: return@runSuspend
-        handleLocations(channel, locations)
+        refreshSuggestionCities()
+        if (_locations.value.isEmpty()) return@runSuspend
 
+        val channel = Channel<Result<SavedCity>>()
+        handleLocations(channel, _locations.value)
+
+        // Use ArrayDeque to add current location to the beginning of the array later
         val savedCities = ArrayDeque<SavedCity>()
         var currentCity: SavedCity? = null
 
-        locations.forEach { _ ->
-            val city = channel.receive()
+        run repeatBlock@{
+            repeat(_locations.value.size) {
+                when (val city = channel.receive()) {
+                    is Result.Success -> {
+                        if (city.data.isCurrentLocation) currentCity = city.data
+                        else savedCities.add(city.data)
+                    }
 
-            city?.let {
-                if (city.isCurrentLocation) {
-                    currentCity = city
-                } else {
-                    savedCities.add(city)
+                    is Result.Error -> {
+                        _savedCitiesAsync.value = Async.Success(emptyList())
+                        handleErrorResult(city)
+                        return@repeatBlock
+                    }
                 }
             }
         }
 
+        // Since we are using a channel to concurrently request APIs for all locations,
+        // it is necessary to sort the city list in the order they were added.
         savedCities.sortBy { it.id }
-        _savedCities.value =
-            if (currentCity.isNull()) savedCities else savedCities.apply { addFirst(currentCity!!) }
+        // Add the current city to the beginning of the city list if it isn't null
+        _savedCitiesAsync.value =
+            Async.Success(if (currentCity.isNull()) savedCities else savedCities.apply {
+                addFirst(currentCity!!)
+            })
 
-        isLoading.value = false
-        Log.d(TAG, "SavedCities flow collected: $savedCities")
+        Log.d(
+            TAG, "SavedCities flow collected: $savedCities"
+        )
     })
 
     fun onDeleteLocation() {
@@ -187,11 +200,11 @@ class WeatherSearchViewModel @Inject constructor(
                 is Result.Error -> {
                     Log.d(TAG, result.exception.toString())
                     when (result.exception) {
-                        is LocationPermissionDeniedException ->
-                            userMessage.value = RequestingLocationPermission
+                        is LocationPermissionDeniedException -> userMessage.value =
+                            RequestingLocationPermission
 
-                        is LocationServiceDisabledException ->
-                            userMessage.value = RequestingTurnOnLocationService
+                        is LocationServiceDisabledException -> userMessage.value =
+                            RequestingTurnOnLocationService
                     }
                 }
             }
@@ -234,13 +247,15 @@ class WeatherSearchViewModel @Inject constructor(
         onItemClick(city)
     }
 
-    private fun handleLocations(channel: Channel<SavedCity?>, locations: List<LocationEntity>) {
+    private fun handleLocations(
+        channel: Channel<Result<SavedCity>>, locations: List<LocationEntity>
+    ) {
         locations.forEach { location ->
             viewModelScope.launch {
-                when (
-                    val weather =
-                        weatherUseCases.getAllWeather(location.coordinate, location.timeZone)
-                ) {
+                channel.send(when (val weather =
+                    weatherUseCases.getAllWeather(location.coordinate, location.timeZone)) {
+
+                    is Result.Error -> weather
                     is Result.Success -> {
                         val city = weather.data.hourly.let {
                             location.toSavedCity(
@@ -249,14 +264,9 @@ class WeatherSearchViewModel @Inject constructor(
                             )
                         }
 
-                        channel.send(city)
+                        Result.Success(city)
                     }
-
-                    is Result.Error -> {
-                        channel.send(null)
-                        handleErrorResult(weather)
-                    }
-                }
+                })
             }
         }
     }
