@@ -1,14 +1,15 @@
 package com.example.weatherjourney.presentation.component
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.pullrefresh.PullRefreshIndicator
-import androidx.compose.material3.pullrefresh.pullRefresh
-import androidx.compose.material3.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoadingContent(
     isLoading: Boolean,
@@ -16,18 +17,19 @@ fun LoadingContent(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isLoading,
-        onRefresh = onRefresh,
-    )
+    val state = rememberPullToRefreshState()
+    if (isLoading) {
+        state.startRefresh()
+        onRefresh()
+    } else {
+        state.endRefresh()
+    }
 
-    Box(modifier.pullRefresh(pullRefreshState)) {
+    Box(modifier.nestedScroll(state.nestedScrollConnection)) {
         content()
-        PullRefreshIndicator(
-            isLoading,
-            pullRefreshState,
+        PullToRefreshContainer(
             modifier = Modifier.align(Alignment.TopCenter),
-            backgroundColor = Color.Transparent,
+            state = state,
         )
     }
 }

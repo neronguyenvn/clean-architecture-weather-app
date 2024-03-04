@@ -11,29 +11,29 @@ enum class AqiLevel(
     @StringRes val sensitivePopulationRecommendationRes: Int? = null,
 ) {
     GOOD(
-        0..<20,
+        0 until 20,
         R.string.good_aqi_info,
         R.string.good_aqi_advice,
     ),
     FAIR(
-        20..<40,
+        20 until 40,
         R.string.fair_aqi_info,
         R.string.fair_and_general_population_moderate_aqi_advice,
     ),
     MODERATE(
-        40..<60,
+        40 until 60,
         R.string.moderate_aqi_info,
         R.string.fair_and_general_population_moderate_aqi_advice,
         R.string.sensitive_population_moderate_aqi_advice,
     ),
     POOR(
-        60..<80,
+        60 until 80,
         R.string.poor_aqi_info,
         R.string.general_population_poor_and_very_poor_aqi_advice,
         R.string.sensitive_population_poor_aqi_advice,
     ),
     VERY_POOR(
-        80..<100,
+        80 until 100,
         R.string.very_poor_aqi_info,
         R.string.general_population_poor_and_very_poor_aqi_advice,
         R.string.sensitive_population_very_poor_aqi_advice,

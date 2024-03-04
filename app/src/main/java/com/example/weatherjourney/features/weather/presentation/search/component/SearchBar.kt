@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.weatherjourney.R
 import com.example.weatherjourney.presentation.component.HorizontalDivider
@@ -51,7 +49,7 @@ fun SearchBar(
         ) {
             IconButton(onBackClick) {
                 Icon(
-                    Icons.Filled.ArrowBack,
+                    Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.back),
                 )
             }
@@ -87,10 +85,4 @@ fun SearchBar(
     LaunchedEffect(true) {
         focusRequester.requestFocus()
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SearchViewPreview() {
-    SearchBar("", {}, {}, {})
 }

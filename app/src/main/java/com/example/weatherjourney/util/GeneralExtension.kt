@@ -51,6 +51,7 @@ fun String.toFlagEmoji(): String {
     return String(firstLetter) + String(secondLetter)
 }
 
+@OptIn(ExperimentalStdlibApi::class)
 fun Long.toDayNameInWeek(timeZone: String): UiText {
     val today = LocalDate.now().atStartOfDay(ZoneId.of(timeZone))
     val tomorrow = today.plusDays(1)

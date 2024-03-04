@@ -40,6 +40,7 @@ import com.example.weatherjourney.features.weather.presentation.search.component
 import com.example.weatherjourney.presentation.component.LoadingContent
 import com.example.weatherjourney.util.UserMessage
 import com.example.weatherjourney.util.UserMessage.RequestingTurnOnLocationService
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.common.api.ResolvableApiException
@@ -55,6 +56,7 @@ private enum class SearchScreenType {
     NoResult,
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Suppress("LongMethod", "MagicNumber")
 @Composable
 fun WeatherSearchScreen(

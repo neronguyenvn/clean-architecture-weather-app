@@ -1,5 +1,6 @@
 package com.example.weatherjourney.features.weather.presentation.search.component
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import com.example.weatherjourney.presentation.component.HorizontalDivider
 import com.example.weatherjourney.presentation.theme.White70
 import com.example.weatherjourney.util.roundTo
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SavedCityItem(
     city: SavedCity,
