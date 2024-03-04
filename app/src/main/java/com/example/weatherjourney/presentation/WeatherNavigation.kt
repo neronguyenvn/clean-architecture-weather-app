@@ -8,7 +8,6 @@ import com.example.weatherjourney.presentation.WeatherDestinationsArgs.LATITUDE_
 import com.example.weatherjourney.presentation.WeatherDestinationsArgs.LONGITUDE_ARG
 import com.example.weatherjourney.presentation.WeatherDestinationsArgs.NAVIGATION_KEY_ARG
 import com.example.weatherjourney.presentation.WeatherScreens.INFO_SCREEN
-import com.example.weatherjourney.presentation.WeatherScreens.NOTIFICATION_SCREEN
 import com.example.weatherjourney.presentation.WeatherScreens.SEARCH_SCREEN
 import com.example.weatherjourney.presentation.WeatherScreens.SETTING_SCREEN
 
@@ -16,7 +15,6 @@ object WeatherScreens {
     const val INFO_SCREEN = "infoScreen"
     const val SEARCH_SCREEN = "searchScreen"
     const val SETTING_SCREEN = "settingScreen"
-    const val NOTIFICATION_SCREEN = "notificationScreen"
 }
 
 object WeatherDestinationsArgs {
@@ -35,7 +33,6 @@ object WeatherDestinations {
 
     const val SEARCH_ROUTE = SEARCH_SCREEN
     const val SETTING_ROUTE = SETTING_SCREEN
-    const val NOTIFICATION_ROUTE = NOTIFICATION_SCREEN
 }
 
 class WeatherNavigationActions(private val navController: NavController) {
@@ -63,9 +60,5 @@ class WeatherNavigationActions(private val navController: NavController) {
 
     fun navigateToSetting() {
         navController.navigate(WeatherDestinations.SETTING_ROUTE)
-    }
-
-    fun navigateToNotification() {
-        navController.navigate(WeatherDestinations.NOTIFICATION_ROUTE)
     }
 }

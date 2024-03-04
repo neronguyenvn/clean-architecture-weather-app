@@ -11,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.weatherjourney.features.recommendation.presentation.RecommendationScreen
 import com.example.weatherjourney.features.weather.domain.model.Coordinate
 import com.example.weatherjourney.features.weather.presentation.info.WeatherInfoScreen
 import com.example.weatherjourney.features.weather.presentation.search.WeatherSearchScreen
@@ -67,10 +66,6 @@ fun WeatherNavGraph(
                         snackbarHostState.currentSnackbarData?.dismiss()
                         navActions.navigateToSetting()
                     },
-                    onNotificationClick = {
-                        snackbarHostState.currentSnackbarData?.dismiss()
-                        navActions.navigateToNotification()
-                    },
                     onNavigationToInfoDone = { entry.arguments?.putInt(NAVIGATION_KEY_ARG, 0) },
                 )
             }
@@ -94,15 +89,6 @@ fun WeatherNavGraph(
             WeatherSettingScreen(
                 snackbarHostState = snackbarHostState,
                 onBackClick = { navController.popBackStack() },
-            )
-        }
-        composable(WeatherDestinations.NOTIFICATION_ROUTE) {
-            RecommendationScreen(
-                snackbarHostState = snackbarHostState,
-                onBackClick = {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    navController.popBackStack()
-                },
             )
         }
     }

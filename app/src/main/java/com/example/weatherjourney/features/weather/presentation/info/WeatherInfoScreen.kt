@@ -14,11 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Card
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -71,7 +67,6 @@ fun WeatherInfoScreen(
     countryCode: String,
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
-    onNotificationClick: () -> Unit,
     onNavigationToInfoDone: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WeatherInfoViewModel = LocalView.current.findViewTreeViewModelStoreOwner()
@@ -89,14 +84,6 @@ fun WeatherInfoScreen(
                 onSearchClick = onSearchClick,
                 onSettingClick = onSettingClick,
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onNotificationClick) {
-                Icon(
-                    Icons.Outlined.Notifications,
-                    contentDescription = stringResource(R.string.notification),
-                )
-            }
         },
     ) { paddingValues ->
 
