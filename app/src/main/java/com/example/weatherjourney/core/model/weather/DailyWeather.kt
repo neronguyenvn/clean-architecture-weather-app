@@ -4,7 +4,7 @@ import com.example.weatherjourney.core.common.util.UiText
 
 data class DailyWeather(
     val date: UiText,
-    val maxTemp: Double,
-    val minTemp: Double,
+    val maxTemp: Float,
+    val minTemp: Float,
     val weatherType: WeatherType,
 )

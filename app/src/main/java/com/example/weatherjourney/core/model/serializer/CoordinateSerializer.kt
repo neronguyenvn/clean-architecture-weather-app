@@ -15,29 +15,29 @@ object CoordinateSerializer : KSerializer<Coordinate> {
 
     override val descriptor: SerialDescriptor =
         buildClassSerialDescriptor("Coordinate") {
-            element<Double>("latitude")
-            element<Double>("longitude")
+            element<Float>("latitude")
+            element<Float>("longitude")
         }
 
     override fun serialize(encoder: Encoder, value: Coordinate) =
         encoder.encodeStructure(descriptor) {
-            encodeDoubleElement(descriptor, 0, value.latitude)
-            encodeDoubleElement(descriptor, 1, value.longitude)
+            encodeFloatElement(descriptor, 0, value.latitude)
+            encodeFloatElement(descriptor, 1, value.longitude)
         }
 
     override fun deserialize(decoder: Decoder): Coordinate =
         decoder.decodeStructure(descriptor) {
-            var latitude = -1.0
-            var longitude = -1.0
+            var latitude = -1f
+            var longitude = -1f
             while (true) {
                 when (val index = decodeElementIndex(descriptor)) {
-                    0 -> latitude = decodeDoubleElement(descriptor, 0)
-                    1 -> longitude = decodeDoubleElement(descriptor, 1)
+                    0 -> latitude = decodeFloatElement(descriptor, 0)
+                    1 -> longitude = decodeFloatElement(descriptor, 1)
                     CompositeDecoder.DECODE_DONE -> break
                     else -> error("Unexpected index: $index")
                 }
             }
-            require(latitude in -90.0..90.0 && longitude in -180.0..<180.00)
+            require(latitude in -90f..90f && longitude in -180f..<180f)
             Coordinate(latitude, longitude)
         }
 }

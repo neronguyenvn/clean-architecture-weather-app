@@ -22,7 +22,7 @@ private const val REGIONAL_INDICATOR_OFFSET = 0x1F1A5
 /**
  * Round a Double number to make it has a certain number of digits after decimal point.
  */
-fun Double.roundTo(n: Int): Double = String.format(Locale.US, "%.${n}f", this).toDouble()
+fun Float.roundTo(n: Int): Float = String.format(Locale.US, "%.${n}f", this).toFloat()
 
 fun getCurrentDate(timeZone: String): String {
     val instant = Instant.now()
@@ -81,5 +81,3 @@ fun List<Long>.countPastHoursToday() =
 
 fun Context.checkPermission(permission: String) =
     this.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
-
-fun Any?.isNull() = this == null

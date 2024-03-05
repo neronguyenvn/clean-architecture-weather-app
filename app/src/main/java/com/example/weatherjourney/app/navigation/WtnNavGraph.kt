@@ -54,7 +54,7 @@ fun WtnNavGraph(
                 val countryCode = it.getString(COUNTRY_CODE_ARG) ?: ""
 
                 WeatherInfoScreen(
-                    coordinate = Coordinate(latitude.toDouble(), longitude.toDouble()),
+                    coordinate = Coordinate(latitude, longitude),
                     snackbarHostState = snackbarHostState,
                     navigationKey = navigationKey,
                     countryCode = countryCode,

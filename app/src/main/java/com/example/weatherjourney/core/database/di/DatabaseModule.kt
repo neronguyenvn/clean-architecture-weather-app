@@ -29,4 +29,9 @@ object DatabaseModule {
     fun providesLocationDao(
         database: RoomWtnDatabase
     ) = database.locationDao()
+
+    @Provides
+    fun providesWeatherDao(
+        database: RoomWtnDatabase
+    ) = database.weatherDao()
 }

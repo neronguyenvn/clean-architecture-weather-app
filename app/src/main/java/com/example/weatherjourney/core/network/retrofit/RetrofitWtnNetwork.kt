@@ -5,7 +5,7 @@ import com.example.weatherjourney.core.model.location.Coordinate
 import com.example.weatherjourney.core.model.location.toApiCoordinate
 import com.example.weatherjourney.core.network.WtnNetworkDataSource
 import com.example.weatherjourney.core.network.model.ForwardGeocoding
-import com.example.weatherjourney.core.network.model.NetworkAllWeather
+import com.example.weatherjourney.core.network.model.NetworkWeather
 import com.example.weatherjourney.core.network.model.ReverseGeocoding
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -32,8 +32,8 @@ private interface RetrofitWtnNetworkApi {
     @GET
     suspend fun getAllWeather(
         @Url url: String = OPENMETEO_WEATHER_URL,
-        @Query("latitude") lat: Double,
-        @Query("longitude") long: Double,
+        @Query("latitude") lat: Float,
+        @Query("longitude") long: Float,
         @Query("timezone") timeZone: String,
         @Query(
             "hourly",
@@ -44,7 +44,7 @@ private interface RetrofitWtnNetworkApi {
             encoded = true,
         ) dailyParams: String = "weathercode,temperature_2m_max,temperature_2m_min",
         @Query("timeformat") timeFormat: String = "unixtime",
-    ): NetworkAllWeather
+    ): NetworkWeather
 
     @GET
     suspend fun getForwardGeocoding(
@@ -67,10 +67,10 @@ class RetrofitWtnNetwork(
         .build()
         .create(RetrofitWtnNetworkApi::class.java)
 
-    override suspend fun getAllWeather(
+    override suspend fun getWeather(
         coordinate: Coordinate,
         timeZone: String
-    ): NetworkAllWeather = networkApi.getAllWeather(
+    ): NetworkWeather = networkApi.getAllWeather(
         lat = coordinate.latitude,
         long = coordinate.longitude,
         timeZone = timeZone

@@ -1,28 +1,30 @@
 package com.example.weatherjourney.core.database
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.example.weatherjourney.core.database.model.LocationEntity
+import com.example.weatherjourney.core.database.model.LocationWithWeather
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LocationDao {
 
-    @Query("SELECT * FROM location WHERE latitude = :latitude AND longitude = :longitude")
-    fun observeLocation(latitude: Double, longitude: Double): Flow<LocationEntity>
+    @Query("SELECT * FROM location WHERE isDisplayed = 1")
+    fun observeDisplayed(): Flow<LocationEntity?>
 
-    @Query("SELECT * FROM location WHERE isCurrentLocation = 1")
-    fun observeCurrentLocation(): Flow<LocationEntity>
+    @Transaction
+    @Query("SELECT * FROM location WHERE isDisplayed = 1")
+    fun observeDisplayedWithWeather(): Flow<LocationWithWeather?>
 
-    @Query("SELECT * FROM location ORDER BY isCurrentLocation DESC")
-    fun observeLocations(): Flow<List<LocationEntity>>
+    @Transaction
+    @Query("SELECT * FROM location")
+    fun observeAllWithWeather(): Flow<List<LocationWithWeather>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLocation(location: LocationEntity)
+    @Insert
+    fun insert(locationEntity: LocationEntity): Long
 
-    @Delete
-    suspend fun deleteLocation(location: LocationEntity)
+    @Query("DELETE FROM location WHERE id = :locationId")
+    suspend fun deleteById(locationId: Int): Int
 }

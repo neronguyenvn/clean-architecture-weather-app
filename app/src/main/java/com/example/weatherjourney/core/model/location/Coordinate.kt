@@ -12,15 +12,15 @@ private const val DECIMAL_DEGREE_PRECISION = 2
  * Round Coordinate to make it has united number of digits after decimal point.
  */
 @Serializable(with = CoordinateSerializer::class)
-class Coordinate(latitude: Double, longitude: Double) {
+class Coordinate(latitude: Float, longitude: Float) {
 
-    val latitude: Double = latitude
-        get() = if (field != 0.0) field.roundTo(DECIMAL_DEGREE_PRECISION) else 0.0
+    val latitude: Float = latitude
+        get() = field.roundTo(DECIMAL_DEGREE_PRECISION)
 
-    val longitude: Double = longitude
-        get() = if (field != 0.0) field.roundTo(DECIMAL_DEGREE_PRECISION) else 0.0
+    val longitude: Float = longitude
+        get() = field.roundTo(DECIMAL_DEGREE_PRECISION)
 
-    constructor() : this(0.0, 0.0)
+    constructor() : this(0f, 0f)
 
     override fun toString(): String = "Coordinate(latitude=$latitude, longitude=$longitude)"
 
@@ -43,8 +43,8 @@ fun Coordinate.roundTo(n: Int) = Coordinate(latitude.roundTo(n), longitude.round
 
 fun Coordinate.toApiCoordinate(): String = "$latitude+$longitude"
 
-fun android.location.Location.toCoordinate(): Coordinate {
-    return Coordinate(latitude = latitude, longitude = longitude)
-}
+val android.location.Location.coordinate
+    get() = Coordinate(latitude = latitude.toFloat(), longitude = longitude.toFloat())
+
 
 

@@ -15,8 +15,8 @@ data class ForwardGeocodingResult(
     val name: String,
     val admin1: String = "",
     @SerialName("country_code") val countryCode: String,
-    val latitude: Double,
-    val longitude: Double,
+    val latitude: Float,
+    val longitude: Float,
     val timezone: String = "",
 ) {
     fun getCityAddress() = when {

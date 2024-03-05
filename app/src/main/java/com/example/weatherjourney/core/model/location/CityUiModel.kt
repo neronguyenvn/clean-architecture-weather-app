@@ -30,9 +30,9 @@ class SuggestionCity(
     countryCode: String,
 ) : CityUiModel(cityAddress, coordinate, timeZone, countryCode)
 
-class SavedCity(
-    val temp: Double,
-    val isCurrentLocation: Boolean,
+class CityWithWeather(
+    val temp: Float,
+    val isCurrentLocation: Boolean = false,
     val weatherType: WeatherType,
     val id: Int,
     cityAddress: String,
@@ -42,7 +42,7 @@ class SavedCity(
 ) : CityUiModel(cityAddress, coordinate, timeZone, countryCode) {
 
     fun copy(
-        temp: Double = this.temp,
+        temp: Float = this.temp,
         isCurrentLocation: Boolean = this.isCurrentLocation,
         weatherType: WeatherType = this.weatherType,
         cityAddress: String = this.cityAddress,
@@ -50,7 +50,7 @@ class SavedCity(
         timeZone: String = this.timeZone,
         countryCode: String = this.countryCode,
         id: Int = this.id,
-    ): SavedCity = SavedCity(
+    ): CityWithWeather = CityWithWeather(
         temp = temp,
         isCurrentLocation = isCurrentLocation,
         weatherType = weatherType,

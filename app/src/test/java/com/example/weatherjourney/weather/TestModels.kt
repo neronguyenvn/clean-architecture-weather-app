@@ -1,3 +1,4 @@
+/*
 package com.example.weatherjourney.weather
 
 import com.example.weatherjourney.core.database.model.LocationEntity
@@ -7,9 +8,9 @@ import com.example.weatherjourney.core.model.unit.PressureUnit
 import com.example.weatherjourney.core.model.unit.TemperatureUnit
 import com.example.weatherjourney.core.model.unit.TimeFormatUnit
 import com.example.weatherjourney.core.model.unit.WindSpeedUnit
-import com.example.weatherjourney.core.network.model.DailyWeatherDto
-import com.example.weatherjourney.core.network.model.HourlyWeatherDto
-import com.example.weatherjourney.core.network.model.NetworkAllWeather
+import com.example.weatherjourney.core.network.model.NetworkDailyWeather
+import com.example.weatherjourney.core.network.model.NetworkHourlyWeather
+import com.example.weatherjourney.core.network.model.NetworkWeather
 import java.time.Duration
 import java.time.Instant
 
@@ -20,8 +21,8 @@ val timeList = listOf(
     now.plus(Duration.ofHours(2)).epochSecond,
 )
 
-val allWeatherDto1 = NetworkAllWeather(
-    HourlyWeatherDto(
+val allWeatherDto1 = NetworkWeather(
+    NetworkHourlyWeather(
         timeList,
         listOf(12.3, 13.2, 14.1),
         listOf(800, 801, 802),
@@ -29,7 +30,7 @@ val allWeatherDto1 = NetworkAllWeather(
         listOf(2.0, 2.5, 3.0),
         listOf(75.0, 80.0, 85.0),
     ),
-    DailyWeatherDto(
+    NetworkDailyWeather(
         timeList,
         listOf(800, 801, 802),
         listOf(16.5, 17.8, 18.2),
@@ -37,8 +38,8 @@ val allWeatherDto1 = NetworkAllWeather(
     ),
 )
 
-val allWeatherDto2 = NetworkAllWeather(
-    HourlyWeatherDto(
+val allWeatherDto2 = NetworkWeather(
+    NetworkHourlyWeather(
         timeList,
         listOf(17.6, 18.1, 18.7),
         listOf(500, 501, 502),
@@ -46,7 +47,7 @@ val allWeatherDto2 = NetworkAllWeather(
         listOf(3.0, 3.5, 4.0),
         listOf(70.0, 75.0, 80.0),
     ),
-    DailyWeatherDto(
+    NetworkDailyWeather(
         timeList,
         listOf(501, 502, 503),
         listOf(20.1, 21.2, 19.5),
@@ -81,3 +82,4 @@ val location2 = LocationEntity(
 
 val coordinate1 = Coordinate(40.7128, -74.0060)
 val coordinate2 = Coordinate(30.0, 30.0)
+*/

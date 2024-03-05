@@ -1,5 +1,7 @@
 package com.example.weatherjourney.core.network.model
 
+import com.example.weatherjourney.core.database.model.LocationEntity
+import com.example.weatherjourney.core.model.location.Coordinate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -40,4 +42,13 @@ data class Annotation(
 @Serializable
 data class TimeZone(
     val name: String,
+)
+
+fun ReverseGeocoding.asEntity(coordinate: Coordinate, isDisplayed: Boolean) = LocationEntity(
+    cityAddress = getCityAddress(),
+    countryCode = getCountryCode(),
+    timeZone = getTimeZone(),
+    latitude = coordinate.latitude,
+    longitude = coordinate.longitude,
+    isDisplayed = isDisplayed
 )

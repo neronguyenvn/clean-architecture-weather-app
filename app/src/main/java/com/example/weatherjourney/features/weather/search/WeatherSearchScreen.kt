@@ -63,7 +63,7 @@ import com.example.weatherjourney.core.designsystem.component.CurrentLocationFie
 import com.example.weatherjourney.core.designsystem.component.HorizontalDivider
 import com.example.weatherjourney.core.designsystem.component.LoadingContent
 import com.example.weatherjourney.core.model.location.CityUiModel
-import com.example.weatherjourney.core.model.location.SavedCity
+import com.example.weatherjourney.core.model.location.CityWithWeather
 import com.example.weatherjourney.core.model.location.SuggestionCity
 import com.example.weatherjourney.presentation.theme.White70
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -127,7 +127,7 @@ fun WeatherSearchScreen(
 
         WeatherSearchScreenContent(
             uiState = uiState,
-            onRefresh = viewModel::onRefresh,
+            onRefresh = {},
             onCityClick = { viewModel.onItemClick(it, onItemClick) },
             onCityLongClick = viewModel::onSavedCityLongClick,
             onCurrentLocationFieldClick = viewModel::onLocationFieldClick,
@@ -159,7 +159,7 @@ fun WeatherSearchScreen(
 
             if (userMessage is UserMessage.RequestingLocationPermission) {
                 if (locationPermissionState.permissions.any { it.status.isGranted }) {
-                    viewModel.onHandleUserMessageDone()
+                    //      viewModel.onHandleUserMessageDone()
                 }
 
                 if (locationPermissionState.shouldShowRationale) {
@@ -167,7 +167,7 @@ fun WeatherSearchScreen(
                     LaunchedEffect(snackbarHostState, viewModel, snackbarText) {
                         keyboardController?.hide()
                         snackbarHostState.showSnackbar(snackbarText)
-                        viewModel.onHandleUserMessageDone()
+                        //        viewModel.onHandleUserMessageDone()
                     }
                 }
 
@@ -196,7 +196,7 @@ fun WeatherSearchScreen(
                     }
                 }
 
-                viewModel.onHandleUserMessageDone()
+                //              viewModel.onHandleUserMessageDone()
             }
         }
     }
@@ -207,7 +207,7 @@ fun WeatherSearchScreenContent(
     uiState: WeatherSearchState,
     onRefresh: () -> Unit,
     onCityClick: (CityUiModel) -> Unit,
-    onCityLongClick: (SavedCity) -> Unit,
+    onCityLongClick: (CityWithWeather) -> Unit,
     onCurrentLocationFieldClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -253,11 +253,11 @@ fun WeatherSearchScreenContent(
 @Composable
 private fun SavedCitiesContent(
     screenType: SearchScreenType,
-    savedCities: List<SavedCity>,
+    savedCities: List<CityWithWeather>,
     isLoading: Boolean,
     onRefresh: () -> Unit,
     onCityClick: (CityUiModel) -> Unit,
-    onCityLongClick: (SavedCity) -> Unit,
+    onCityLongClick: (CityWithWeather) -> Unit,
     onCurrentLocationFieldClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -305,9 +305,9 @@ private fun getSearchScreenType(uiState: WeatherSearchState): SearchScreenType {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SavedCityItem(
-    city: SavedCity,
-    onCityClick: (SavedCity) -> Unit,
-    onCityLongClick: (SavedCity) -> Unit,
+    city: CityWithWeather,
+    onCityClick: (CityWithWeather) -> Unit,
+    onCityLongClick: (CityWithWeather) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(

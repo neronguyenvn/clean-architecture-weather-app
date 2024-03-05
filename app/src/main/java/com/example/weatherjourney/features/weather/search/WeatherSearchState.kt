@@ -1,7 +1,7 @@
 package com.example.weatherjourney.features.weather.search
 
 import com.example.weatherjourney.core.common.util.UserMessage
-import com.example.weatherjourney.core.model.location.SavedCity
+import com.example.weatherjourney.core.model.location.CityWithWeather
 import com.example.weatherjourney.core.model.location.SuggestionCity
 
 sealed interface WeatherSearchState {
@@ -10,7 +10,7 @@ sealed interface WeatherSearchState {
     val userMessage: UserMessage?
 
     data class ShowSaveCities(
-        val savedCities: List<SavedCity>,
+        val savedCities: List<CityWithWeather>,
         override val input: String,
         override val isLoading: Boolean,
         override val userMessage: UserMessage?,
@@ -28,8 +28,8 @@ data class WeatherSearchViewModelState(
     val input: String = "",
     val isLoading: Boolean = false,
     val userMessage: UserMessage? = null,
-    val savedCities: List<SavedCity> = emptyList(),
-    val suggestionCities: List<SuggestionCity> = emptyList(),
+    val savedCities: List<CityWithWeather> = emptyList(),
+    val suggestionLocations: List<SuggestionCity> = emptyList(),
 ) {
     fun toUiState(): WeatherSearchState =
         if (input.isBlank()) {
@@ -44,7 +44,7 @@ data class WeatherSearchViewModelState(
                 input = input,
                 isLoading = isLoading,
                 userMessage = userMessage,
-                suggestionCities = suggestionCities,
+                suggestionCities = suggestionLocations,
             )
         }
 }

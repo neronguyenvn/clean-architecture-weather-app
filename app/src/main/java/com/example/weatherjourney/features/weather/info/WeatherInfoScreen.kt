@@ -1,6 +1,5 @@
 package com.example.weatherjourney.features.weather.info
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -25,13 +24,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,7 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,10 +46,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import com.example.weatherjourney.R
-import com.example.weatherjourney.app.navigation.NAVIGATE_FROM_SEARCH
-import com.example.weatherjourney.core.common.util.UserMessage.AddingLocation
 import com.example.weatherjourney.core.common.util.roundTo
 import com.example.weatherjourney.core.designsystem.component.LoadingContent
 import com.example.weatherjourney.core.model.location.Coordinate
@@ -66,7 +58,10 @@ import com.example.weatherjourney.core.model.weather.HourlyWeather
 import com.example.weatherjourney.presentation.theme.superscript
 import kotlin.math.roundToInt
 
-private const val TAG = "WeatherInfoScreen"
+sealed class WeatherInfoEvent {
+
+    data object Fetch
+}
 
 @Composable
 fun WeatherInfoScreen(
@@ -78,12 +73,9 @@ fun WeatherInfoScreen(
     onSettingClick: () -> Unit,
     onNavigationToInfoDone: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: WeatherInfoViewModel = LocalView.current.findViewTreeViewModelStoreOwner()
-        .let { hiltViewModel(it!!) },
+    viewModel: WeatherInfoViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    Log.d(TAG, "UiState flow collected: $uiState")
-
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -97,44 +89,16 @@ fun WeatherInfoScreen(
         },
     ) { paddingValues ->
 
-        WeatherInfoScreenContent(
+        WeatherInfoUi(
             uiState = uiState,
-            onRefresh = { viewModel.onRefresh() },
+            onRefresh = { },
             modifier = Modifier.padding(paddingValues),
         )
-
-        LaunchedEffect(true) {
-            if (navigationKey == NAVIGATE_FROM_SEARCH) {
-                viewModel.onNavigateFromSearch(coordinate)
-                onNavigationToInfoDone()
-            }
-        }
-
-        uiState.userMessage?.let { userMessage ->
-            val snackbarText = userMessage.message?.asString()
-            val actionLabel = userMessage.actionLabel?.let { stringResource(it) }
-
-            LaunchedEffect(snackbarHostState, snackbarText, actionLabel) {
-                snackbarText?.let {
-                    val result = snackbarHostState.showSnackbar(
-                        message = it,
-                        actionLabel = actionLabel,
-                        duration = SnackbarDuration.Short,
-                    )
-
-                    if (result == SnackbarResult.ActionPerformed && userMessage is AddingLocation) {
-                        viewModel.onSaveInfo(countryCode)
-                    }
-
-                    viewModel.onHandleUserMessageDone()
-                }
-            }
-        }
     }
 }
 
 @Composable
-fun WeatherInfoScreenContent(
+fun WeatherInfoUi(
     uiState: WeatherInfoUiState,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
@@ -151,18 +115,22 @@ fun WeatherInfoScreenContent(
                 .fillMaxWidth()
                 .padding(screenPadding),
         ) {
-            item {
-                CurrentWeatherContent(
-                    uiState.allWeather.current,
-                    uiState.allUnit,
-                    uiState.isCurrentLocation,
-                )
+            uiState.weather?.current?.let {
+                item {
+                    CurrentWeatherContent(
+                        uiState.weather.current,
+                        uiState.units,
+                        uiState.isCurrentLocation,
+                    )
+                }
             }
             item { Spacer(Modifier.height(32.dp)) }
-            item { DailyWeatherContent(uiState.allWeather.listDaily) }
-            item { Spacer(Modifier.height(32.dp)) }
-            items(uiState.allWeather.listHourly) { hourly ->
-                HourlyWeatherItem(hourly, uiState.allUnit?.windSpeed)
+            uiState.weather?.let {
+                item { DailyWeatherContent(uiState.weather.listDaily) }
+                item { Spacer(Modifier.height(32.dp)) }
+                items(uiState.weather.listHourly) { hourly ->
+                    HourlyWeatherItem(hourly, uiState.units?.windSpeed)
+                }
             }
         }
     }

@@ -15,7 +15,7 @@ private val AppLightColorScheme = lightColorScheme().copy(
 )
 
 @Composable
-fun WeatherTheme(
+fun WtnTheme(
     content: @Composable () -> Unit,
 ) {
     val colorScheme = AppLightColorScheme

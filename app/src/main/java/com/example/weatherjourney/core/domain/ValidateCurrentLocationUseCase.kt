@@ -1,43 +1,41 @@
 package com.example.weatherjourney.core.domain
 
-import com.example.weatherjourney.core.common.util.Result
 import com.example.weatherjourney.core.data.LocationRepository
-import com.example.weatherjourney.core.database.model.coordinate
 import javax.inject.Inject
 
 class ValidateCurrentLocationUseCase @Inject constructor(
     private val repository: LocationRepository,
 ) {
 
-    suspend operator fun invoke(): Result<Boolean> {
-        val currentCoordinate = when (val result = repository.getCurrentCoordinate()) {
-            is Result.Success -> result.data
-            is Result.Error -> return result
-        }
-
-        val currentLocation = repository.getCurrentLocation()
-        // If current location in db is null, fetch it with currentCoordinate
-            ?: return when (
-                val result =
-                    repository.checkAndUpdateCurrentLocationIfNeeded(currentCoordinate)
-            ) {
-                is Result.Success -> Result.Success(true)
-                is Result.Error -> result
+    /*    suspend operator fun invoke(): Result<Boolean> {
+            val currentCoordinate = when (val result = repository.getCurrentCoordinate()) {
+                is Result.Success -> result.data
+                is Result.Error -> return result
             }
 
-        if (currentLocation.coordinate != currentCoordinate) {
-            repository.deleteLocation(currentLocation)
-            return when (
-                val result =
-                    repository.checkAndUpdateCurrentLocationIfNeeded(currentCoordinate)
-            ) {
-                is Result.Success -> Result.Success(true)
-                is Result.Error -> result
-            }
-        }
+            val currentLocation = repository.getCurrentLocation()
+            // If current location in db is null, fetch it with currentCoordinate
+                ?: return when (
+                    val result =
+                        repository.checkAndUpdateCurrentLocationIfNeeded(currentCoordinate)
+                ) {
+                    is Result.Success -> Result.Success(true)
+                    is Result.Error -> result
+                }
 
-        return Result.Success(true)
-    }
+            if (currentLocation.coordinate != currentCoordinate) {
+                repository.deleteLocation(currentLocation)
+                return when (
+                    val result =
+                        repository.checkAndUpdateCurrentLocationIfNeeded(currentCoordinate)
+                ) {
+                    is Result.Success -> Result.Success(true)
+                    is Result.Error -> result
+                }
+            }
+
+            return Result.Success(true)
+        }*/
 
     /*    suspend operator fun invoke(location: LocationPreferences): Result<Boolean> {
             // Passed location is valid
