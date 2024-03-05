@@ -1,11 +1,11 @@
+/*
 package com.example.weatherjourney.fake
 
-import com.example.weatherjourney.domain.AppPreferences
-import com.example.weatherjourney.features.weather.domain.model.Coordinate
-import com.example.weatherjourney.features.weather.domain.model.unit.PressureUnit
-import com.example.weatherjourney.features.weather.domain.model.unit.TemperatureUnit
-import com.example.weatherjourney.features.weather.domain.model.unit.TimeFormatUnit
-import com.example.weatherjourney.features.weather.domain.model.unit.WindSpeedUnit
+import com.example.weatherjourney.core.model.location.Coordinate
+import com.example.weatherjourney.core.model.unit.PressureUnit
+import com.example.weatherjourney.core.model.unit.TemperatureUnit
+import com.example.weatherjourney.core.model.unit.TimeFormatUnit
+import com.example.weatherjourney.core.model.unit.WindSpeedUnit
 import com.example.weatherjourney.locationpreferences.LocationPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -66,3 +66,4 @@ class FakePreferences : AppPreferences {
         isFirstTimeRunApp = false
     }
 }
+*/

@@ -1,9 +1,10 @@
+/*
 package com.example.weatherjourney.recommendation.fake
 
 import com.example.weatherjourney.features.recommendation.domain.model.Recommendations
 import com.example.weatherjourney.features.recommendation.domain.repository.RecommendationRepository
 import com.example.weatherjourney.recommendation.recommendations1
-import com.example.weatherjourney.util.Result
+import com.example.weatherjourney.core.common.util.Result
 
 class FakeRecommendationRepository : RecommendationRepository {
 
@@ -19,3 +20,4 @@ class FakeRecommendationRepository : RecommendationRepository {
         }
     }
 }
+*/

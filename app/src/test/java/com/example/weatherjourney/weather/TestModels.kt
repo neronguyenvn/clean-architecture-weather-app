@@ -1,15 +1,15 @@
 package com.example.weatherjourney.weather
 
-import com.example.weatherjourney.features.weather.data.local.entity.LocationEntity
-import com.example.weatherjourney.features.weather.data.remote.dto.AllWeatherDto
-import com.example.weatherjourney.features.weather.data.remote.dto.DailyWeatherDto
-import com.example.weatherjourney.features.weather.data.remote.dto.HourlyWeatherDto
-import com.example.weatherjourney.features.weather.domain.model.Coordinate
-import com.example.weatherjourney.features.weather.domain.model.unit.AllUnit
-import com.example.weatherjourney.features.weather.domain.model.unit.PressureUnit
-import com.example.weatherjourney.features.weather.domain.model.unit.TemperatureUnit
-import com.example.weatherjourney.features.weather.domain.model.unit.TimeFormatUnit
-import com.example.weatherjourney.features.weather.domain.model.unit.WindSpeedUnit
+import com.example.weatherjourney.core.database.model.LocationEntity
+import com.example.weatherjourney.core.model.location.Coordinate
+import com.example.weatherjourney.core.model.unit.AllUnit
+import com.example.weatherjourney.core.model.unit.PressureUnit
+import com.example.weatherjourney.core.model.unit.TemperatureUnit
+import com.example.weatherjourney.core.model.unit.TimeFormatUnit
+import com.example.weatherjourney.core.model.unit.WindSpeedUnit
+import com.example.weatherjourney.core.network.model.DailyWeatherDto
+import com.example.weatherjourney.core.network.model.HourlyWeatherDto
+import com.example.weatherjourney.core.network.model.NetworkAllWeather
 import java.time.Duration
 import java.time.Instant
 
@@ -20,7 +20,7 @@ val timeList = listOf(
     now.plus(Duration.ofHours(2)).epochSecond,
 )
 
-val allWeatherDto1 = AllWeatherDto(
+val allWeatherDto1 = NetworkAllWeather(
     HourlyWeatherDto(
         timeList,
         listOf(12.3, 13.2, 14.1),
@@ -37,7 +37,7 @@ val allWeatherDto1 = AllWeatherDto(
     ),
 )
 
-val allWeatherDto2 = AllWeatherDto(
+val allWeatherDto2 = NetworkAllWeather(
     HourlyWeatherDto(
         timeList,
         listOf(17.6, 18.1, 18.7),

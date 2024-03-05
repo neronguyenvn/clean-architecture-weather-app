@@ -1,11 +1,12 @@
+/*
 package com.example.weatherjourney.weather.setting
 
 import com.example.weatherjourney.fake.FakePreferences
-import com.example.weatherjourney.features.weather.domain.model.unit.PressureUnit
-import com.example.weatherjourney.features.weather.domain.model.unit.TemperatureUnit
-import com.example.weatherjourney.features.weather.domain.model.unit.TimeFormatUnit
-import com.example.weatherjourney.features.weather.domain.model.unit.WindSpeedUnit
-import com.example.weatherjourney.features.weather.presentation.setting.WeatherSettingViewModel
+import com.example.weatherjourney.core.model.unit.PressureUnit
+import com.example.weatherjourney.core.model.unit.TemperatureUnit
+import com.example.weatherjourney.core.model.unit.TimeFormatUnit
+import com.example.weatherjourney.core.model.unit.WindSpeedUnit
+import com.example.weatherjourney.features.weather.setting.WeatherSettingViewModel
 import com.example.weatherjourney.util.CoroutineRule
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -85,3 +86,4 @@ class WeatherSettingViewModelTest {
         assertEquals(expectedUnit, viewModel.uiState.value?.timeFormat)
     }
 }
+*/

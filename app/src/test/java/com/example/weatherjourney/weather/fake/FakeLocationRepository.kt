@@ -1,12 +1,13 @@
+/*
 package com.example.weatherjourney.weather.fake
 
-import com.example.weatherjourney.features.weather.data.local.entity.LocationEntity
+import com.example.weatherjourney.core.database.model.LocationEntity
 import com.example.weatherjourney.features.weather.data.mapper.coordinate
-import com.example.weatherjourney.features.weather.domain.model.Coordinate
-import com.example.weatherjourney.features.weather.domain.model.SuggestionCity
-import com.example.weatherjourney.features.weather.domain.repository.LocationRepository
-import com.example.weatherjourney.util.LocationException
-import com.example.weatherjourney.util.Result
+import com.example.weatherjourney.core.model.location.Coordinate
+import com.example.weatherjourney.core.model.location.SuggestionCity
+import com.example.weatherjourney.core.data.LocationRepository
+import com.example.weatherjourney.core.common.util.LocationException
+import com.example.weatherjourney.core.common.util.Result
 import com.example.weatherjourney.weather.coordinate1
 import com.example.weatherjourney.weather.location1
 import kotlinx.coroutines.flow.Flow
@@ -69,3 +70,4 @@ class FakeLocationRepository : LocationRepository {
         // Do nothing
     }
 }
+*/

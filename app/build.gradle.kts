@@ -4,11 +4,9 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.kapt)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.protobuf)
 }
 
 android {
@@ -75,54 +73,40 @@ android {
 }
 
 dependencies {
-    // Architecture Components
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
-    implementation(libs.androidx.lifecycle.runtimeCompose)
-    implementation(libs.androidx.dataStore.core)
-    implementation(libs.androidx.dataStore.preferences.core)
-    implementation(libs.protobuf.kotlin.lite)
     // Jetpack Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.accompanist.permissions)
-    // Splash Screen
+    implementation(libs.androidx.lifecycle.runtimeCompose)
+
+    // Splash screen
     implementation(libs.androidx.core.splashscreen)
-    // Location Service
+
+    // Location service
     implementation(libs.play.services.location)
-    // Hilt
+
+    // Hilt for Dependency Injection
     implementation(libs.hilt.android.core)
     implementation(libs.androidx.hilt.navigation.compose)
-    kapt(libs.hilt.compiler)
-    // Retrofit
+    ksp(libs.hilt.compiler)
+
+    // Retrofit for network
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.kotlin.serialization)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp.logging)
+
+    // Room for local database
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
+    // DataStore for key-value pairs
+    implementation(libs.androidx.dataStore.core)
+
     // Dependencies for local unit tests
     testImplementation(libs.junit4)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
-}
-
-// Setup protobuf configuration, generating lite Kotlin classes
-protobuf {
-    protoc {
-        artifact = libs.protobuf.protoc.get().toString()
-    }
-    generateProtoTasks {
-        all().forEach { task ->
-            task.builtins {
-                register("kotlin") {
-                    option("lite")
-                }
-
-                register("java") {
-                    option("lite")
-                }
-            }
-        }
-    }
 }
