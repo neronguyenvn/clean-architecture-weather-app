@@ -30,7 +30,7 @@ class MainViewModel @Inject constructor(
 
         if (displayedLocation != null) {
             weatherRepository.refreshWeatherOfDisplayedLocation()
-            Success(WtnDestinations.INFO_ROUTE)
+            return@combine Success(WtnDestinations.INFO_ROUTE)
         }
 
         when (hasPermission) {
