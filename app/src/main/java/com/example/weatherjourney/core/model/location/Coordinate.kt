@@ -28,8 +28,8 @@ class Coordinate(latitude: Float, longitude: Float) {
         if (this === other) return true
         if (other !is Coordinate) return false
 
-        if (latitude != other.latitude) return false
-        if (longitude != other.longitude) return false
+        if (latitude.roundTo(1) != other.latitude.roundTo(1)) return false
+        if (longitude.roundTo(1) != other.longitude.roundTo(1)) return false
 
         return true
     }

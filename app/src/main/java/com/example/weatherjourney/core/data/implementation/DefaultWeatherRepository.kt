@@ -44,7 +44,7 @@ class DefaultWeatherRepository @Inject constructor(
 
     override suspend fun refreshWeatherOfCurrentLocation() {
         withContext(ioDispatcher) {
-            val currentCoordinate = locationRepository.getCurrentCoordinate()
+            val currentCoordinate = locationRepository.getCurrentCoordinateStream().first()
             if (currentCoordinate is Success) {
                 val reverseGeocoding = async {
                     network.getReverseGeocoding(currentCoordinate.data)

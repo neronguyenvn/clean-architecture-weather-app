@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.Tasks.await
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -62,8 +63,8 @@ class DefaultLocationRepository @Inject constructor(
         locationDao.deleteById(locationId)
     }
 
-    override suspend fun getCurrentCoordinate(): Result<Coordinate> =
-        withContext(defaultDispatcher) {
+    override fun getCurrentCoordinateStream(): Flow<Result<Coordinate>> =
+        flow {
             val hasAccessFineLocationPermission =
                 context.checkPermission(permission.ACCESS_FINE_LOCATION)
             val hasAccessCoarseLocationPermission =
@@ -71,20 +72,29 @@ class DefaultLocationRepository @Inject constructor(
 
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE)
                     as LocationManager
-            val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-                    || locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+            val isGpsEnabled =
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+                        || locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 
-            if (!isGpsEnabled) return@withContext Result.Error(LocationServiceDisabledException)
+            if (!isGpsEnabled) {
+                emit(Result.Error(LocationServiceDisabledException))
+                return@flow
+            }
 
             if (!hasAccessCoarseLocationPermission || !hasAccessFineLocationPermission) {
-                return@withContext Result.Error(LocationPermissionDeniedException)
+                emit(Result.Error(LocationPermissionDeniedException))
+                return@flow
             }
 
-            val lastLocation = await(client.lastLocation)
-            when {
-                lastLocation != null -> Result.Success(lastLocation.coordinate)
-                else -> Result.Error(LocationException.NullLastLocation)
+            val lastLocation = withContext(defaultDispatcher) {
+                await(client.lastLocation)
             }
+            emit(
+                when {
+                    lastLocation != null -> Result.Success(lastLocation.coordinate)
+                    else -> Result.Error(LocationException.NullLastLocation)
+                }
+            )
         }
 
     override suspend fun getSuggestionCities(cityAddress: String): Result<List<SuggestionCity>> =

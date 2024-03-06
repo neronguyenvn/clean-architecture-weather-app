@@ -16,11 +16,11 @@ interface LocationRepository {
 
     fun getAllLocationWithWeatherStream(): Flow<List<LocationWithWeather>>
 
+    fun getCurrentCoordinateStream(): Flow<Result<Coordinate>>
+
     suspend fun saveLocation(location: Location, isVisible: Boolean)
 
     suspend fun deleteLocation(locationId: Int)
-
-    suspend fun getCurrentCoordinate(): Result<Coordinate>
 
     suspend fun getSuggestionCities(cityAddress: String): Result<List<SuggestionCity>>
 }

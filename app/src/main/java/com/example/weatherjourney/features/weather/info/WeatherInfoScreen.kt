@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -84,6 +86,7 @@ fun WeatherInfoScreen(
                 cityAddress = uiState.cityAddress,
                 onSearchClick = onSearchClick,
                 onSettingClick = onSettingClick,
+                isCurrentLocation = uiState.isCurrentLocation
             )
         },
     ) { paddingValues ->
@@ -314,6 +317,7 @@ fun HourlyWeatherItem(
 @Composable
 fun InfoTopBar(
     cityAddress: String,
+    isCurrentLocation: Boolean,
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -329,12 +333,18 @@ fun InfoTopBar(
             }
         },
         title = {
-            Text(
-                cityAddress,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                textAlign = TextAlign.Center,
-            )
+            Row {
+                if (isCurrentLocation) {
+                    Icon(Icons.Default.LocationOn, "current location")
+                    Spacer(Modifier.width(4.dp))
+                }
+                Text(
+                    cityAddress,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                )
+            }
         },
         actions = {
             IconButton(onSettingClick) {

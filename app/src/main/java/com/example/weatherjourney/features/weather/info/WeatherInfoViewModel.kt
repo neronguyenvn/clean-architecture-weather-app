@@ -2,10 +2,12 @@ package com.example.weatherjourney.features.weather.info
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.weatherjourney.core.common.util.Result.Success
 import com.example.weatherjourney.core.common.util.UserMessage
 import com.example.weatherjourney.core.data.LocationRepository
 import com.example.weatherjourney.core.data.UserDataRepository
 import com.example.weatherjourney.core.data.WeatherRepository
+import com.example.weatherjourney.core.database.model.coordinate
 import com.example.weatherjourney.core.database.model.weather
 import com.example.weatherjourney.core.datastore.model.toAllUnit
 import com.example.weatherjourney.core.domain.ConvertUnitUseCase
@@ -45,11 +47,14 @@ class WeatherInfoViewModel @Inject constructor(
         userData.toAllUnit()
     }
 
+    private val _currentCoordinate = locationRepository.getCurrentCoordinateStream()
+
     val uiState: StateFlow<WeatherInfoUiState> = combine(
         _isLoading,
         _units,
-        locationRepository.getDisplayedLocationWithWeatherStream()
-    ) { isLoading, units, locationWithWeather ->
+        locationRepository.getDisplayedLocationWithWeatherStream(),
+        _currentCoordinate
+    ) { isLoading, units, locationWithWeather, coordinate ->
         WeatherInfoUiState(
             isLoading = isLoading,
             cityAddress = locationWithWeather?.location?.cityAddress ?: "",
@@ -57,7 +62,10 @@ class WeatherInfoViewModel @Inject constructor(
             weather = convertUnitUseCase(
                 weather = locationWithWeather?.weather,
                 units = units
-            )
+            ),
+            isCurrentLocation = if (coordinate is Success) {
+                locationWithWeather?.location?.coordinate == coordinate.data
+            } else false,
         ) { event ->
             when (event) {
                 WeatherInfoEvent.Refresh -> viewModelScope.launch {
