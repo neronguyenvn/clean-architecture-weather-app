@@ -9,7 +9,6 @@ import com.example.weatherjourney.core.data.WeatherRepository
 import com.example.weatherjourney.core.database.model.weather
 import com.example.weatherjourney.core.datastore.model.toAllUnit
 import com.example.weatherjourney.core.domain.ConvertUnitUseCase
-import com.example.weatherjourney.core.domain.ValidateCurrentLocationUseCase
 import com.example.weatherjourney.core.model.unit.AllUnit
 import com.example.weatherjourney.core.model.weather.Weather
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class WeatherInfoUiState(
@@ -28,15 +28,15 @@ data class WeatherInfoUiState(
     val cityAddress: String = "",
     val units: AllUnit? = null,
     val weather: Weather? = null,
+    val eventSink: (WeatherInfoEvent) -> Unit = {}
 )
 
 @HiltViewModel
 class WeatherInfoViewModel @Inject constructor(
-    private val locationRepository: LocationRepository,
-    private val userDataRepository: UserDataRepository,
     private val weatherRepository: WeatherRepository,
     private val convertUnitUseCase: ConvertUnitUseCase,
-    private val validateCurrentLocationUseCase: ValidateCurrentLocationUseCase,
+    locationRepository: LocationRepository,
+    userDataRepository: UserDataRepository,
 ) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
@@ -58,7 +58,15 @@ class WeatherInfoViewModel @Inject constructor(
                 weather = locationWithWeather?.weather,
                 units = units
             )
-        )
+        ) { event ->
+            when (event) {
+                WeatherInfoEvent.Refresh -> viewModelScope.launch {
+                    _isLoading.value = true
+                    weatherRepository.refreshWeatherOfDisplayedLocation()
+                    _isLoading.value = false
+                }
+            }
+        }
     }.stateIn(
         scope = viewModelScope,
         initialValue = WeatherInfoUiState(),

@@ -48,7 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
 import com.example.weatherjourney.core.common.util.roundTo
-import com.example.weatherjourney.core.designsystem.component.LoadingContent
+import com.example.weatherjourney.core.designsystem.component.PullToLoadContent
 import com.example.weatherjourney.core.model.location.Coordinate
 import com.example.weatherjourney.core.model.unit.AllUnit
 import com.example.weatherjourney.core.model.unit.WindSpeedUnit
@@ -59,8 +59,7 @@ import com.example.weatherjourney.presentation.theme.superscript
 import kotlin.math.roundToInt
 
 sealed class WeatherInfoEvent {
-
-    data object Fetch
+    data object Refresh : WeatherInfoEvent()
 }
 
 @Composable
@@ -91,7 +90,6 @@ fun WeatherInfoScreen(
 
         WeatherInfoUi(
             uiState = uiState,
-            onRefresh = { },
             modifier = Modifier.padding(paddingValues),
         )
     }
@@ -100,7 +98,6 @@ fun WeatherInfoScreen(
 @Composable
 fun WeatherInfoUi(
     uiState: WeatherInfoUiState,
-    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val screenPadding = PaddingValues(
@@ -109,7 +106,11 @@ fun WeatherInfoUi(
         top = dimensionResource(R.dimen.vertical_margin),
     )
 
-    LoadingContent(uiState.isLoading, onRefresh, modifier) {
+    PullToLoadContent(
+        isLoading = uiState.isLoading,
+        modifier = modifier,
+        onRefresh = { uiState.eventSink(WeatherInfoEvent.Refresh) }
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()

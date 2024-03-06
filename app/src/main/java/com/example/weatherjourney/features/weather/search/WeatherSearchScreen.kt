@@ -61,7 +61,7 @@ import com.example.weatherjourney.core.common.util.roundTo
 import com.example.weatherjourney.core.designsystem.component.CityAddressWithFlag
 import com.example.weatherjourney.core.designsystem.component.CurrentLocationField
 import com.example.weatherjourney.core.designsystem.component.HorizontalDivider
-import com.example.weatherjourney.core.designsystem.component.LoadingContent
+import com.example.weatherjourney.core.designsystem.component.PullToLoadContent
 import com.example.weatherjourney.core.model.location.CityUiModel
 import com.example.weatherjourney.core.model.location.CityWithWeather
 import com.example.weatherjourney.core.model.location.SuggestionCity
@@ -261,7 +261,7 @@ private fun SavedCitiesContent(
     onCurrentLocationFieldClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LoadingContent(
+    PullToLoadContent(
         isLoading = isLoading,
         onRefresh = onRefresh,
         modifier = modifier,
