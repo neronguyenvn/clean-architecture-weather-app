@@ -19,7 +19,7 @@ import com.example.weatherjourney.app.MainActivityUiState.Success
 import com.example.weatherjourney.app.ui.WtnApp
 import com.example.weatherjourney.presentation.theme.WtnTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState
                     .onEach { uiState = it }
-                    .collect()
+                    .first { it is Success }
             }
         }
 
