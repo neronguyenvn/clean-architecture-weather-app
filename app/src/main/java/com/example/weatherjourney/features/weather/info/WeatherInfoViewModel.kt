@@ -3,16 +3,16 @@ package com.example.weatherjourney.features.weather.info
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.core.common.util.Result.Success
-import com.example.weatherjourney.core.common.util.UserMessage
+import com.example.weatherjourney.core.data.GpsRepository
 import com.example.weatherjourney.core.data.LocationRepository
 import com.example.weatherjourney.core.data.UserDataRepository
 import com.example.weatherjourney.core.data.WeatherRepository
 import com.example.weatherjourney.core.database.model.coordinate
 import com.example.weatherjourney.core.database.model.weather
 import com.example.weatherjourney.core.datastore.model.toAllUnit
-import com.example.weatherjourney.core.domain.ConvertUnitUseCase
+import com.example.weatherjourney.core.domain.ConvertUseCase
+import com.example.weatherjourney.core.model.info.Weather
 import com.example.weatherjourney.core.model.unit.AllUnit
-import com.example.weatherjourney.core.model.weather.Weather
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,9 +25,8 @@ import javax.inject.Inject
 
 data class WeatherInfoUiState(
     val isLoading: Boolean = false,
-    val userMessage: UserMessage? = null,
     val isCurrentLocation: Boolean = false,
-    val cityAddress: String = "",
+    val address: String = "",
     val units: AllUnit? = null,
     val weather: Weather? = null,
     val eventSink: (WeatherInfoEvent) -> Unit = {}
@@ -36,7 +35,8 @@ data class WeatherInfoUiState(
 @HiltViewModel
 class WeatherInfoViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
-    private val convertUnitUseCase: ConvertUnitUseCase,
+    private val convertUseCase: ConvertUseCase,
+    gpsRepository: GpsRepository,
     locationRepository: LocationRepository,
     userDataRepository: UserDataRepository,
 ) : ViewModel() {
@@ -47,7 +47,7 @@ class WeatherInfoViewModel @Inject constructor(
         userData.toAllUnit()
     }
 
-    private val _currentCoordinate = locationRepository.getCurrentCoordinateStream()
+    private val _currentCoordinate = gpsRepository.getCurrentCoordinateStream()
 
     val uiState: StateFlow<WeatherInfoUiState> = combine(
         _isLoading,
@@ -62,9 +62,9 @@ class WeatherInfoViewModel @Inject constructor(
 
         WeatherInfoUiState(
             isLoading = isLoading,
-            cityAddress = locationWithWeather?.location?.cityAddress ?: "",
+            address = locationWithWeather?.location?.address ?: "",
             units = units,
-            weather = convertUnitUseCase(
+            weather = convertUseCase(
                 weather = locationWithWeather?.weather,
                 units = units
             ),
@@ -76,7 +76,7 @@ class WeatherInfoViewModel @Inject constructor(
                     if (isCurrentLocation) {
                         weatherRepository.refreshWeatherOfCurrentLocation()
                     } else {
-                        weatherRepository.refreshWeatherOfDisplayedLocation()
+                        weatherRepository.refreshWeatherOfLocation(null)
                     }
                     _isLoading.value = false
                 }

@@ -1,4 +1,4 @@
-package com.example.weatherjourney.core.model.weather
+package com.example.weatherjourney.core.model.info
 
 data class Weather(
     val current: CurrentWeather,

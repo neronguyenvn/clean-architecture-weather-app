@@ -12,14 +12,14 @@ import androidx.compose.ui.unit.dp
 import com.example.weatherjourney.core.common.util.toFlagEmoji
 
 @Composable
-fun CityAddressWithFlag(
+fun AddressWithFlag(
     countryCode: String,
-    cityAddress: String,
+    address: String,
     modifier: Modifier = Modifier,
 ) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         Text(countryCode.toFlagEmoji())
         Spacer(Modifier.width(8.dp))
-        Text(cityAddress, style = MaterialTheme.typography.bodyLarge)
+        Text(address, style = MaterialTheme.typography.bodyLarge)
     }
 }

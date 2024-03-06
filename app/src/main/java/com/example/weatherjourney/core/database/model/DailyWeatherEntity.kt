@@ -22,5 +22,5 @@ data class DailyWeatherEntity(
     var maxTemperatures: FloatListHolder,
     var minTemperatures: FloatListHolder,
     @PrimaryKey
-    val locationId: Int
+    val locationId: Long
 )

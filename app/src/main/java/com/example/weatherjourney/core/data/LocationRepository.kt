@@ -2,25 +2,23 @@ package com.example.weatherjourney.core.data
 
 import com.example.weatherjourney.core.common.util.Result
 import com.example.weatherjourney.core.database.model.LocationEntity
-import com.example.weatherjourney.core.database.model.LocationWithWeather
-import com.example.weatherjourney.core.model.location.Coordinate
-import com.example.weatherjourney.core.model.location.Location
-import com.example.weatherjourney.core.model.location.SuggestionCity
+import com.example.weatherjourney.core.database.model.LocationEntityWithWeather
+import com.example.weatherjourney.core.model.search.SuggestionLocation
 import kotlinx.coroutines.flow.Flow
 
 interface LocationRepository {
 
     fun getDisplayedLocationStream(): Flow<LocationEntity?>
 
-    fun getDisplayedLocationWithWeatherStream(): Flow<LocationWithWeather?>
+    fun getDisplayedLocationWithWeatherStream(): Flow<LocationEntityWithWeather?>
 
-    fun getAllLocationWithWeatherStream(): Flow<List<LocationWithWeather>>
+    fun getAllLocationWithWeatherStream(): Flow<List<LocationEntityWithWeather>>
 
-    fun getCurrentCoordinateStream(): Flow<Result<Coordinate>>
-
-    suspend fun saveLocation(location: Location, isVisible: Boolean)
+    suspend fun saveLocation(suggestionLocation: SuggestionLocation)
 
     suspend fun deleteLocation(locationId: Int)
 
-    suspend fun getSuggestionCities(cityAddress: String): Result<List<SuggestionCity>>
+    suspend fun getSuggestionLocations(address: String): Result<List<SuggestionLocation>>
+
+    suspend fun makeLocationDisplayed(locationId: Int)
 }

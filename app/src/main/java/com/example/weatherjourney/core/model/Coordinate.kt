@@ -1,4 +1,4 @@
-package com.example.weatherjourney.core.model.location
+package com.example.weatherjourney.core.model
 
 import com.example.weatherjourney.core.common.util.roundTo
 import com.example.weatherjourney.core.model.serializer.CoordinateSerializer

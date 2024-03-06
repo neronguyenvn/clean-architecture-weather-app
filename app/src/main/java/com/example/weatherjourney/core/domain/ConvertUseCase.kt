@@ -3,26 +3,30 @@ package com.example.weatherjourney.core.domain
 import com.example.weatherjourney.core.common.constant.DATE_24_PATTERN
 import com.example.weatherjourney.core.common.constant.DATE_AM_PM_PATTERN
 import com.example.weatherjourney.core.common.constant.GENERAL_TIME_FORMATTER
-import com.example.weatherjourney.core.database.model.LocationWithWeather
-import com.example.weatherjourney.core.database.model.toCityWithWeather
-import com.example.weatherjourney.core.model.location.CityWithWeather
+import com.example.weatherjourney.core.database.model.LocationEntityWithWeather
+import com.example.weatherjourney.core.database.model.toSavedLocation
+import com.example.weatherjourney.core.model.Coordinate
+import com.example.weatherjourney.core.model.info.Weather
+import com.example.weatherjourney.core.model.info.convertPressureUnit
+import com.example.weatherjourney.core.model.info.convertTemperatureUnit
+import com.example.weatherjourney.core.model.info.convertTimeFormatUnit
+import com.example.weatherjourney.core.model.info.convertWindSpeedUnit
+import com.example.weatherjourney.core.model.search.SavedLocation
 import com.example.weatherjourney.core.model.unit.AllUnit
 import com.example.weatherjourney.core.model.unit.PressureUnit
 import com.example.weatherjourney.core.model.unit.TemperatureUnit
 import com.example.weatherjourney.core.model.unit.TimeFormatUnit
 import com.example.weatherjourney.core.model.unit.WindSpeedUnit
-import com.example.weatherjourney.core.model.weather.Weather
-import com.example.weatherjourney.core.model.weather.convertPressureUnit
-import com.example.weatherjourney.core.model.weather.convertTemperatureUnit
-import com.example.weatherjourney.core.model.weather.convertTimeFormatUnit
-import com.example.weatherjourney.core.model.weather.convertWindSpeedUnit
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-class ConvertUnitUseCase @Inject constructor() {
+class ConvertUseCase @Inject constructor() {
 
-    operator fun invoke(weather: Weather?, units: AllUnit?): Weather? {
+    operator fun invoke(
+        weather: Weather?,
+        units: AllUnit?
+    ): Weather? {
         if (weather == null) return null
 
         var tempWeather = when (units?.temperature) {
@@ -53,14 +57,15 @@ class ConvertUnitUseCase @Inject constructor() {
     }
 
     operator fun invoke(
-        locations: List<LocationWithWeather>,
-        tUnit: TemperatureUnit?
-    ): List<CityWithWeather> = locations.map { location ->
-        val city = location.toCityWithWeather()
-        city.copy(
+        locations: List<LocationEntityWithWeather>,
+        tUnit: TemperatureUnit?,
+        currentCoordinate: Coordinate?
+    ): List<SavedLocation?> = locations.map { locationEntity ->
+        val location = locationEntity.toSavedLocation(currentCoordinate)
+        location?.copy(
             temp = when (tUnit) {
-                TemperatureUnit.FAHRENHEIT -> convertCelsiusToFahrenheit(city.temp)
-                else -> city.temp
+                TemperatureUnit.FAHRENHEIT -> convertCelsiusToFahrenheit(location.temp)
+                else -> location.temp
             },
         )
     }

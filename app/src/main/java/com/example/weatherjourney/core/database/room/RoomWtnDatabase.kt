@@ -19,7 +19,7 @@ import com.example.weatherjourney.core.database.util.LongListConverter
         HourlyWeatherEntity::class
     ],
     version = 1,
-    exportSchema = true
+    exportSchema = false
 )
 @TypeConverters(
     IntListConverter::class,

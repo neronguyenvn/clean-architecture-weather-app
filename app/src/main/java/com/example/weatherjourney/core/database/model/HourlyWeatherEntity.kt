@@ -24,5 +24,5 @@ data class HourlyWeatherEntity(
     var windSpeeds: FloatListHolder,
     var humidities: FloatListHolder,
     @PrimaryKey
-    val locationId: Int,
+    val locationId: Long,
 )

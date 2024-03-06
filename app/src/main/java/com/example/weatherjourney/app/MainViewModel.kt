@@ -29,7 +29,7 @@ class MainViewModel @Inject constructor(
     ) { displayedLocation, hasPermission ->
 
         if (displayedLocation != null) {
-            weatherRepository.refreshWeatherOfDisplayedLocation()
+            weatherRepository.refreshWeatherOfLocation(null)
             return@combine Success(WtnDestinations.INFO_ROUTE)
         }
 

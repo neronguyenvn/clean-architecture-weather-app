@@ -1,16 +1,17 @@
-package com.example.weatherjourney.core.model.location
+package com.example.weatherjourney.core.model.search
 
 import com.example.weatherjourney.core.database.model.LocationEntity
+import com.example.weatherjourney.core.model.Coordinate
 
-data class Location(
-    val cityAddress: String,
+data class SuggestionLocation(
+    val address: String,
     val countryCode: String,
     val timeZone: String,
     val coordinate: Coordinate,
 )
 
-fun Location.asEntity(isDisplayed: Boolean) = LocationEntity(
-    cityAddress = cityAddress,
+fun SuggestionLocation.asEntity(isDisplayed: Boolean) = LocationEntity(
+    address = address,
     countryCode = countryCode,
     timeZone = timeZone,
     latitude = coordinate.latitude,

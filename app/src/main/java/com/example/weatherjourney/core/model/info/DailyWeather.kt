@@ -1,6 +1,7 @@
-package com.example.weatherjourney.core.model.weather
+package com.example.weatherjourney.core.model.info
 
 import com.example.weatherjourney.core.common.util.UiText
+import com.example.weatherjourney.core.model.WeatherType
 
 data class DailyWeather(
     val date: UiText,

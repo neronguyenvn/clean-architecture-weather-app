@@ -1,8 +1,8 @@
 package com.example.weatherjourney.core.network.retrofit
 
 import com.example.weatherjourney.BuildConfig
-import com.example.weatherjourney.core.model.location.Coordinate
-import com.example.weatherjourney.core.model.location.asNetworkModel
+import com.example.weatherjourney.core.model.Coordinate
+import com.example.weatherjourney.core.model.asNetworkModel
 import com.example.weatherjourney.core.network.WtnNetworkDataSource
 import com.example.weatherjourney.core.network.model.ForwardGeocoding
 import com.example.weatherjourney.core.network.model.NetworkWeather
@@ -49,7 +49,7 @@ private interface RetrofitWtnNetworkApi {
     @GET
     suspend fun getForwardGeocoding(
         @Url url: String = OPENMETEO_GEOCODING_URL,
-        @Query("name", encoded = true) cityAddress: String,
+        @Query("name", encoded = true) address: String,
     ): ForwardGeocoding
 }
 
@@ -76,8 +76,8 @@ class RetrofitWtnNetwork(
         timeZone = timeZone
     )
 
-    override suspend fun getForwardGeocoding(cityAddress: String): ForwardGeocoding =
-        networkApi.getForwardGeocoding(cityAddress = cityAddress)
+    override suspend fun getForwardGeocoding(address: String): ForwardGeocoding =
+        networkApi.getForwardGeocoding(address = address)
 
     override suspend fun getReverseGeocoding(coordinate: Coordinate): ReverseGeocoding =
         networkApi.getReverseGeocoding(coordinate.asNetworkModel())

@@ -51,11 +51,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
 import com.example.weatherjourney.core.common.util.roundTo
 import com.example.weatherjourney.core.designsystem.component.PullToLoadContent
+import com.example.weatherjourney.core.model.info.CurrentWeather
+import com.example.weatherjourney.core.model.info.DailyWeather
+import com.example.weatherjourney.core.model.info.HourlyWeather
 import com.example.weatherjourney.core.model.unit.AllUnit
 import com.example.weatherjourney.core.model.unit.WindSpeedUnit
-import com.example.weatherjourney.core.model.weather.CurrentWeather
-import com.example.weatherjourney.core.model.weather.DailyWeather
-import com.example.weatherjourney.core.model.weather.HourlyWeather
 import com.example.weatherjourney.presentation.theme.superscript
 import kotlin.math.roundToInt
 
@@ -78,7 +78,7 @@ fun WeatherInfoScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             InfoTopBar(
-                cityAddress = uiState.cityAddress,
+                address = uiState.address,
                 onSearchClick = onSearchClick,
                 onSettingClick = onSettingClick,
                 isCurrentLocation = uiState.isCurrentLocation
@@ -311,7 +311,7 @@ fun HourlyWeatherItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InfoTopBar(
-    cityAddress: String,
+    address: String,
     isCurrentLocation: Boolean,
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
@@ -334,7 +334,7 @@ fun InfoTopBar(
                     Spacer(Modifier.width(4.dp))
                 }
                 Text(
-                    cityAddress,
+                    address,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     textAlign = TextAlign.Center,

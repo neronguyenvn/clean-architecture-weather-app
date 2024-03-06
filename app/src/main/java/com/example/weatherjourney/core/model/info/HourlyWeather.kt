@@ -1,4 +1,6 @@
-package com.example.weatherjourney.core.model.weather
+package com.example.weatherjourney.core.model.info
+
+import com.example.weatherjourney.core.model.WeatherType
 
 data class HourlyWeather(
     val date: String,

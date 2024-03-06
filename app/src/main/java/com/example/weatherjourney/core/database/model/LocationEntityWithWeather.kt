@@ -8,30 +8,32 @@ import com.example.weatherjourney.core.common.util.filterPastHours
 import com.example.weatherjourney.core.common.util.getCurrentDate
 import com.example.weatherjourney.core.common.util.toDate
 import com.example.weatherjourney.core.common.util.toDayNameInWeek
-import com.example.weatherjourney.core.model.location.CityWithWeather
-import com.example.weatherjourney.core.model.weather.CurrentWeather
-import com.example.weatherjourney.core.model.weather.DailyWeather
-import com.example.weatherjourney.core.model.weather.HourlyWeather
-import com.example.weatherjourney.core.model.weather.Weather
-import com.example.weatherjourney.core.model.weather.WeatherType
+import com.example.weatherjourney.core.model.Coordinate
+import com.example.weatherjourney.core.model.WeatherType
+import com.example.weatherjourney.core.model.info.CurrentWeather
+import com.example.weatherjourney.core.model.info.DailyWeather
+import com.example.weatherjourney.core.model.info.HourlyWeather
+import com.example.weatherjourney.core.model.info.Weather
+import com.example.weatherjourney.core.model.search.SavedLocation
 
-data class LocationWithWeather(
+data class LocationEntityWithWeather(
     @Embedded
     val location: LocationEntity,
     @Relation(
         parentColumn = "id",
         entityColumn = "locationId"
     )
-    val hourlyWeather: HourlyWeatherEntity,
+    val hourlyWeather: HourlyWeatherEntity?,
     @Relation(
         parentColumn = "id",
         entityColumn = "locationId"
     )
-    val dailyWeather: DailyWeatherEntity
+    val dailyWeather: DailyWeatherEntity?
 )
 
-val LocationWithWeather.weather: Weather
+val LocationEntityWithWeather.weather: Weather?
     get() {
+        if (hourlyWeather == null || dailyWeather == null) return null
         val count = hourlyWeather.time.list.countPastHoursToday()
         return Weather(
             current = hourlyWeather.run {
@@ -67,15 +69,14 @@ val LocationWithWeather.weather: Weather
         )
     }
 
-fun LocationWithWeather.toCityWithWeather(): CityWithWeather {
-    val weather = this.weather
-    return CityWithWeather(
+fun LocationEntityWithWeather.toSavedLocation(currentCoordinate: Coordinate?): SavedLocation? {
+    val weather = this.weather ?: return null
+    return SavedLocation(
         temp = weather.current.temp,
         weatherType = weather.current.weatherType,
-        id = location.id,
-        cityAddress = location.cityAddress,
-        coordinate = location.coordinate,
-        timeZone = location.timeZone,
-        countryCode = location.countryCode
+        id = location.id.toInt(),
+        address = location.address,
+        countryCode = location.countryCode,
+        isCurrentLocation = location.coordinate == currentCoordinate
     )
 }

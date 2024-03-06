@@ -1,6 +1,6 @@
 package com.example.weatherjourney.core.model.serializer
 
-import com.example.weatherjourney.core.model.location.Coordinate
+import com.example.weatherjourney.core.model.Coordinate
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor

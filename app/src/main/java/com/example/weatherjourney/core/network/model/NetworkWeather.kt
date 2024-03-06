@@ -40,7 +40,7 @@ data class NetworkDailyWeather(
     val minTemperatures: List<Float>,
 )
 
-fun NetworkDailyWeather.asEntity(locationId: Int) = DailyWeatherEntity(
+fun NetworkDailyWeather.asEntity(locationId: Long) = DailyWeatherEntity(
     time = LongListHolder(time),
     weatherCodes = IntListHolder(weatherCodes),
     maxTemperatures = FloatListHolder(maxTemperatures),
@@ -48,7 +48,7 @@ fun NetworkDailyWeather.asEntity(locationId: Int) = DailyWeatherEntity(
     locationId = locationId
 )
 
-fun NetworkHourlyWeather.asEntity(locationId: Int) = HourlyWeatherEntity(
+fun NetworkHourlyWeather.asEntity(locationId: Long) = HourlyWeatherEntity(
     time = LongListHolder(time),
     temperatures = FloatListHolder(temperatures),
     weatherCodes = IntListHolder(weatherCodes),

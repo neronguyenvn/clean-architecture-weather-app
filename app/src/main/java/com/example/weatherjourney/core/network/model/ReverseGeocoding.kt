@@ -1,7 +1,7 @@
 package com.example.weatherjourney.core.network.model
 
 import com.example.weatherjourney.core.database.model.LocationEntity
-import com.example.weatherjourney.core.model.location.Coordinate
+import com.example.weatherjourney.core.model.Coordinate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 data class ReverseGeocoding(
     val results: List<ReverseGeocodingResult>,
 ) {
-    fun getCityAddress() = results[0].components.run {
+    fun getAddress() = results[0].components.run {
         listOf(suburb, county, city, region).filter { it.isNotBlank() }.joinToString(", ")
     }
 
@@ -44,11 +44,11 @@ data class TimeZone(
     val name: String,
 )
 
-fun ReverseGeocoding.asEntity(coordinate: Coordinate, isDisplayed: Boolean) = LocationEntity(
-    cityAddress = getCityAddress(),
+fun ReverseGeocoding.asEntity(coordinate: Coordinate) = LocationEntity(
+    address = getAddress(),
     countryCode = getCountryCode(),
     timeZone = getTimeZone(),
     latitude = coordinate.latitude,
     longitude = coordinate.longitude,
-    isDisplayed = isDisplayed
+    isDisplayed = true
 )

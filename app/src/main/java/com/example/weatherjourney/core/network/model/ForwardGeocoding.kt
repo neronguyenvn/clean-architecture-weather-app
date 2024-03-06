@@ -1,7 +1,7 @@
 package com.example.weatherjourney.core.network.model
 
-import com.example.weatherjourney.core.model.location.Coordinate
-import com.example.weatherjourney.core.model.location.SuggestionCity
+import com.example.weatherjourney.core.model.Coordinate
+import com.example.weatherjourney.core.model.search.SuggestionLocation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -19,16 +19,16 @@ data class ForwardGeocodingResult(
     val longitude: Float,
     val timezone: String = "",
 ) {
-    fun getCityAddress() = when {
+    fun getAddress() = when {
         name != admin1 && admin1.isNotBlank() -> "$name, $admin1"
         else -> name
     }
 }
 
 
-fun ForwardGeocodingResult.toSuggestionCity() = SuggestionCity(
+fun ForwardGeocodingResult.toSuggestionLocation() = SuggestionLocation(
     countryCode = countryCode,
-    cityAddress = getCityAddress(),
+    address = getAddress(),
     coordinate = Coordinate(latitude, longitude),
     timeZone = timezone,
 )

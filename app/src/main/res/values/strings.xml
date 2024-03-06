@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Weather Journey</string>
     <string name="search">Search</string>
-    <string name="delete_city_address_input">Delete city address input</string>
     <string name="setting">Settings</string>
     <string name="back">Back</string>
     <string name="enter_location">Enter location</string>

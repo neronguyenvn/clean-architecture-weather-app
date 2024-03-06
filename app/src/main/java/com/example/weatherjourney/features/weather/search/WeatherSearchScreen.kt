@@ -1,10 +1,5 @@
 package com.example.weatherjourney.features.weather.search
 
-import android.Manifest
-import android.app.Activity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -55,40 +50,55 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
-import com.example.weatherjourney.core.common.util.UserMessage
-import com.example.weatherjourney.core.common.util.UserMessage.RequestingTurnOnLocationService
 import com.example.weatherjourney.core.common.util.roundTo
-import com.example.weatherjourney.core.designsystem.component.CityAddressWithFlag
+import com.example.weatherjourney.core.designsystem.component.AddressWithFlag
 import com.example.weatherjourney.core.designsystem.component.CurrentLocationField
 import com.example.weatherjourney.core.designsystem.component.HorizontalDivider
 import com.example.weatherjourney.core.designsystem.component.PullToLoadContent
-import com.example.weatherjourney.core.model.location.CityUiModel
-import com.example.weatherjourney.core.model.location.CityWithWeather
-import com.example.weatherjourney.core.model.location.SuggestionCity
+import com.example.weatherjourney.core.model.search.SavedLocation
+import com.example.weatherjourney.core.model.search.SuggestionLocation
+import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.ClickOnSavedLocation
+import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.ClickOnSuggestionLocation
+import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.DeleteSavedLocation
+import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.InputLocation
+import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.LongClickOnSavedLocation
+import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.Refresh
+import com.example.weatherjourney.features.weather.search.WeatherSearchScreenType.NoResult
+import com.example.weatherjourney.features.weather.search.WeatherSearchScreenType.SavedLocationsFeed
+import com.example.weatherjourney.features.weather.search.WeatherSearchScreenType.SavedLocationsFeedWithYourLocationButton
+import com.example.weatherjourney.features.weather.search.WeatherSearchScreenType.SuggestionLocationsFeed
 import com.example.weatherjourney.presentation.theme.White70
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.Priority
 
-private enum class SearchScreenType {
-    SavedInfoFeed,
-    SavedInfoFeedWithYourLocationButton,
-    SuggestionFeed,
+
+sealed class WeatherSearchEvent {
+
+    data object Refresh : WeatherSearchEvent()
+
+    data class InputLocation(val value: String) : WeatherSearchEvent()
+
+    data class ClickOnSuggestionLocation(val location: SuggestionLocation) : WeatherSearchEvent()
+
+    data class ClickOnSavedLocation(val location: SavedLocation) : WeatherSearchEvent()
+
+    data class LongClickOnSavedLocation(val location: SavedLocation?) : WeatherSearchEvent()
+
+    data object DeleteSavedLocation : WeatherSearchEvent()
+}
+
+private enum class WeatherSearchScreenType {
+    SavedLocationsFeed,
+    SavedLocationsFeedWithYourLocationButton,
+    SuggestionLocationsFeed,
     NoResult,
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
-@Suppress("LongMethod", "MagicNumber")
 @Composable
 fun WeatherSearchScreen(
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
-    onItemClick: (CityUiModel) -> Unit,
+    navigateToInfo: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WeatherSearchViewModel = hiltViewModel(),
 ) {
@@ -99,42 +109,61 @@ fun WeatherSearchScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             SearchBar(
-                value = uiState.input,
+                value = uiState.simpleState.input,
                 onBackClick = onBackClick,
-                onValueChange = viewModel::onInputUpdate,
-                onValueClear = { viewModel.onInputUpdate("") },
+                onValueChange = { uiState.eventSink(InputLocation(it)) },
+                onValueClear = { uiState.eventSink(InputLocation("")) },
                 modifier = Modifier.padding(top = 8.dp),
             )
         },
     ) { paddingValues ->
 
+        val context = LocalContext.current
         val keyboardController = LocalSoftwareKeyboardController.current
         val haptic = LocalHapticFeedback.current
-        val context = LocalContext.current
 
-        val activityResultLauncher = rememberLauncherForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult(),
-        ) { result ->
-            viewModel.onPermissionActionResult(result.resultCode == Activity.RESULT_OK, true)
-        }
-
-        val locationPermissionState = rememberMultiplePermissionsState(
-            listOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-            ),
-        ) { viewModel.onPermissionActionResult(it.any { permission -> permission.value }) }
-
-        WeatherSearchScreenContent(
+        WeatherSearchUi(
             uiState = uiState,
-            onRefresh = {},
-            onCityClick = { viewModel.onItemClick(it, onItemClick) },
-            onCityLongClick = viewModel::onSavedCityLongClick,
-            onCurrentLocationFieldClick = viewModel::onLocationFieldClick,
+            navigateToInfo = navigateToInfo,
             modifier = Modifier.padding(paddingValues),
         )
 
-        uiState.userMessage?.let { userMessage ->
+        LaunchedEffect(uiState.simpleState.savedLocation) {
+            uiState.simpleState.savedLocation?.let {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                keyboardController?.hide()
+
+                when (snackbarHostState.showSnackbar(
+                    message = context.getString(R.string.delete_location, it.address),
+                    actionLabel = context.getString(R.string.delete),
+                    duration = SnackbarDuration.Short,
+                )) {
+                    SnackbarResult.ActionPerformed ->
+                        uiState.eventSink(DeleteSavedLocation)
+
+                    SnackbarResult.Dismissed -> uiState.eventSink(
+                        LongClickOnSavedLocation(null)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/*        val activityResultLauncher = rememberLauncherForActivityResult(
+    ActivityResultContracts.StartIntentSenderForResult(),
+) { result ->
+    viewModel.onPermissionActionResult(result.resultCode == Activity.RESULT_OK, true)
+}
+
+val locationPermissionState = rememberMultiplePermissionsState(
+    listOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+    ),
+) { viewModel.onPermissionActionResult(it.any { permission -> permission.value }) }*/
+
+/*        uiState.userMessage?.let { userMessage ->
             if (userMessage is RequestingTurnOnLocationService) {
                 val client = LocationServices.getSettingsClient(context)
                 val task = client.checkLocationSettings(
@@ -172,47 +201,17 @@ fun WeatherSearchScreen(
                 }
 
                 locationPermissionState.launchMultiplePermissionRequest()
-            }
+            }*/
 
-            val snackbarText = userMessage.message?.asString()
-            val actionLabel = userMessage.actionLabel?.let { stringResource(it) }
-
-            LaunchedEffect(snackbarHostState, snackbarText, actionLabel) {
-                snackbarText?.let {
-                    keyboardController?.hide()
-
-                    if (userMessage is UserMessage.DeletingLocation) {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    }
-
-                    val result = snackbarHostState.showSnackbar(
-                        message = snackbarText,
-                        actionLabel = actionLabel,
-                        duration = SnackbarDuration.Short,
-                    )
-
-                    if (result == SnackbarResult.ActionPerformed) {
-                        viewModel.onDeleteLocation()
-                    }
-                }
-
-                //              viewModel.onHandleUserMessageDone()
-            }
-        }
-    }
-}
 
 @Composable
-fun WeatherSearchScreenContent(
-    uiState: WeatherSearchState,
-    onRefresh: () -> Unit,
-    onCityClick: (CityUiModel) -> Unit,
-    onCityLongClick: (CityWithWeather) -> Unit,
-    onCurrentLocationFieldClick: () -> Unit,
+fun WeatherSearchUi(
+    uiState: WeatherSearchUiState,
+    navigateToInfo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (val screenType = getSearchScreenType(uiState)) {
-        SearchScreenType.NoResult -> {
+        NoResult -> {
             Text(
                 stringResource(R.string.no_result),
                 style = MaterialTheme.typography.titleMedium,
@@ -223,27 +222,29 @@ fun WeatherSearchScreenContent(
             )
         }
 
-        SearchScreenType.SuggestionFeed -> {
-            uiState as WeatherSearchState.ShowSuggestionCities
+        SuggestionLocationsFeed -> {
             LazyColumn(modifier.fillMaxWidth()) {
-                items(uiState.suggestionCities) { city ->
-                    SuggestionCityItem(city = city) { selectedCity ->
-                        onCityClick(selectedCity)
+                items(uiState.suggestionLocations) { location ->
+                    SuggestionLocationItem(location) { selected ->
+                        uiState.eventSink(ClickOnSuggestionLocation(selected))
+                        navigateToInfo()
                     }
                 }
             }
         }
 
         else -> {
-            uiState as WeatherSearchState.ShowSaveCities
-            SavedCitiesContent(
+            SavedLocationsUi(
                 screenType = screenType,
-                savedCities = uiState.savedCities,
-                isLoading = uiState.isLoading,
-                onRefresh = onRefresh,
-                onCityClick = onCityClick,
-                onCityLongClick = onCityLongClick,
-                onCurrentLocationFieldClick = onCurrentLocationFieldClick,
+                locations = uiState.savedLocations,
+                isLoading = uiState.simpleState.isLoading,
+                onRefresh = { uiState.eventSink(Refresh) },
+                onClick = {
+                    uiState.eventSink(ClickOnSavedLocation(it))
+                    navigateToInfo()
+                },
+                onLongClick = { uiState.eventSink(LongClickOnSavedLocation(it)) },
+                onCurrentLocationFieldClick = { },
                 modifier = modifier,
             )
         }
@@ -251,13 +252,13 @@ fun WeatherSearchScreenContent(
 }
 
 @Composable
-private fun SavedCitiesContent(
-    screenType: SearchScreenType,
-    savedCities: List<CityWithWeather>,
+private fun SavedLocationsUi(
+    screenType: WeatherSearchScreenType,
+    locations: List<SavedLocation?>,
     isLoading: Boolean,
     onRefresh: () -> Unit,
-    onCityClick: (CityUiModel) -> Unit,
-    onCityLongClick: (CityWithWeather) -> Unit,
+    onClick: (SavedLocation) -> Unit,
+    onLongClick: (SavedLocation) -> Unit,
     onCurrentLocationFieldClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -267,94 +268,81 @@ private fun SavedCitiesContent(
         modifier = modifier,
     ) {
         LazyColumn(Modifier.fillMaxWidth()) {
-            if (screenType == SearchScreenType.SavedInfoFeedWithYourLocationButton) {
+            if (screenType == SavedLocationsFeedWithYourLocationButton) {
                 item { CurrentLocationField(onCurrentLocationFieldClick) }
             }
-            items(savedCities) { city ->
-                SavedCityItem(
-                    city = city,
-                    onCityClick = { onCityClick(city) },
-                    onCityLongClick = { onCityLongClick(city) },
+            items(locations) { location ->
+                SavedLocationItem(
+                    location = location,
+                    onClick = { onClick(location!!) },
+                    onLongClick = { onLongClick(location!!) },
                 )
             }
         }
     }
 }
-
-private fun getSearchScreenType(uiState: WeatherSearchState): SearchScreenType {
-    return when (uiState) {
-        is WeatherSearchState.ShowSaveCities -> {
-            if (uiState.isLoading || uiState.savedCities.any { it.isCurrentLocation }) {
-                return SearchScreenType.SavedInfoFeed
-            }
-
-            SearchScreenType.SavedInfoFeedWithYourLocationButton
-        }
-
-        is WeatherSearchState.ShowSuggestionCities -> {
-            if (uiState.suggestionCities.isEmpty()) {
-                SearchScreenType.NoResult
-            } else {
-                SearchScreenType.SuggestionFeed
-            }
-        }
-    }
-}
-
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SavedCityItem(
-    city: CityWithWeather,
-    onCityClick: (CityWithWeather) -> Unit,
-    onCityLongClick: (CityWithWeather) -> Unit,
+fun SavedLocationItem(
+    location: SavedLocation?,
+    onClick: (SavedLocation) -> Unit,
+    onLongClick: (SavedLocation) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .combinedClickable(
-                onClick = { onCityClick(city) },
-                onLongClick = { onCityLongClick(city) },
-            ),
-    ) {
-        Spacer(Modifier.height(16.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+    if (location == null) {
+        Spacer(
+            modifier = Modifier
+                .height(32.dp)
+                .fillMaxWidth()
+        )
+    } else {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .combinedClickable(
+                    onClick = { onClick(location) },
+                    onLongClick = { onLongClick(location) },
+                ),
         ) {
-            if (city.isCurrentLocation) {
-                Column(modifier = Modifier.weight(1f)) {
-                    CityAddressWithFlag(
-                        countryCode = city.countryCode,
-                        cityAddress = city.cityAddress,
-                    )
-                    Text(
-                        text = stringResource(R.string.your_location),
-                        style = MaterialTheme.typography.labelMedium.copy(White70),
+            Spacer(Modifier.height(16.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (location.isCurrentLocation) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        AddressWithFlag(
+                            countryCode = location.countryCode,
+                            address = location.address,
+                        )
+                        Text(
+                            text = stringResource(R.string.your_location),
+                            style = MaterialTheme.typography.labelMedium.copy(White70),
+                        )
+                    }
+                } else {
+                    AddressWithFlag(
+                        countryCode = location.countryCode,
+                        address = location.address,
+                        modifier = Modifier.weight(1f),
                     )
                 }
-            } else {
-                CityAddressWithFlag(
-                    countryCode = city.countryCode,
-                    cityAddress = city.cityAddress,
-                    modifier = Modifier.weight(1f),
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    stringResource(R.string.temperature, location.temp.roundTo(1)),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                Spacer(Modifier.width(8.dp))
+                Image(
+                    painter = painterResource(location.weatherType.iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.width(30.dp),
                 )
             }
-            Spacer(Modifier.width(8.dp))
-            Text(
-                stringResource(R.string.temperature, city.temp.roundTo(1)),
-                style = MaterialTheme.typography.bodyLarge,
-            )
-            Spacer(Modifier.width(8.dp))
-            Image(
-                painter = painterResource(city.weatherType.iconRes),
-                contentDescription = null,
-                modifier = Modifier.width(30.dp),
-            )
+            Spacer(Modifier.height(16.dp))
+            HorizontalDivider()
         }
-        Spacer(Modifier.height(16.dp))
-        HorizontalDivider()
     }
 }
 
@@ -401,10 +389,7 @@ fun SearchBar(
             }
             if (value.isNotBlank()) {
                 IconButton(onValueClear) {
-                    Icon(
-                        Icons.Filled.Close,
-                        contentDescription = stringResource(R.string.delete_city_address_input),
-                    )
+                    Icon(Icons.Filled.Close, "Delete input")
                 }
             }
         }
@@ -417,20 +402,31 @@ fun SearchBar(
 }
 
 @Composable
-fun SuggestionCityItem(
-    city: SuggestionCity,
+fun SuggestionLocationItem(
+    location: SuggestionLocation,
     modifier: Modifier = Modifier,
-    onCityClick: (SuggestionCity) -> Unit,
+    onClick: (SuggestionLocation) -> Unit,
 ) {
     Column(
         modifier = modifier
-            .clickable { onCityClick(city) }
+            .clickable { onClick(location) }
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
     ) {
         Spacer(Modifier.height(16.dp))
-        CityAddressWithFlag(countryCode = city.countryCode, cityAddress = city.cityAddress)
+        AddressWithFlag(countryCode = location.countryCode, address = location.address)
         Spacer(Modifier.height(16.dp))
         HorizontalDivider()
     }
+}
+
+
+private fun getSearchScreenType(uiState: WeatherSearchUiState): WeatherSearchScreenType {
+    return when {
+        uiState.suggestionLocations.isNotEmpty() -> SuggestionLocationsFeed
+        uiState.simpleState.input.isNotBlank() -> NoResult
+        uiState.savedLocations.any { it?.isCurrentLocation == true } -> SavedLocationsFeed
+        else -> SavedLocationsFeedWithYourLocationButton
+    }
+
 }
