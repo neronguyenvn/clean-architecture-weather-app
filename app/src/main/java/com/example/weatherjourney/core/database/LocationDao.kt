@@ -23,7 +23,16 @@ interface LocationDao {
     fun observeAllWithWeather(): Flow<List<LocationWithWeather>>
 
     @Insert
-    fun insert(locationEntity: LocationEntity): Long
+    suspend fun insert(locationEntity: LocationEntity): Long
+
+    @Query("SELECT * FROM location WHERE latitude = :latitude AND longitude = :longitude")
+    suspend fun getByCoordinate(latitude: Float, longitude: Float): LocationEntity?
+
+    @Query("UPDATE location SET isDisplayed = 1 WHERE id = :id")
+    suspend fun updateToDisplayedById(id: Int)
+
+    @Query("DELETE FROM location WHERE isDisplayed = 1")
+    suspend fun deleteDisplayed(): Int
 
     @Query("DELETE FROM location WHERE id = :locationId")
     suspend fun deleteById(locationId: Int): Int

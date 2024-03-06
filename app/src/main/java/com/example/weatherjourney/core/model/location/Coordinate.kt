@@ -39,9 +39,7 @@ class Coordinate(latitude: Float, longitude: Float) {
     }
 }
 
-fun Coordinate.roundTo(n: Int) = Coordinate(latitude.roundTo(n), longitude.roundTo(n))
-
-fun Coordinate.toApiCoordinate(): String = "$latitude+$longitude"
+fun Coordinate.asNetworkModel(): String = "$latitude+$longitude"
 
 val android.location.Location.coordinate
     get() = Coordinate(latitude = latitude.toFloat(), longitude = longitude.toFloat())

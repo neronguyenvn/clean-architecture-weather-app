@@ -55,6 +55,11 @@ class WeatherInfoViewModel @Inject constructor(
         locationRepository.getDisplayedLocationWithWeatherStream(),
         _currentCoordinate
     ) { isLoading, units, locationWithWeather, coordinate ->
+
+        val isCurrentLocation = if (coordinate is Success) {
+            locationWithWeather?.location?.coordinate == coordinate.data
+        } else false
+
         WeatherInfoUiState(
             isLoading = isLoading,
             cityAddress = locationWithWeather?.location?.cityAddress ?: "",
@@ -63,14 +68,16 @@ class WeatherInfoViewModel @Inject constructor(
                 weather = locationWithWeather?.weather,
                 units = units
             ),
-            isCurrentLocation = if (coordinate is Success) {
-                locationWithWeather?.location?.coordinate == coordinate.data
-            } else false,
+            isCurrentLocation = isCurrentLocation,
         ) { event ->
             when (event) {
                 WeatherInfoEvent.Refresh -> viewModelScope.launch {
                     _isLoading.value = true
-                    weatherRepository.refreshWeatherOfDisplayedLocation()
+                    if (isCurrentLocation) {
+                        weatherRepository.refreshWeatherOfCurrentLocation()
+                    } else {
+                        weatherRepository.refreshWeatherOfDisplayedLocation()
+                    }
                     _isLoading.value = false
                 }
             }

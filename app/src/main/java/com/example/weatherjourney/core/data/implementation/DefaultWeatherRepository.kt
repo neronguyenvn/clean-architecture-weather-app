@@ -46,23 +46,34 @@ class DefaultWeatherRepository @Inject constructor(
         withContext(ioDispatcher) {
             val currentCoordinate = locationRepository.getCurrentCoordinateStream().first()
             if (currentCoordinate is Success) {
-                val reverseGeocoding = async {
-                    network.getReverseGeocoding(currentCoordinate.data)
-                }
+
                 val weather = async {
-                    network.getWeather(
-                        currentCoordinate.data,
-                        TimeZone.getDefault().id
-                    )
+                    network.getWeather(currentCoordinate.data, TimeZone.getDefault().id)
                 }
-                val locationId = locationDao.insert(
-                    reverseGeocoding.await().asEntity(currentCoordinate.data, true)
-                )
+
+                val locationId = locationDao.getByCoordinate(
+                    currentCoordinate.data.latitude,
+                    currentCoordinate.data.longitude
+                ).let { location ->
+                    if (location == null) {
+                        val reverseGeocoding = network.getReverseGeocoding(currentCoordinate.data)
+                        locationDao.insert(
+                            reverseGeocoding.asEntity(currentCoordinate.data, true)
+                        ).toInt()
+                    } else {
+                        if (!location.isDisplayed) {
+                            locationDao.deleteDisplayed()
+                            locationDao.updateToDisplayedById(location.id)
+                        }
+                        location.id
+                    }
+                }
+
                 launch {
-                    weatherDao.upsertDaily(weather.await().daily.asEntity(locationId.toInt()))
+                    weatherDao.upsertDaily(weather.await().daily.asEntity(locationId))
                 }
                 launch {
-                    weatherDao.upsertHourly(weather.await().hourly.asEntity(locationId.toInt()))
+                    weatherDao.upsertHourly(weather.await().hourly.asEntity(locationId))
                 }
             }
         }

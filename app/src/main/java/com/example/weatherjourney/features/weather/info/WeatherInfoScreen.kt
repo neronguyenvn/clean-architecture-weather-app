@@ -51,7 +51,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
 import com.example.weatherjourney.core.common.util.roundTo
 import com.example.weatherjourney.core.designsystem.component.PullToLoadContent
-import com.example.weatherjourney.core.model.location.Coordinate
 import com.example.weatherjourney.core.model.unit.AllUnit
 import com.example.weatherjourney.core.model.unit.WindSpeedUnit
 import com.example.weatherjourney.core.model.weather.CurrentWeather
@@ -66,13 +65,9 @@ sealed class WeatherInfoEvent {
 
 @Composable
 fun WeatherInfoScreen(
-    coordinate: Coordinate,
     snackbarHostState: SnackbarHostState,
-    navigationKey: Int,
-    countryCode: String,
     onSearchClick: () -> Unit,
     onSettingClick: () -> Unit,
-    onNavigationToInfoDone: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WeatherInfoViewModel = hiltViewModel()
 ) {

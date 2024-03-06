@@ -2,7 +2,7 @@ package com.example.weatherjourney.core.network.retrofit
 
 import com.example.weatherjourney.BuildConfig
 import com.example.weatherjourney.core.model.location.Coordinate
-import com.example.weatherjourney.core.model.location.toApiCoordinate
+import com.example.weatherjourney.core.model.location.asNetworkModel
 import com.example.weatherjourney.core.network.WtnNetworkDataSource
 import com.example.weatherjourney.core.network.model.ForwardGeocoding
 import com.example.weatherjourney.core.network.model.NetworkWeather
@@ -80,5 +80,5 @@ class RetrofitWtnNetwork(
         networkApi.getForwardGeocoding(cityAddress = cityAddress)
 
     override suspend fun getReverseGeocoding(coordinate: Coordinate): ReverseGeocoding =
-        networkApi.getReverseGeocoding(coordinate.toApiCoordinate())
+        networkApi.getReverseGeocoding(coordinate.asNetworkModel())
 }
