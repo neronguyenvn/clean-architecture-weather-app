@@ -73,10 +73,12 @@ class WeatherInfoViewModel @Inject constructor(
             when (event) {
                 WeatherInfoEvent.Refresh -> viewModelScope.launch {
                     _isLoading.value = true
-                    if (isCurrentLocation) {
-                        weatherRepository.refreshWeatherOfCurrentLocation()
-                    } else {
-                        weatherRepository.refreshWeatherOfLocation(null)
+                    runCatching {
+                        if (isCurrentLocation) {
+                            weatherRepository.refreshWeatherOfCurrentLocation()
+                        } else {
+                            weatherRepository.refreshWeatherOfLocation(null)
+                        }
                     }
                     _isLoading.value = false
                 }

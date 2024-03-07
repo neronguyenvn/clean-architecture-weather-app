@@ -29,14 +29,14 @@ class MainViewModel @Inject constructor(
     ) { displayedLocation, hasPermission ->
 
         if (displayedLocation != null) {
-            weatherRepository.refreshWeatherOfLocation(null)
+            kotlin.runCatching { weatherRepository.refreshWeatherOfLocation(null) }
             return@combine Success(WtnDestinations.INFO_ROUTE)
         }
 
         when (hasPermission) {
             false -> Success(WtnDestinations.SEARCH_ROUTE)
             true -> {
-                weatherRepository.refreshWeatherOfCurrentLocation()
+                kotlin.runCatching { weatherRepository.refreshWeatherOfCurrentLocation() }
                 Success(WtnDestinations.INFO_ROUTE)
             }
 

@@ -75,7 +75,7 @@ class WeatherSearchViewModel @Inject constructor(
         ) { event ->
             when (event) {
                 Refresh -> viewModelScope.launch {
-                    weatherRepository.refreshWeatherOfLocations()
+                    runCatching { weatherRepository.refreshWeatherOfLocations() }
                 }
 
                 is InputLocation -> {
