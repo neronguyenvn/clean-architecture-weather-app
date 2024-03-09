@@ -11,7 +11,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -21,26 +22,23 @@ class MainViewModel @Inject constructor(
     locationRepository: LocationRepository,
 ) : ViewModel() {
 
-    private val _locationPermissionResult = MutableStateFlow<Boolean?>(null)
+    private val _hasLocationPermission = MutableStateFlow<Boolean?>(null)
 
-    val uiState: StateFlow<MainActivityUiState> = combine(
-        locationRepository.getDisplayedLocationStream(),
-        _locationPermissionResult
-    ) { displayedLocation, hasPermission ->
+    val uiState: StateFlow<MainActivityUiState> = _hasLocationPermission.map { has ->
 
+        val displayedLocation = locationRepository.getDisplayedLocationStream().firstOrNull()
         if (displayedLocation != null) {
             kotlin.runCatching { weatherRepository.refreshWeatherOfLocation(null) }
-            return@combine Success(WtnDestinations.INFO_ROUTE)
+            return@map Success(WtnDestinations.INFO_ROUTE)
         }
 
-        when (hasPermission) {
+        when (has) {
+            null -> Loading
             false -> Success(WtnDestinations.SEARCH_ROUTE)
             true -> {
                 kotlin.runCatching { weatherRepository.refreshWeatherOfCurrentLocation() }
                 Success(WtnDestinations.INFO_ROUTE)
             }
-
-            null -> Loading
         }
     }
         .stateIn(
@@ -50,7 +48,7 @@ class MainViewModel @Inject constructor(
         )
 
     fun updateLocationPermissionResult(value: Boolean) {
-        _locationPermissionResult.value = value
+        _hasLocationPermission.value = value
     }
 }
 
