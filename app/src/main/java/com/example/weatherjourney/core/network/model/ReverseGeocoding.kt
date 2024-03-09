@@ -2,52 +2,36 @@ package com.example.weatherjourney.core.network.model
 
 import com.example.weatherjourney.core.database.model.LocationEntity
 import com.example.weatherjourney.core.model.Coordinate
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class ReverseGeocoding(
-    val results: List<ReverseGeocodingResult>,
+    val countryCode: String,
+    val city: String,
+    val locality: String,
+    val localityInfo: LocalityInfo
 ) {
-    fun getAddress() = results[0].components.run {
-        listOf(suburb, county, city, region).filter { it.isNotBlank() }.joinToString(", ")
-    }
-
-    fun getTimeZone() = results[0].annotations.timezone.name
-
-    fun getCountryCode() = results[0].components.countryCode
+    fun getAddress() = "$locality, $city"
+    fun getTimezone() = localityInfo.informative
+        .find { it.description == "time zone" }?.name ?: ""
 }
 
 @Serializable
-data class ReverseGeocodingResult(
-    val components: Component,
-    val annotations: Annotation,
+data class LocalityInfo(
+    val informative: List<InfoSample>
 )
 
 @Serializable
-data class Component(
-    val suburb: String = "",
-    val county: String = "",
-    val city: String = "",
-    val region: String = "",
-    @SerialName("country_code")
-    val countryCode: String,
-)
-
-@Serializable
-data class Annotation(
-    val timezone: TimeZone,
-)
-
-@Serializable
-data class TimeZone(
+data class InfoSample(
     val name: String,
+    val description: String,
 )
+
 
 fun ReverseGeocoding.asEntity(coordinate: Coordinate) = LocationEntity(
     address = getAddress(),
-    countryCode = getCountryCode(),
-    timeZone = getTimeZone(),
+    countryCode = countryCode,
+    timeZone = getTimezone(),
     latitude = coordinate.latitude,
     longitude = coordinate.longitude,
     isDisplayed = true

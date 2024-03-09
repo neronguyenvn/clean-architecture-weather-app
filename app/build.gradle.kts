@@ -1,6 +1,3 @@
-import java.io.FileInputStream
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.hilt)
@@ -22,27 +19,12 @@ android {
     }
 
     buildTypes {
-        val properties = Properties().apply {
-            load(FileInputStream(File("local.properties")))
-        }
-        debug {
-            buildConfigField(
-                "String",
-                "OPENCAGE_API_KEY",
-                properties.getProperty("OPENCAGE_API_KEY")
-            )
-        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
-            )
-            buildConfigField(
-                "String",
-                "OPENCAGE_API_KEY",
-                properties.getProperty("OPENCAGE_API_KEY")
             )
         }
     }

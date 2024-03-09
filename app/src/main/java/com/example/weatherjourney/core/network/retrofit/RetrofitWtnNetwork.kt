@@ -1,8 +1,6 @@
 package com.example.weatherjourney.core.network.retrofit
 
-import com.example.weatherjourney.BuildConfig
 import com.example.weatherjourney.core.model.Coordinate
-import com.example.weatherjourney.core.model.asNetworkModel
 import com.example.weatherjourney.core.network.WtnNetworkDataSource
 import com.example.weatherjourney.core.network.model.ForwardGeocoding
 import com.example.weatherjourney.core.network.model.NetworkWeather
@@ -16,40 +14,52 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.Url
 
-private const val OPENCAGE_BASE_URL = "https://api.opencagedata.com"
-private const val OPENMETEO_WEATHER_URL = "https://api.open-meteo.com/v1/forecast"
-private const val OPENMETEO_GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search"
-
+private const val BIGDATACLOUD_BASE_URL = "https://api.bigdatacloud.net/data/"
+private const val OPENMETEO_GET_WEATHER_URL = "https://api.open-meteo.com/v1/forecast"
+private const val OPENMETEO_GET_GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search"
 
 private interface RetrofitWtnNetworkApi {
 
-    @GET("geocode/v1/json")
+    @GET("reverse-geocode-client")
     suspend fun getReverseGeocoding(
-        @Query("q") coordinate: String,
-        @Query("key") key: String = BuildConfig.OPENCAGE_API_KEY,
+        @Query("latitude")
+        lat: Float,
+
+        @Query("longitude")
+        long: Float,
     ): ReverseGeocoding
 
     @GET
     suspend fun getAllWeather(
-        @Url url: String = OPENMETEO_WEATHER_URL,
-        @Query("latitude") lat: Float,
-        @Query("longitude") long: Float,
-        @Query("timezone") timeZone: String,
-        @Query(
-            "hourly",
-            encoded = true,
-        ) hourlyParams: String = "temperature_2m,relativehumidity_2m,weathercode,pressure_msl,windspeed_10m",
-        @Query(
-            "daily",
-            encoded = true,
-        ) dailyParams: String = "weathercode,temperature_2m_max,temperature_2m_min",
-        @Query("timeformat") timeFormat: String = "unixtime",
+        @Url
+        url: String = OPENMETEO_GET_WEATHER_URL,
+
+        @Query("latitude")
+        lat: Float,
+
+        @Query("longitude")
+        long: Float,
+
+        @Query("timezone")
+        timeZone: String,
+
+        @Query("hourly", encoded = true)
+        hourlyParams: String = "temperature_2m,relativehumidity_2m,weathercode,pressure_msl,windspeed_10m",
+
+        @Query("daily", encoded = true)
+        dailyParams: String = "weathercode,temperature_2m_max,temperature_2m_min",
+
+        @Query("timeformat")
+        timeFormat: String = "unixtime",
     ): NetworkWeather
 
     @GET
     suspend fun getForwardGeocoding(
-        @Url url: String = OPENMETEO_GEOCODING_URL,
-        @Query("name", encoded = true) address: String,
+        @Url
+        url: String = OPENMETEO_GET_GEOCODING_URL,
+
+        @Query("name", encoded = true)
+        address: String,
     ): ForwardGeocoding
 }
 
@@ -59,7 +69,7 @@ class RetrofitWtnNetwork(
 ) : WtnNetworkDataSource {
 
     private val networkApi = Retrofit.Builder()
-        .baseUrl(OPENCAGE_BASE_URL)
+        .baseUrl(BIGDATACLOUD_BASE_URL)
         .callFactory(okHttpCallFactory)
         .addConverterFactory(
             networkJson.asConverterFactory("application/json".toMediaType()),
@@ -80,5 +90,5 @@ class RetrofitWtnNetwork(
         networkApi.getForwardGeocoding(address = address)
 
     override suspend fun getReverseGeocoding(coordinate: Coordinate): ReverseGeocoding =
-        networkApi.getReverseGeocoding(coordinate.asNetworkModel())
+        networkApi.getReverseGeocoding(coordinate.latitude, coordinate.longitude)
 }
