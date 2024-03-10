@@ -10,6 +10,7 @@ import com.example.weatherjourney.core.data.WeatherRepository
 import com.example.weatherjourney.core.domain.ConvertUseCase
 import com.example.weatherjourney.core.model.search.SavedLocation
 import com.example.weatherjourney.core.model.search.SuggestionLocation
+import com.example.weatherjourney.core.model.unit.TemperatureUnit
 import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.ClickOnSavedLocation
 import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.ClickOnSuggestionLocation
 import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.DeleteSavedLocation
@@ -28,14 +29,32 @@ import javax.inject.Inject
 
 private const val REQUIRED_INPUT_LENGTH = 3
 
-data class WeatherSearchUiState(
-    val simpleState: WeatherSearchSimpleState = WeatherSearchSimpleState(),
-    val savedLocations: List<SavedLocation?> = emptyList(),
-    val suggestionLocations: List<SuggestionLocation> = emptyList(),
-    val eventSink: (WeatherSearchEvent) -> Unit = {}
-)
+sealed class WeatherSearchUiState {
 
-data class WeatherSearchSimpleState(
+    abstract val eventSink: (WeatherSearchEvent) -> Unit
+
+    data class SuggestionLocationsFeed(
+        val input: String,
+        val suggestionLocations: List<SuggestionLocation>,
+        override val eventSink: (WeatherSearchEvent) -> Unit
+    ) : WeatherSearchUiState()
+
+    data class NoResult(
+        val input: String,
+        override val eventSink: (WeatherSearchEvent) -> Unit
+    ) : WeatherSearchUiState()
+
+    data class SavedLocationsFeed(
+        val isLoading: Boolean = false,
+        val temperatureUnit: TemperatureUnit = TemperatureUnit.CELSIUS,
+        val hasLocateButton: Boolean = false,
+        val savedLocations: List<SavedLocation?> = emptyList(),
+        val selectedLocation: SavedLocation? = null,
+        override val eventSink: (WeatherSearchEvent) -> Unit
+    ) : WeatherSearchUiState()
+}
+
+data class WeatherSearchSimpleViewModelState(
     val input: String = "",
     val isLoading: Boolean = false,
     val savedLocation: SavedLocation? = null,
@@ -54,9 +73,41 @@ class WeatherSearchViewModel @Inject constructor(
     private val _temperatureUnit = userDataRepository.userData
         .map { it.temperatureUnit }
 
-    private val _simpleState = MutableStateFlow(WeatherSearchSimpleState())
+    private val _simpleState = MutableStateFlow(WeatherSearchSimpleViewModelState())
     private val _suggestionLocations = MutableStateFlow<List<SuggestionLocation>>(emptyList())
     private val _currentCoordinate = gpsRepository.getCurrentCoordinateStream()
+
+    private val eventSink: (WeatherSearchEvent) -> Unit = { event ->
+        when (event) {
+            is Refresh -> viewModelScope.launch {
+                _simpleState.update { it.copy(isLoading = true) }
+                runCatching { weatherRepository.refreshWeatherOfLocations() }
+                _simpleState.update { it.copy(isLoading = false) }
+            }
+
+            is InputLocation -> {
+                _simpleState.update { it.copy(input = event.value) }
+                refreshSuggestionLocations()
+            }
+
+            is LongClickOnSavedLocation -> _simpleState.update {
+                it.copy(savedLocation = event.location)
+            }
+
+            is DeleteSavedLocation -> viewModelScope.launch {
+                locationRepository.deleteLocation(event.location.id)
+            }
+
+            is ClickOnSavedLocation -> viewModelScope.launch {
+                locationRepository.makeLocationDisplayed(event.location.id)
+            }
+
+            is ClickOnSuggestionLocation -> viewModelScope.launch {
+                locationRepository.saveLocation(event.location)
+            }
+        }
+    }
+
 
     val uiState = combine(
         _temperatureUnit,
@@ -66,43 +117,31 @@ class WeatherSearchViewModel @Inject constructor(
         _currentCoordinate,
     ) { tUnit, state, suggests, locations, coordinate ->
 
-        WeatherSearchUiState(
-            simpleState = state,
-            suggestionLocations = suggests,
-            savedLocations = if (coordinate is Result.Success) {
-                convertUseCase(locations, tUnit, coordinate.data)
-            } else convertUseCase(locations, tUnit, null)
-        ) { event ->
-            when (event) {
-                Refresh -> viewModelScope.launch {
-                    runCatching { weatherRepository.refreshWeatherOfLocations() }
-                }
+        val savedLocations = if (coordinate is Result.Success) {
+            convertUseCase(locations, tUnit, coordinate.data)
+        } else convertUseCase(locations, tUnit, null)
 
-                is InputLocation -> {
-                    _simpleState.update { it.copy(input = event.value) }
-                    refreshSuggestionLocations()
-                }
+        when {
+            suggests.isNotEmpty() -> WeatherSearchUiState.SuggestionLocationsFeed(
+                input = state.input,
+                suggestionLocations = suggests,
+                eventSink = eventSink
+            )
 
-                is LongClickOnSavedLocation -> _simpleState.update {
-                    it.copy(savedLocation = event.location)
-                }
+            state.input.isNotBlank() -> WeatherSearchUiState.NoResult(state.input, eventSink)
 
-                DeleteSavedLocation -> viewModelScope.launch {
-                    state.savedLocation?.id?.let { locationRepository.deleteLocation(it) }
-                }
-
-                is ClickOnSavedLocation -> viewModelScope.launch {
-                    locationRepository.makeLocationDisplayed(event.location.id)
-                }
-
-                is ClickOnSuggestionLocation -> viewModelScope.launch {
-                    locationRepository.saveLocation(event.location)
-                }
-            }
+            else -> WeatherSearchUiState.SavedLocationsFeed(
+                isLoading = state.isLoading,
+                temperatureUnit = tUnit,
+                hasLocateButton = savedLocations.any { it?.isCurrentLocation == true },
+                savedLocations = savedLocations,
+                selectedLocation = state.savedLocation,
+                eventSink = eventSink
+            )
         }
     }.stateIn(
         scope = viewModelScope,
-        initialValue = WeatherSearchUiState(),
+        initialValue = WeatherSearchUiState.SavedLocationsFeed(eventSink = eventSink),
         started = SharingStarted.WhileSubscribed(5000)
     )
 

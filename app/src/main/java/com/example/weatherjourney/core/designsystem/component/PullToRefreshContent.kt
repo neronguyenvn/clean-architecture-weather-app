@@ -12,29 +12,36 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PullToLoadContent(
-    isLoading: Boolean,
+fun PullToRefreshContent(
+    isRefreshing: Boolean,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
-    val state = rememberPullToRefreshState()
-    if (state.isRefreshing) {
-        LaunchedEffect(true) {
-            onRefresh()
-        }
-    }
-
-    LaunchedEffect(isLoading) {
-        if (isLoading) return@LaunchedEffect
-        state.endRefresh()
-    }
-
-    Box(modifier.nestedScroll(state.nestedScrollConnection)) {
+    val pullToRefreshState = rememberPullToRefreshState()
+    Box(
+        modifier = modifier
+            .nestedScroll(pullToRefreshState.nestedScrollConnection)
+    ) {
         content()
+
+        if (pullToRefreshState.isRefreshing) {
+            LaunchedEffect(true) {
+                onRefresh()
+            }
+        }
+
+        LaunchedEffect(isRefreshing) {
+            if (isRefreshing) {
+                pullToRefreshState.startRefresh()
+            } else {
+                pullToRefreshState.endRefresh()
+            }
+        }
+
         PullToRefreshContainer(
-            modifier = Modifier.align(Alignment.TopCenter),
-            state = state,
+            state = pullToRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
         )
     }
 }

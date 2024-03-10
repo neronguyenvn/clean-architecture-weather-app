@@ -1,5 +1,6 @@
 package com.example.weatherjourney.features.weather.info
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -50,7 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
 import com.example.weatherjourney.core.common.util.roundTo
-import com.example.weatherjourney.core.designsystem.component.PullToLoadContent
+import com.example.weatherjourney.core.designsystem.component.PullToRefreshContent
 import com.example.weatherjourney.core.model.info.CurrentWeather
 import com.example.weatherjourney.core.model.info.DailyWeather
 import com.example.weatherjourney.core.model.info.HourlyWeather
@@ -59,10 +60,11 @@ import com.example.weatherjourney.core.model.unit.WindSpeedUnit
 import com.example.weatherjourney.presentation.theme.superscript
 import kotlin.math.roundToInt
 
-sealed class WeatherInfoEvent {
-    data object Refresh : WeatherInfoEvent()
+sealed interface WeatherInfoEvent {
+    data object Refresh : WeatherInfoEvent
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun WeatherInfoScreen(
     snackbarHostState: SnackbarHostState,
@@ -84,12 +86,8 @@ fun WeatherInfoScreen(
                 isCurrentLocation = uiState.isCurrentLocation
             )
         },
-    ) { paddingValues ->
-
-        WeatherInfoUi(
-            uiState = uiState,
-            modifier = Modifier.padding(paddingValues),
-        )
+    ) {
+        WeatherInfoUi(uiState = uiState)
     }
 }
 
@@ -104,17 +102,16 @@ fun WeatherInfoUi(
         top = dimensionResource(R.dimen.vertical_margin),
     )
 
-    PullToLoadContent(
-        isLoading = uiState.isLoading,
-        modifier = modifier,
-        onRefresh = { uiState.eventSink(WeatherInfoEvent.Refresh) }
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(screenPadding),
+    uiState.weather?.current?.let {
+        PullToRefreshContent(
+            isRefreshing = uiState.isLoading,
+            onRefresh = { uiState.eventSink(WeatherInfoEvent.Refresh) },
+            modifier = modifier.padding(screenPadding),
         ) {
-            uiState.weather?.current?.let {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
                 item {
                     CurrentWeatherContent(
                         uiState.weather.current,
@@ -122,11 +119,7 @@ fun WeatherInfoUi(
                         uiState.isCurrentLocation,
                     )
                 }
-            }
-            item { Spacer(Modifier.height(32.dp)) }
-            uiState.weather?.let {
                 item { DailyWeatherContent(uiState.weather.listDaily) }
-                item { Spacer(Modifier.height(32.dp)) }
                 items(uiState.weather.listHourly) { hourly ->
                     HourlyWeatherItem(hourly, uiState.units?.windSpeed)
                 }
@@ -135,7 +128,6 @@ fun WeatherInfoUi(
     }
 }
 
-@Suppress("LongMethod")
 @Composable
 fun CurrentWeatherContent(
     current: CurrentWeather?,

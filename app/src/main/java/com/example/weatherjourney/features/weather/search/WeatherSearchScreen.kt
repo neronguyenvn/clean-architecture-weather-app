@@ -1,5 +1,6 @@
 package com.example.weatherjourney.features.weather.search
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -54,46 +55,36 @@ import com.example.weatherjourney.core.common.util.roundTo
 import com.example.weatherjourney.core.designsystem.component.AddressWithFlag
 import com.example.weatherjourney.core.designsystem.component.CurrentLocationField
 import com.example.weatherjourney.core.designsystem.component.HorizontalDivider
-import com.example.weatherjourney.core.designsystem.component.PullToLoadContent
+import com.example.weatherjourney.core.designsystem.component.PullToRefreshContent
 import com.example.weatherjourney.core.model.search.SavedLocation
 import com.example.weatherjourney.core.model.search.SuggestionLocation
 import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.ClickOnSavedLocation
 import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.ClickOnSuggestionLocation
-import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.DeleteSavedLocation
 import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.InputLocation
 import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.LongClickOnSavedLocation
 import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.Refresh
-import com.example.weatherjourney.features.weather.search.WeatherSearchScreenType.NoResult
-import com.example.weatherjourney.features.weather.search.WeatherSearchScreenType.SavedLocationsFeed
-import com.example.weatherjourney.features.weather.search.WeatherSearchScreenType.SavedLocationsFeedWithYourLocationButton
-import com.example.weatherjourney.features.weather.search.WeatherSearchScreenType.SuggestionLocationsFeed
+import com.example.weatherjourney.features.weather.search.WeatherSearchUiState.NoResult
+import com.example.weatherjourney.features.weather.search.WeatherSearchUiState.SavedLocationsFeed
+import com.example.weatherjourney.features.weather.search.WeatherSearchUiState.SuggestionLocationsFeed
 import com.example.weatherjourney.presentation.theme.White70
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 
-sealed class WeatherSearchEvent {
+sealed interface WeatherSearchEvent {
 
-    data object Refresh : WeatherSearchEvent()
+    data object Refresh : WeatherSearchEvent
 
-    data class InputLocation(val value: String) : WeatherSearchEvent()
+    data class InputLocation(val value: String) : WeatherSearchEvent
 
-    data class ClickOnSuggestionLocation(val location: SuggestionLocation) : WeatherSearchEvent()
+    data class ClickOnSuggestionLocation(val location: SuggestionLocation) : WeatherSearchEvent
 
-    data class ClickOnSavedLocation(val location: SavedLocation) : WeatherSearchEvent()
+    data class ClickOnSavedLocation(val location: SavedLocation) : WeatherSearchEvent
 
-    data class LongClickOnSavedLocation(val location: SavedLocation?) : WeatherSearchEvent()
+    data class LongClickOnSavedLocation(val location: SavedLocation?) : WeatherSearchEvent
 
-    data object DeleteSavedLocation : WeatherSearchEvent()
+    data class DeleteSavedLocation(val location: SavedLocation) : WeatherSearchEvent
 }
 
-private enum class WeatherSearchScreenType {
-    SavedLocationsFeed,
-    SavedLocationsFeedWithYourLocationButton,
-    SuggestionLocationsFeed,
-    NoResult,
-}
-
-@OptIn(ExperimentalPermissionsApi::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun WeatherSearchScreen(
     snackbarHostState: SnackbarHostState,
@@ -103,50 +94,32 @@ fun WeatherSearchScreen(
     viewModel: WeatherSearchViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(true) {
+        uiState.eventSink(Refresh)
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             SearchBar(
-                value = uiState.simpleState.input,
+                value = when (uiState) {
+                    is NoResult -> (uiState as NoResult).input
+                    is SuggestionLocationsFeed -> (uiState as SuggestionLocationsFeed).input
+                    else -> ""
+                },
                 onBackClick = onBackClick,
                 onValueChange = { uiState.eventSink(InputLocation(it)) },
                 onValueClear = { uiState.eventSink(InputLocation("")) },
                 modifier = Modifier.padding(top = 8.dp),
             )
         },
-    ) { paddingValues ->
-
-        val context = LocalContext.current
-        val keyboardController = LocalSoftwareKeyboardController.current
-        val haptic = LocalHapticFeedback.current
-
+    ) {
         WeatherSearchUi(
             uiState = uiState,
-            navigateToInfo = navigateToInfo,
-            modifier = Modifier.padding(paddingValues),
+            snackbarHostState = snackbarHostState,
+            navigateToInfo = navigateToInfo
         )
-
-        LaunchedEffect(uiState.simpleState.savedLocation) {
-            uiState.simpleState.savedLocation?.let {
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                keyboardController?.hide()
-
-                when (snackbarHostState.showSnackbar(
-                    message = context.getString(R.string.delete_location, it.address),
-                    actionLabel = context.getString(R.string.delete),
-                    duration = SnackbarDuration.Short,
-                )) {
-                    SnackbarResult.ActionPerformed ->
-                        uiState.eventSink(DeleteSavedLocation)
-
-                    SnackbarResult.Dismissed -> uiState.eventSink(
-                        LongClickOnSavedLocation(null)
-                    )
-                }
-            }
-        }
     }
 }
 
@@ -203,72 +176,95 @@ val locationPermissionState = rememberMultiplePermissionsState(
                 locationPermissionState.launchMultiplePermissionRequest()
             }*/
 
-
 @Composable
 fun WeatherSearchUi(
     uiState: WeatherSearchUiState,
+    snackbarHostState: SnackbarHostState,
     navigateToInfo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    when (val screenType = getSearchScreenType(uiState)) {
-        NoResult -> {
-            Text(
-                stringResource(R.string.no_result),
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-            )
-        }
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val haptic = LocalHapticFeedback.current
 
-        SuggestionLocationsFeed -> {
-            LazyColumn(modifier.fillMaxWidth()) {
-                items(uiState.suggestionLocations) { location ->
-                    SuggestionLocationItem(location) { selected ->
-                        uiState.eventSink(ClickOnSuggestionLocation(selected))
-                        navigateToInfo()
-                    }
+    when (uiState) {
+        is NoResult -> Text(
+            stringResource(R.string.no_result),
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+        )
+
+
+        is SuggestionLocationsFeed -> LazyColumn(modifier.fillMaxWidth()) {
+            items(
+                uiState.suggestionLocations
+            ) { location ->
+                SuggestionLocationItem(location) { selected ->
+                    uiState.eventSink(ClickOnSuggestionLocation(selected))
+                    navigateToInfo()
                 }
             }
         }
 
-        else -> {
+        is SavedLocationsFeed -> {
             SavedLocationsUi(
-                screenType = screenType,
+                needLocateButton = uiState.hasLocateButton,
                 locations = uiState.savedLocations,
-                isLoading = uiState.simpleState.isLoading,
+                isLoading = uiState.isLoading,
                 onRefresh = { uiState.eventSink(Refresh) },
                 onClick = {
                     uiState.eventSink(ClickOnSavedLocation(it))
                     navigateToInfo()
                 },
                 onLongClick = { uiState.eventSink(LongClickOnSavedLocation(it)) },
-                onCurrentLocationFieldClick = { },
                 modifier = modifier,
             )
+
+            val selected = uiState.selectedLocation
+            LaunchedEffect(selected != null) {
+                selected?.let {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    keyboardController?.hide()
+
+                    when (snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.delete_location, it.address),
+                        actionLabel = context.getString(R.string.delete),
+                        duration = SnackbarDuration.Short,
+                    )) {
+                        SnackbarResult.ActionPerformed ->
+                            uiState.eventSink(WeatherSearchEvent.DeleteSavedLocation(selected))
+
+                        SnackbarResult.Dismissed -> uiState.eventSink(
+                            LongClickOnSavedLocation(null)
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
 private fun SavedLocationsUi(
-    screenType: WeatherSearchScreenType,
+    needLocateButton: Boolean,
     locations: List<SavedLocation?>,
     isLoading: Boolean,
     onRefresh: () -> Unit,
     onClick: (SavedLocation) -> Unit,
     onLongClick: (SavedLocation) -> Unit,
-    onCurrentLocationFieldClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onCurrentLocationFieldClick: () -> Unit = {},
 ) {
-    PullToLoadContent(
-        isLoading = isLoading,
+    PullToRefreshContent(
+        isRefreshing = isLoading,
         onRefresh = onRefresh,
         modifier = modifier,
     ) {
         LazyColumn(Modifier.fillMaxWidth()) {
-            if (screenType == SavedLocationsFeedWithYourLocationButton) {
+            if (needLocateButton) {
                 item { CurrentLocationField(onCurrentLocationFieldClick) }
             }
             items(locations) { location ->
@@ -418,15 +414,4 @@ fun SuggestionLocationItem(
         Spacer(Modifier.height(16.dp))
         HorizontalDivider()
     }
-}
-
-
-private fun getSearchScreenType(uiState: WeatherSearchUiState): WeatherSearchScreenType {
-    return when {
-        uiState.suggestionLocations.isNotEmpty() -> SuggestionLocationsFeed
-        uiState.simpleState.input.isNotBlank() -> NoResult
-        uiState.savedLocations.any { it?.isCurrentLocation == true } -> SavedLocationsFeed
-        else -> SavedLocationsFeedWithYourLocationButton
-    }
-
 }
