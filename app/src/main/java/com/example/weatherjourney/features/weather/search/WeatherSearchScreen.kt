@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +31,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -55,7 +57,6 @@ import com.example.weatherjourney.core.common.util.roundTo
 import com.example.weatherjourney.core.designsystem.component.AddressWithFlag
 import com.example.weatherjourney.core.designsystem.component.CurrentLocationField
 import com.example.weatherjourney.core.designsystem.component.HorizontalDivider
-import com.example.weatherjourney.core.designsystem.component.PullToRefreshContent
 import com.example.weatherjourney.core.model.search.SavedLocation
 import com.example.weatherjourney.core.model.search.SuggestionLocation
 import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.ClickOnSavedLocation
@@ -247,6 +248,7 @@ fun WeatherSearchUi(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SavedLocationsUi(
     needLocateButton: Boolean,
@@ -258,7 +260,7 @@ private fun SavedLocationsUi(
     modifier: Modifier = Modifier,
     onCurrentLocationFieldClick: () -> Unit = {},
 ) {
-    PullToRefreshContent(
+    PullToRefreshBox(
         isRefreshing = isLoading,
         onRefresh = onRefresh,
         modifier = modifier,

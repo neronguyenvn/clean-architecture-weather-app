@@ -1,25 +1,20 @@
 [versions]
-accompanist = "0.32.0"
-androidGradlePlugin = "8.3.0"
-androidxComposeBom = "2024.02.01"
-androidxComposeCompiler = "1.5.9"
+accompanist = "0.34.0"
+androidGradlePlugin = "8.6.1"
+androidxComposeBom = "2024.09.02"
 androidxCoreSplashscreen = "1.0.1"
-androidxDataStore = "1.0.0"
+androidxDataStore = "1.1.1"
 androidxHiltNavigationCompose = "1.2.0"
-androidxLifecycle = "2.7.0"
-androidxNavigation = "2.7.7"
-hilt = "2.50"
-junit4 = "4.13.2"
-kotlin = "1.9.22"
-kotlinxCoroutines = "1.8.0"
+androidxLifecycle = "2.8.6"
+hilt = "2.51.1"
+kotlin = "2.0.20"
 kotlinxSerializationJson = "1.6.3"
-ksp = "1.9.22-1.0.17"
-locationService = "21.1.0"
+ksp = "2.0.20-1.0.25"
+locationService = "21.3.0"
 okhttp = "4.12.0"
 retrofit = "2.9.0"
 retrofitKotlinxSerializationJson = "1.0.0"
 room = "2.6.1"
-turbine = "1.0.0"
 
 [libraries]
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist" }
@@ -28,12 +23,9 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "androidxCoreSplashscreen" }
 androidx-dataStore-core = { group = "androidx.datastore", name = "datastore", version.ref = "androidxDataStore" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
-androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
 androidx-lifecycle-runtimeCompose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 hilt-android-core = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
-kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "locationService" }
@@ -42,10 +34,10 @@ retrofit-kotlin-serialization = { group = "com.jakewharton.retrofit", name = "re
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
-turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

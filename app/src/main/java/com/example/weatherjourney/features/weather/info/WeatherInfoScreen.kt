@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -51,7 +52,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
 import com.example.weatherjourney.core.common.util.roundTo
-import com.example.weatherjourney.core.designsystem.component.PullToRefreshContent
 import com.example.weatherjourney.core.model.info.CurrentWeather
 import com.example.weatherjourney.core.model.info.DailyWeather
 import com.example.weatherjourney.core.model.info.HourlyWeather
@@ -91,6 +91,7 @@ fun WeatherInfoScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherInfoUi(
     uiState: WeatherInfoUiState,
@@ -103,7 +104,7 @@ fun WeatherInfoUi(
     )
 
     uiState.weather?.current?.let {
-        PullToRefreshContent(
+        PullToRefreshBox(
             isRefreshing = uiState.isLoading,
             onRefresh = { uiState.eventSink(WeatherInfoEvent.Refresh) },
             modifier = modifier.padding(screenPadding),

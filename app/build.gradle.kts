@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
@@ -8,14 +9,14 @@ plugins {
 
 android {
     namespace = "com.example.weatherjourney"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.nero.weatherjourney"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 2
-        versionName = "0.1.1"
+        targetSdk = 35
+        versionCode = 1
+        versionName = "0.1.0"
     }
 
     buildTypes {
@@ -43,10 +44,6 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.androidxComposeCompiler.get()
-    }
-
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -55,10 +52,10 @@ android {
 }
 
 dependencies {
+
     // Jetpack Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.navigation.compose)
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.lifecycle.runtimeCompose)
 
@@ -86,9 +83,4 @@ dependencies {
 
     // DataStore for key-value pairs
     implementation(libs.androidx.dataStore.core)
-
-    // Dependencies for local unit tests
-    testImplementation(libs.junit4)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.turbine)
 }
