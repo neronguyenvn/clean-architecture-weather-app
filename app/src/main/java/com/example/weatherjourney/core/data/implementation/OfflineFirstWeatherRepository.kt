@@ -2,7 +2,6 @@ package com.example.weatherjourney.core.data.implementation
 
 import com.example.weatherjourney.core.common.coroutine.Dispatcher
 import com.example.weatherjourney.core.common.coroutine.WtnDispatchers.IO
-import com.example.weatherjourney.core.common.util.Result.Success
 import com.example.weatherjourney.core.data.GpsRepository
 import com.example.weatherjourney.core.data.WeatherRepository
 import com.example.weatherjourney.core.database.LocationDao
@@ -14,7 +13,7 @@ import com.example.weatherjourney.core.network.model.NetworkWeather
 import com.example.weatherjourney.core.network.model.asEntity
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -26,9 +25,7 @@ class OfflineFirstWeatherRepository @Inject constructor(
     private val network: WtnNetworkDataSource,
     private val locationDao: LocationDao,
     private val weatherDao: WeatherDao,
-
-    @Dispatcher(IO)
-    private val ioDispatcher: CoroutineDispatcher
+    @Dispatcher(IO) private val ioDispatcher: CoroutineDispatcher
 ) : WeatherRepository {
 
     override suspend fun refreshWeatherOfLocation(locationOrDisplayedOne: LocationEntity?) {
@@ -41,29 +38,26 @@ class OfflineFirstWeatherRepository @Inject constructor(
         }
     }
 
-    override suspend fun refreshWeatherOfCurrentLocation() {
-        withContext(ioDispatcher) {
-            val currentCoordinate = gpsRepository.getCurrentCoordinateStream().first()
-            if (currentCoordinate is Success) {
+    override suspend fun refreshWeatherOfCurrentLocation() = withContext(ioDispatcher) {
+        gpsRepository.getCurrentCoordinateStream().collectLatest { currentCoordinate ->
 
-                val weather = async {
-                    network.getWeather(currentCoordinate.data, TimeZone.getDefault().id)
-                }
-
-                val locationId = locationDao.getByCoordinate(
-                    currentCoordinate.data.latitude,
-                    currentCoordinate.data.longitude
-                ).let { location ->
-                    if (location == null) {
-                        val reverseGeocoding = network.getReverseGeocoding(currentCoordinate.data)
-                        locationDao.insert(reverseGeocoding.asEntity(currentCoordinate.data))
-                    } else {
-                        location.id
-                    }
-                }
-
-                refreshWeather(weather.await(), locationId)
+            val weather = async {
+                network.getWeather(currentCoordinate, TimeZone.getDefault().id)
             }
+
+            val locationId = locationDao.getByCoordinate(
+                currentCoordinate.latitude,
+                currentCoordinate.longitude
+            ).let { location ->
+                if (location == null) {
+                    val reverseGeocoding = network.getReverseGeocoding(currentCoordinate.data)
+                    locationDao.insert(reverseGeocoding.asEntity(currentCoordinate.data))
+                } else {
+                    location.id
+                }
+            }
+
+            refreshWeather(weather.await(), locationId)
         }
     }
 

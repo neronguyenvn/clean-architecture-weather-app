@@ -1,6 +1,5 @@
 package com.example.weatherjourney.core.data
 
-import com.example.weatherjourney.core.common.util.Result
 import com.example.weatherjourney.core.database.model.LocationEntity
 import com.example.weatherjourney.core.database.model.LocationEntityWithWeather
 import com.example.weatherjourney.core.model.search.SuggestionLocation

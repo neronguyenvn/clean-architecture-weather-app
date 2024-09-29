@@ -67,15 +67,6 @@ fun Long.toDayNameInWeek(timeZone: String): UiText {
 fun List<Long>.filterPastHours() =
     this.filter { it > Instant.now().minusMillis(DateUtils.HOUR_IN_MILLIS).epochSecond }
 
-@Suppress("TooGenericExceptionCaught")
-inline fun <T, R : Any> T.runCatching(block: T.() -> R): Result<R> {
-    return try {
-        Result.Success(block())
-    } catch (e: Exception) {
-        Result.Error(e)
-    }
-}
-
 fun List<Long>.countPastHoursToday() =
     this.count { it <= Instant.now().minusMillis(DateUtils.HOUR_IN_MILLIS).epochSecond }
 

@@ -2,8 +2,6 @@ package com.example.weatherjourney.core.data.implementation
 
 import com.example.weatherjourney.core.common.coroutine.Dispatcher
 import com.example.weatherjourney.core.common.coroutine.WtnDispatchers.IO
-import com.example.weatherjourney.core.common.util.Result
-import com.example.weatherjourney.core.common.util.runCatching
 import com.example.weatherjourney.core.data.LocationRepository
 import com.example.weatherjourney.core.data.WeatherRepository
 import com.example.weatherjourney.core.database.LocationDao

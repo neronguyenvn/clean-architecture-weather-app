@@ -39,4 +39,7 @@ interface LocationDao {
 
     @Query("DELETE FROM location WHERE id = :id")
     suspend fun deleteById(id: Long): Int
+
+
+    suspend fun refreshCurrentLocation(lat: Float, long: Float)
 }

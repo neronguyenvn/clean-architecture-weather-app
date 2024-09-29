@@ -12,10 +12,10 @@ data class LocationEntity(
     val latitude: Float,
     val longitude: Float,
     val isDisplayed: Boolean,
+    val isCurrentLocation: Boolean,
+
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 )
 
-
-val LocationEntity.coordinate: Coordinate
-    get() = Coordinate(latitude, longitude)
+val LocationEntity.coordinate: Coordinate get() = Coordinate(latitude, longitude)
