@@ -2,7 +2,6 @@ package com.example.weatherjourney.features.weather.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherjourney.core.common.util.Result
 import com.example.weatherjourney.core.data.GpsRepository
 import com.example.weatherjourney.core.data.LocationRepository
 import com.example.weatherjourney.core.data.UserDataRepository
@@ -113,7 +112,7 @@ class WeatherSearchViewModel @Inject constructor(
         _temperatureUnit,
         _simpleState,
         _suggestionLocations,
-        locationRepository.getAllLocationWithWeatherStream(),
+        locationRepository.getLocationsWithWeatherStream(),
         _currentCoordinate,
     ) { tUnit, state, suggests, locations, coordinate ->
 

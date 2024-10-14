@@ -35,13 +35,13 @@ class OfflineFirstLocationRepository @Inject constructor(
         return locationDao.observeDisplayedWithWeather()
     }
 
-    override fun getAllLocationWithWeatherStream(): Flow<List<LocationEntityWithWeather>> {
+    override fun getLocationsWithWeatherStream(): Flow<List<LocationEntityWithWeather>> {
         return locationDao.observeAllWithWeather()
     }
 
-    override suspend fun saveLocation(suggestionLocation: SuggestionLocation) {
+    override suspend fun saveLocation(location: SuggestionLocation) {
         withContext(ioDispatcher) {
-            suggestionLocation.coordinate.run {
+            location.coordinate.run {
 
                 locationDao.getByCoordinate(latitude, longitude)?.let { location ->
 
@@ -53,7 +53,7 @@ class OfflineFirstLocationRepository @Inject constructor(
                 }
             }
 
-            val entity = suggestionLocation.asEntity(true)
+            val entity = location.asEntity(true)
             locationDao.observeDisplayed().firstOrNull()?.let {
                 locationDao.updateDisplayedById(it.id, false)
             }

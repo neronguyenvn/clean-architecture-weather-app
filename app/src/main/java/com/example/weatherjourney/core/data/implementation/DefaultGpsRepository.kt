@@ -4,8 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.location.LocationManager
 import android.os.Looper
-import com.example.weatherjourney.core.common.coroutine.Dispatcher
-import com.example.weatherjourney.core.common.coroutine.WtnDispatchers.Default
 import com.example.weatherjourney.core.common.util.checkPermission
 import com.example.weatherjourney.core.data.GpsRepository
 import com.example.weatherjourney.core.model.Coordinate
@@ -17,69 +15,61 @@ import com.google.android.gms.location.LocationRequest.Builder.IMPLICIT_MIN_UPDA
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
+private const val UPDATE_INTERVAL_MILLIS = 60000L
+private const val MAX_UPDATE_DELAY_MILLIS = 60000L
+private const val MIN_UPDATE_INTERVAL_MILLIS = IMPLICIT_MIN_UPDATE_INTERVAL
+
 class DefaultGpsRepository @Inject constructor(
     private val client: FusedLocationProviderClient,
     @ApplicationContext private val context: Context,
-    @Dispatcher(Default) private val defaultDispatcher: CoroutineDispatcher
 ) : GpsRepository {
 
     override fun getCurrentCoordinateStream(): Flow<Coordinate> = callbackFlow {
-        val hasAccessFineLocationPermission = context.checkPermission(
-            Manifest.permission.ACCESS_FINE_LOCATION
-        )
-        val hasAccessCoarseLocationPermission = context.checkPermission(
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
+        val hasLocationPermission = when {
+            context.checkPermission(Manifest.permission.ACCESS_FINE_LOCATION) -> true
+            context.checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION) -> true
+            else -> false
+        }
 
-        val locationManager = context.getSystemService(
-            Context.LOCATION_SERVICE
-        ) as LocationManager
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val isLocationEnabled = locationManager.isLocationEnabled
 
-        val isGpsEnabled = locationManager.isProviderEnabled(
-            LocationManager.NETWORK_PROVIDER
-        ) || locationManager.isProviderEnabled(
-            LocationManager.GPS_PROVIDER
-        )
-
-        if (!isGpsEnabled) {
+        if (!hasLocationPermission || !isLocationEnabled) {
             channel.close()
             return@callbackFlow
         }
 
-        if (!hasAccessCoarseLocationPermission && !hasAccessFineLocationPermission) {
-            channel.close()
-            return@callbackFlow
-        }
-
-        val callBack = object : LocationCallback() {
+        val locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
-                super.onLocationResult(result)
                 result.lastLocation?.let {
                     channel.trySend(it.coordinate)
                 }
             }
         }
 
-        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 60000)
-            .apply {
-                setWaitForAccurateLocation(false)
-                setMinUpdateIntervalMillis(IMPLICIT_MIN_UPDATE_INTERVAL)
-                setMaxUpdateDelayMillis(60000)
-            }.build()
+        val locationRequest = createLocationRequest()
+        client.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
 
-        client.requestLocationUpdates(request, callBack, Looper.getMainLooper())
         client.lastLocation.result?.let {
             trySend(it.coordinate)
         }
 
         awaitClose {
-            client.removeLocationUpdates(callBack)
+            client.removeLocationUpdates(locationCallback)
         }
     }
+
+    private fun createLocationRequest() = LocationRequest.Builder(
+        Priority.PRIORITY_HIGH_ACCURACY,
+        UPDATE_INTERVAL_MILLIS
+    ).apply {
+        setWaitForAccurateLocation(true)
+        setMinUpdateIntervalMillis(MIN_UPDATE_INTERVAL_MILLIS)
+        setMaxUpdateDelayMillis(MAX_UPDATE_DELAY_MILLIS)
+    }.build()
 }
