@@ -1,4 +1,4 @@
-package com.example.weatherjourney.features.weather.search
+package com.example.weatherjourney.feature.search
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -57,16 +57,16 @@ import com.example.weatherjourney.core.common.util.roundTo
 import com.example.weatherjourney.core.designsystem.component.AddressWithFlag
 import com.example.weatherjourney.core.designsystem.component.CurrentLocationField
 import com.example.weatherjourney.core.designsystem.component.HorizontalDivider
-import com.example.weatherjourney.core.model.search.SavedLocation
-import com.example.weatherjourney.core.model.search.SuggestionLocation
-import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.ClickOnSavedLocation
-import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.ClickOnSuggestionLocation
-import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.InputLocation
-import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.LongClickOnSavedLocation
-import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.Refresh
-import com.example.weatherjourney.features.weather.search.WeatherSearchUiState.NoResult
-import com.example.weatherjourney.features.weather.search.WeatherSearchUiState.SavedLocationsFeed
-import com.example.weatherjourney.features.weather.search.WeatherSearchUiState.SuggestionLocationsFeed
+import com.example.weatherjourney.core.model.search.Location
+import com.example.weatherjourney.core.model.search.LocationWithWeather
+import com.example.weatherjourney.feature.search.WeatherSearchEvent.ClickOnSavedLocation
+import com.example.weatherjourney.feature.search.WeatherSearchEvent.ClickOnSuggestionLocation
+import com.example.weatherjourney.feature.search.WeatherSearchEvent.InputLocation
+import com.example.weatherjourney.feature.search.WeatherSearchEvent.LongClickOnSavedLocation
+import com.example.weatherjourney.feature.search.WeatherSearchEvent.Refresh
+import com.example.weatherjourney.feature.search.WeatherSearchUiState.NoResult
+import com.example.weatherjourney.feature.search.WeatherSearchUiState.SavedLocationsFeed
+import com.example.weatherjourney.feature.search.WeatherSearchUiState.SuggestionLocationsFeed
 import com.example.weatherjourney.presentation.theme.White70
 
 
@@ -76,13 +76,13 @@ sealed interface WeatherSearchEvent {
 
     data class InputLocation(val value: String) : WeatherSearchEvent
 
-    data class ClickOnSuggestionLocation(val location: SuggestionLocation) : WeatherSearchEvent
+    data class ClickOnSuggestionLocation(val location: Location) : WeatherSearchEvent
 
-    data class ClickOnSavedLocation(val location: SavedLocation) : WeatherSearchEvent
+    data class ClickOnSavedLocation(val location: LocationWithWeather) : WeatherSearchEvent
 
-    data class LongClickOnSavedLocation(val location: SavedLocation?) : WeatherSearchEvent
+    data class LongClickOnSavedLocation(val location: LocationWithWeather?) : WeatherSearchEvent
 
-    data class DeleteSavedLocation(val location: SavedLocation) : WeatherSearchEvent
+    data class DeleteSavedLocation(val location: LocationWithWeather) : WeatherSearchEvent
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -201,7 +201,7 @@ fun WeatherSearchUi(
 
         is SuggestionLocationsFeed -> LazyColumn(modifier.fillMaxWidth()) {
             items(
-                uiState.suggestionLocations
+                uiState.locations
             ) { location ->
                 SuggestionLocationItem(location) { selected ->
                     uiState.eventSink(ClickOnSuggestionLocation(selected))
@@ -213,7 +213,7 @@ fun WeatherSearchUi(
         is SavedLocationsFeed -> {
             SavedLocationsUi(
                 needLocateButton = uiState.hasLocateButton,
-                locations = uiState.savedLocations,
+                locations = uiState.locationWithWeathers,
                 isLoading = uiState.isLoading,
                 onRefresh = { uiState.eventSink(Refresh) },
                 onClick = {
@@ -252,11 +252,11 @@ fun WeatherSearchUi(
 @Composable
 private fun SavedLocationsUi(
     needLocateButton: Boolean,
-    locations: List<SavedLocation?>,
+    locations: List<LocationWithWeather?>,
     isLoading: Boolean,
     onRefresh: () -> Unit,
-    onClick: (SavedLocation) -> Unit,
-    onLongClick: (SavedLocation) -> Unit,
+    onClick: (LocationWithWeather) -> Unit,
+    onLongClick: (LocationWithWeather) -> Unit,
     modifier: Modifier = Modifier,
     onCurrentLocationFieldClick: () -> Unit = {},
 ) {
@@ -283,9 +283,9 @@ private fun SavedLocationsUi(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SavedLocationItem(
-    location: SavedLocation?,
-    onClick: (SavedLocation) -> Unit,
-    onLongClick: (SavedLocation) -> Unit,
+    location: LocationWithWeather?,
+    onClick: (LocationWithWeather) -> Unit,
+    onLongClick: (LocationWithWeather) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (location == null) {
@@ -368,7 +368,7 @@ fun SearchBar(
                     contentDescription = stringResource(R.string.back),
                 )
             }
-            Box(Modifier.weight(1.0f)) {
+            Box(Modifier.weight(1f)) {
                 if (value.isBlank()) {
                     Text(
                         color = White70,
@@ -401,9 +401,9 @@ fun SearchBar(
 
 @Composable
 fun SuggestionLocationItem(
-    location: SuggestionLocation,
+    location: Location,
     modifier: Modifier = Modifier,
-    onClick: (SuggestionLocation) -> Unit,
+    onClick: (Location) -> Unit,
 ) {
     Column(
         modifier = modifier

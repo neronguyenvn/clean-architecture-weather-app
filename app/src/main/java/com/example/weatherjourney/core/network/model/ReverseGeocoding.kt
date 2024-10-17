@@ -32,7 +32,7 @@ fun ReverseGeocoding.asEntity(coordinate: Coordinate) = LocationEntity(
     address = getAddress(),
     countryCode = countryCode,
     timeZone = getTimezone(),
-    latitude = coordinate.latitude,
-    longitude = coordinate.longitude,
+    latitude = coordinate.lat,
+    longitude = coordinate.long,
     isDisplayed = true
 )

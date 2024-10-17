@@ -1,7 +1,7 @@
 package com.example.weatherjourney.core.network.model
 
 import com.example.weatherjourney.core.model.Coordinate
-import com.example.weatherjourney.core.model.search.SuggestionLocation
+import com.example.weatherjourney.core.model.search.Location
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -26,7 +26,7 @@ data class ForwardGeocodingResult(
 }
 
 
-fun ForwardGeocodingResult.toSuggestionLocation() = SuggestionLocation(
+fun ForwardGeocodingResult.toSuggestionLocation() = Location(
     countryCode = countryCode,
     address = getAddress(),
     coordinate = Coordinate(latitude, longitude),

@@ -1,4 +1,4 @@
-package com.example.weatherjourney.features.weather.setting
+package com.example.weatherjourney.feature.setting
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement

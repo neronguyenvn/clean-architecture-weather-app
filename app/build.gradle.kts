@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.lifecycle.runtimeCompose)
+    implementation(libs.androidx.navigation.compose)
 
     // Splash screen
     implementation(libs.androidx.core.splashscreen)

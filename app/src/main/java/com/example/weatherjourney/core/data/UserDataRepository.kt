@@ -1,6 +1,6 @@
 package com.example.weatherjourney.core.data
 
-import com.example.weatherjourney.core.datastore.model.UserPreferences
+import com.example.weatherjourney.core.datastore.model.UserData
 import com.example.weatherjourney.core.model.unit.PressureUnit
 import com.example.weatherjourney.core.model.unit.TemperatureUnit
 import com.example.weatherjourney.core.model.unit.TimeFormatUnit
@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface UserDataRepository {
 
-    val userData: Flow<UserPreferences>
+    val userData: Flow<UserData>
 
     suspend fun setTemperatureUnit(unit: TemperatureUnit)
 

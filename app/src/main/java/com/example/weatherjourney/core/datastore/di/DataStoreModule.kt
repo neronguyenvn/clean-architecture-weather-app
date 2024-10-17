@@ -23,8 +23,8 @@ import androidx.datastore.dataStoreFile
 import com.example.weatherjourney.core.common.coroutine.Dispatcher
 import com.example.weatherjourney.core.common.coroutine.WtnDispatchers.IO
 import com.example.weatherjourney.core.common.coroutine.di.ApplicationScope
-import com.example.weatherjourney.core.datastore.model.UserPreferences
-import com.example.weatherjourney.core.datastore.serializer.UserPreferencesSerializer
+import com.example.weatherjourney.core.datastore.UserPreferencesSerializer
+import com.example.weatherjourney.core.datastore.model.UserData
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -44,7 +44,7 @@ object DataStoreModule {
         @Dispatcher(IO) ioDispatcher: CoroutineDispatcher,
         @ApplicationScope scope: CoroutineScope,
         userPreferencesSerializer: UserPreferencesSerializer,
-    ): DataStore<UserPreferences> =
+    ): DataStore<UserData> =
         DataStoreFactory.create(
             serializer = userPreferencesSerializer,
             scope = CoroutineScope(scope.coroutineContext + ioDispatcher),

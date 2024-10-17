@@ -6,8 +6,7 @@ data class Weather(
     val listHourly: List<HourlyWeather>,
 )
 
-
-fun Weather.convertTemperatureUnit(convertMethod: (Float) -> Float) = this.copy(
+fun Weather.convertTemperature(convertMethod: (Double) -> Double) = this.copy(
     current = current.copy(
         temp = convertMethod(current.temp),
     ),
@@ -24,7 +23,7 @@ fun Weather.convertTemperatureUnit(convertMethod: (Float) -> Float) = this.copy(
     },
 )
 
-fun Weather.convertWindSpeedUnit(convertMethod: (Float) -> Float) = this.copy(
+fun Weather.convertWindSpeed(convertMethod: (Double) -> Double) = this.copy(
     current = current.copy(
         windSpeed = convertMethod(current.windSpeed),
     ),
@@ -33,13 +32,13 @@ fun Weather.convertWindSpeedUnit(convertMethod: (Float) -> Float) = this.copy(
     },
 )
 
-fun Weather.convertPressureUnit(convertMethod: (Float) -> Float) = this.copy(
+fun Weather.convertPressure(convertMethod: (Double) -> Double) = this.copy(
     current = current.copy(
         pressure = convertMethod(current.pressure),
     ),
 )
 
-fun Weather.convertTimeFormatUnit(convertMethod: (String) -> String) = this.copy(
+fun Weather.convertTimeFormat(convertMethod: (String) -> String) = this.copy(
     current = current.copy(
         date = convertMethod(current.date),
     ),

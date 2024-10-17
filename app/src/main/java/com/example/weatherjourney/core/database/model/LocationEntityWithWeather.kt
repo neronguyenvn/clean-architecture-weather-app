@@ -8,13 +8,12 @@ import com.example.weatherjourney.core.common.util.filterPastHours
 import com.example.weatherjourney.core.common.util.getCurrentDate
 import com.example.weatherjourney.core.common.util.toDate
 import com.example.weatherjourney.core.common.util.toDayNameInWeek
-import com.example.weatherjourney.core.model.Coordinate
 import com.example.weatherjourney.core.model.WeatherType
 import com.example.weatherjourney.core.model.info.CurrentWeather
 import com.example.weatherjourney.core.model.info.DailyWeather
 import com.example.weatherjourney.core.model.info.HourlyWeather
 import com.example.weatherjourney.core.model.info.Weather
-import com.example.weatherjourney.core.model.search.SavedLocation
+import com.example.weatherjourney.core.model.search.LocationWithWeather
 
 data class LocationEntityWithWeather(
     @Embedded
@@ -69,14 +68,7 @@ val LocationEntityWithWeather.weather: Weather?
         )
     }
 
-fun LocationEntityWithWeather.toSavedLocation(currentCoordinate: Coordinate?): SavedLocation? {
-    val weather = this.weather ?: return null
-    return SavedLocation(
-        temp = weather.current.temp,
-        weatherType = weather.current.weatherType,
-        id = location.id.toInt(),
-        address = location.address,
-        countryCode = location.countryCode,
-        isCurrentLocation = location.coordinate == currentCoordinate
-    )
-}
+fun LocationEntityWithWeather.asExternalModel(): LocationWithWeather = LocationWithWeather(
+    location = location.asExternalModel(),
+    weather = weather,
+)

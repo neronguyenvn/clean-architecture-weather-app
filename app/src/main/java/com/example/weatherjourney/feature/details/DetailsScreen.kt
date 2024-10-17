@@ -1,4 +1,4 @@
-package com.example.weatherjourney.features.weather.info
+package com.example.weatherjourney.feature.details
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image

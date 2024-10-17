@@ -8,9 +8,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.weatherjourney.features.weather.info.WeatherInfoScreen
-import com.example.weatherjourney.features.weather.search.WeatherSearchScreen
-import com.example.weatherjourney.features.weather.setting.WeatherSettingScreen
+import com.example.weatherjourney.feature.details.WeatherInfoScreen
+import com.example.weatherjourney.feature.search.WeatherSearchScreen
+import com.example.weatherjourney.feature.setting.WeatherSettingScreen
 
 @Composable
 fun WtnNavGraph(

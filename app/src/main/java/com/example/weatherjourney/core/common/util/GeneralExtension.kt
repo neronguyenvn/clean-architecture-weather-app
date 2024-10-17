@@ -10,7 +10,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 /**
  * The regional indicators go from 0x1F1E6 (A) to 0x1F1FF (Z).
@@ -18,11 +17,6 @@ import java.util.Locale
  * that we can just add this to the A-Z char
  */
 private const val REGIONAL_INDICATOR_OFFSET = 0x1F1A5
-
-/**
- * Round a Double number to make it has a certain number of digits after decimal point.
- */
-fun Float.roundTo(n: Int): Float = String.format(Locale.US, "%.${n}f", this).toFloat()
 
 fun getCurrentDate(timeZone: String): String {
     val instant = Instant.now()

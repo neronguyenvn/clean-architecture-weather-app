@@ -2,7 +2,7 @@ package com.example.weatherjourney.core.network.model
 
 import com.example.weatherjourney.core.database.model.DailyWeatherEntity
 import com.example.weatherjourney.core.database.model.HourlyWeatherEntity
-import com.example.weatherjourney.core.database.util.FloatListHolder
+import com.example.weatherjourney.core.database.util.DoubleListHolder
 import com.example.weatherjourney.core.database.util.IntListHolder
 import com.example.weatherjourney.core.database.util.LongListHolder
 import kotlinx.serialization.SerialName
@@ -18,15 +18,15 @@ data class NetworkWeather(
 data class NetworkHourlyWeather(
     val time: List<Long>,
     @SerialName("temperature_2m")
-    val temperatures: List<Float>,
+    val temperatures: List<Double>,
     @SerialName("weathercode")
     val weatherCodes: List<Int>,
     @SerialName("pressure_msl")
-    val pressures: List<Float>,
+    val pressures: List<Double>,
     @SerialName("windspeed_10m")
-    val windSpeeds: List<Float>,
+    val windSpeeds: List<Double>,
     @SerialName("relativehumidity_2m")
-    val humidities: List<Float>,
+    val humanities: List<Double>,
 )
 
 @Serializable
@@ -35,25 +35,25 @@ data class NetworkDailyWeather(
     @SerialName("weathercode")
     val weatherCodes: List<Int>,
     @SerialName("temperature_2m_max")
-    val maxTemperatures: List<Float>,
+    val maxTemperatures: List<Double>,
     @SerialName("temperature_2m_min")
-    val minTemperatures: List<Float>,
+    val minTemperatures: List<Double>,
 )
 
-fun NetworkDailyWeather.asEntity(locationId: Long) = DailyWeatherEntity(
+fun NetworkDailyWeather.asEntity(locationId: Int) = DailyWeatherEntity(
     time = LongListHolder(time),
     weatherCodes = IntListHolder(weatherCodes),
-    maxTemperatures = FloatListHolder(maxTemperatures),
-    minTemperatures = FloatListHolder(minTemperatures),
+    maxTemperatures = DoubleListHolder(maxTemperatures),
+    minTemperatures = DoubleListHolder(minTemperatures),
     locationId = locationId
 )
 
-fun NetworkHourlyWeather.asEntity(locationId: Long) = HourlyWeatherEntity(
+fun NetworkHourlyWeather.asEntity(locationId: Int) = HourlyWeatherEntity(
     time = LongListHolder(time),
-    temperatures = FloatListHolder(temperatures),
+    temperatures = DoubleListHolder(temperatures),
     weatherCodes = IntListHolder(weatherCodes),
-    pressures = FloatListHolder(pressures),
-    windSpeeds = FloatListHolder(windSpeeds),
-    humidities = FloatListHolder(humidities),
+    pressures = DoubleListHolder(pressures),
+    windSpeeds = DoubleListHolder(windSpeeds),
+    humidities = DoubleListHolder(humanities),
     locationId = locationId
 )

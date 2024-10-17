@@ -8,14 +8,23 @@ import com.example.weatherjourney.core.model.unit.WindSpeedUnit
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserPreferences(
-    val temperatureUnit: TemperatureUnit = TemperatureUnit.CELSIUS,
-    val windSpeedUnit: WindSpeedUnit = WindSpeedUnit.KILOMETER_PER_HOUR,
-    val pressureUnit: PressureUnit = PressureUnit.HECTOPASCAL,
-    val timeFormatUnit: TimeFormatUnit = TimeFormatUnit.AM_PM,
-)
+data class UserData(
+    val temperatureUnit: TemperatureUnit,
+    val windSpeedUnit: WindSpeedUnit,
+    val pressureUnit: PressureUnit,
+    val timeFormatUnit: TimeFormatUnit
+) {
+    companion object {
+        val default = UserData(
+            temperatureUnit = TemperatureUnit.CELSIUS,
+            windSpeedUnit = WindSpeedUnit.KILOMETER_PER_HOUR,
+            pressureUnit = PressureUnit.HECTOPASCAL,
+            timeFormatUnit = TimeFormatUnit.AM_PM
+        )
+    }
+}
 
-fun UserPreferences.toAllUnit() = AllUnit(
+fun UserData.toAllUnit() = AllUnit(
     temperature = temperatureUnit,
     windSpeed = windSpeedUnit,
     pressure = pressureUnit,

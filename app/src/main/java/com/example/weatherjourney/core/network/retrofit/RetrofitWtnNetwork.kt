@@ -81,8 +81,8 @@ class RetrofitWtnNetwork(
         coordinate: Coordinate,
         timeZone: String
     ): NetworkWeather = networkApi.getAllWeather(
-        lat = coordinate.latitude,
-        long = coordinate.longitude,
+        lat = coordinate.lat,
+        long = coordinate.long,
         timeZone = timeZone
     )
 
@@ -90,5 +90,5 @@ class RetrofitWtnNetwork(
         networkApi.getForwardGeocoding(address = address)
 
     override suspend fun getReverseGeocoding(coordinate: Coordinate): ReverseGeocoding =
-        networkApi.getReverseGeocoding(coordinate.latitude, coordinate.longitude)
+        networkApi.getReverseGeocoding(coordinate.lat, coordinate.long)
 }

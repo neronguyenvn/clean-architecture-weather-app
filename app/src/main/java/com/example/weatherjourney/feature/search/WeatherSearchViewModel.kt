@@ -1,4 +1,4 @@
-package com.example.weatherjourney.features.weather.search
+package com.example.weatherjourney.feature.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -6,16 +6,16 @@ import com.example.weatherjourney.core.data.GpsRepository
 import com.example.weatherjourney.core.data.LocationRepository
 import com.example.weatherjourney.core.data.UserDataRepository
 import com.example.weatherjourney.core.data.WeatherRepository
-import com.example.weatherjourney.core.domain.ConvertUseCase
-import com.example.weatherjourney.core.model.search.SavedLocation
-import com.example.weatherjourney.core.model.search.SuggestionLocation
+import com.example.weatherjourney.core.domain.ConvertUnitUseCase
+import com.example.weatherjourney.core.model.search.Location
+import com.example.weatherjourney.core.model.search.LocationWithWeather
 import com.example.weatherjourney.core.model.unit.TemperatureUnit
-import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.ClickOnSavedLocation
-import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.ClickOnSuggestionLocation
-import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.DeleteSavedLocation
-import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.InputLocation
-import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.LongClickOnSavedLocation
-import com.example.weatherjourney.features.weather.search.WeatherSearchEvent.Refresh
+import com.example.weatherjourney.feature.search.WeatherSearchEvent.ClickOnSavedLocation
+import com.example.weatherjourney.feature.search.WeatherSearchEvent.ClickOnSuggestionLocation
+import com.example.weatherjourney.feature.search.WeatherSearchEvent.DeleteSavedLocation
+import com.example.weatherjourney.feature.search.WeatherSearchEvent.InputLocation
+import com.example.weatherjourney.feature.search.WeatherSearchEvent.LongClickOnSavedLocation
+import com.example.weatherjourney.feature.search.WeatherSearchEvent.Refresh
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,7 +34,7 @@ sealed class WeatherSearchUiState {
 
     data class SuggestionLocationsFeed(
         val input: String,
-        val suggestionLocations: List<SuggestionLocation>,
+        val locations: List<Location>,
         override val eventSink: (WeatherSearchEvent) -> Unit
     ) : WeatherSearchUiState()
 
@@ -47,8 +47,8 @@ sealed class WeatherSearchUiState {
         val isLoading: Boolean = false,
         val temperatureUnit: TemperatureUnit = TemperatureUnit.CELSIUS,
         val hasLocateButton: Boolean = false,
-        val savedLocations: List<SavedLocation?> = emptyList(),
-        val selectedLocation: SavedLocation? = null,
+        val locationWithWeathers: List<LocationWithWeather?> = emptyList(),
+        val selectedLocation: LocationWithWeather? = null,
         override val eventSink: (WeatherSearchEvent) -> Unit
     ) : WeatherSearchUiState()
 }
@@ -56,7 +56,7 @@ sealed class WeatherSearchUiState {
 data class WeatherSearchSimpleViewModelState(
     val input: String = "",
     val isLoading: Boolean = false,
-    val savedLocation: SavedLocation? = null,
+    val locationWithWeather: LocationWithWeather? = null,
 )
 
 
@@ -64,7 +64,7 @@ data class WeatherSearchSimpleViewModelState(
 class WeatherSearchViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val weatherRepository: WeatherRepository,
-    private val convertUseCase: ConvertUseCase,
+    private val convertUnitUseCase: ConvertUnitUseCase,
     gpsRepository: GpsRepository,
     userDataRepository: UserDataRepository,
 ) : ViewModel() {
@@ -73,7 +73,7 @@ class WeatherSearchViewModel @Inject constructor(
         .map { it.temperatureUnit }
 
     private val _simpleState = MutableStateFlow(WeatherSearchSimpleViewModelState())
-    private val _suggestionLocations = MutableStateFlow<List<SuggestionLocation>>(emptyList())
+    private val _locations = MutableStateFlow<List<Location>>(emptyList())
     private val _currentCoordinate = gpsRepository.getCurrentCoordinateStream()
 
     private val eventSink: (WeatherSearchEvent) -> Unit = { event ->
@@ -90,7 +90,7 @@ class WeatherSearchViewModel @Inject constructor(
             }
 
             is LongClickOnSavedLocation -> _simpleState.update {
-                it.copy(savedLocation = event.location)
+                it.copy(locationWithWeather = event.location)
             }
 
             is DeleteSavedLocation -> viewModelScope.launch {
@@ -111,19 +111,19 @@ class WeatherSearchViewModel @Inject constructor(
     val uiState = combine(
         _temperatureUnit,
         _simpleState,
-        _suggestionLocations,
+        _locations,
         locationRepository.getLocationsWithWeatherStream(),
         _currentCoordinate,
     ) { tUnit, state, suggests, locations, coordinate ->
 
         val savedLocations = if (coordinate is Result.Success) {
-            convertUseCase(locations, tUnit, coordinate.data)
-        } else convertUseCase(locations, tUnit, null)
+            convertUnitUseCase(locations, tUnit, coordinate.data)
+        } else convertUnitUseCase(locations, tUnit, null)
 
         when {
             suggests.isNotEmpty() -> WeatherSearchUiState.SuggestionLocationsFeed(
                 input = state.input,
-                suggestionLocations = suggests,
+                locations = suggests,
                 eventSink = eventSink
             )
 
@@ -133,8 +133,8 @@ class WeatherSearchViewModel @Inject constructor(
                 isLoading = state.isLoading,
                 temperatureUnit = tUnit,
                 hasLocateButton = savedLocations.any { it?.isCurrentLocation == true },
-                savedLocations = savedLocations,
-                selectedLocation = state.savedLocation,
+                locationWithWeathers = savedLocations,
+                selectedLocation = state.locationWithWeather,
                 eventSink = eventSink
             )
         }
@@ -158,12 +158,12 @@ class WeatherSearchViewModel @Inject constructor(
 
     private fun refreshSuggestionLocations() {
         viewModelScope.launch {
-            _suggestionLocations.value = _simpleState.value.input.let {
+            _locations.value = _simpleState.value.input.let {
                 if (it.length < REQUIRED_INPUT_LENGTH) {
                     return@let emptyList()
                 }
 
-                when (val result = locationRepository.getSuggestionLocations(it)) {
+                when (val result = locationRepository.getLocationsByAddress(it)) {
                     is Result.Success -> result.data
                     is Result.Error -> emptyList()
                 }
