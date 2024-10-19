@@ -28,7 +28,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -60,16 +59,10 @@ import com.example.weatherjourney.core.model.unit.WindSpeedUnit
 import com.example.weatherjourney.presentation.theme.superscript
 import kotlin.math.roundToInt
 
-sealed interface WeatherInfoEvent {
-    data object Refresh : WeatherInfoEvent
-}
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun WeatherInfoScreen(
-    snackbarHostState: SnackbarHostState,
-    onSearchClick: () -> Unit,
-    onSettingClick: () -> Unit,
+fun DetailsScreen(
+
     modifier: Modifier = Modifier,
     viewModel: WeatherInfoViewModel = hiltViewModel()
 ) {
