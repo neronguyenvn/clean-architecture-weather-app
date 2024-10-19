@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.core.data.LocationRepository
 import com.example.weatherjourney.core.data.UserDataRepository
 import com.example.weatherjourney.core.domain.ConvertUnitUseCase
-import com.example.weatherjourney.feature.home.HomeState.*
+import com.example.weatherjourney.feature.home.HomeUiState.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,11 +23,11 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(Loading)
-    val state = _state.asStateFlow()
+    val uiState = _state.asStateFlow()
 
     val locationsWithWeather = combine(
         userDataRepository.userData,
-        locationRepository.getLocationsWithWeatherStream(),
+        locationRepository.getLocationsWithWeather(),
     ) { userData, locations ->
         locations.map { location ->
             location.weather?.let { weather ->
@@ -49,9 +49,9 @@ class HomeViewModel @Inject constructor(
     )
 }
 
-sealed interface HomeState {
+sealed interface HomeUiState {
 
-    data object Idle : HomeState
+    data object Idle : HomeUiState
 
-    data object Loading : HomeState
+    data object Loading : HomeUiState
 }

@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import com.example.weatherjourney.app.ui.WtnApp
+import com.example.weatherjourney.app.ui.WeatherApp
 import com.example.weatherjourney.presentation.theme.WtnTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
         viewModel.refreshAllWeather()
         setContent {
             WtnTheme {
-                WtnApp()
+                WeatherApp()
             }
         }
     }

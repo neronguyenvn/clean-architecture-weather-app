@@ -22,7 +22,7 @@ fun NavController.navigateToLocationDetails(locationId: Int) {
     navigate(route = DetailsRoute.LocationDetails(locationId))
 }
 
-fun NavGraphBuilder.detailsScreen(route: DetailsRoute) {
+fun NavGraphBuilder.detailsScreen() {
     composable<DetailsRoute> {
         DetailsScreen()
     }

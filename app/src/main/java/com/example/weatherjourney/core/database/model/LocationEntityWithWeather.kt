@@ -9,11 +9,11 @@ import com.example.weatherjourney.core.common.util.getCurrentDate
 import com.example.weatherjourney.core.common.util.toDate
 import com.example.weatherjourney.core.common.util.toDayNameInWeek
 import com.example.weatherjourney.core.model.WeatherType
-import com.example.weatherjourney.core.model.info.CurrentWeather
-import com.example.weatherjourney.core.model.info.DailyWeather
-import com.example.weatherjourney.core.model.info.HourlyWeather
-import com.example.weatherjourney.core.model.info.Weather
-import com.example.weatherjourney.core.model.search.LocationWithWeather
+import com.example.weatherjourney.core.model.CurrentWeather
+import com.example.weatherjourney.core.model.DailyWeather
+import com.example.weatherjourney.core.model.HourlyWeather
+import com.example.weatherjourney.core.model.Weather
+import com.example.weatherjourney.core.model.LocationWithWeather
 
 data class LocationEntityWithWeather(
     @Embedded

@@ -5,7 +5,7 @@ import com.example.weatherjourney.core.model.Coordinate
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ReverseGeocoding(
+data class ReversedNetworkLocation(
     val countryCode: String,
     val city: String,
     val locality: String,
@@ -28,11 +28,10 @@ data class InfoSample(
 )
 
 
-fun ReverseGeocoding.asEntity(coordinate: Coordinate) = LocationEntity(
+fun ReversedNetworkLocation.asEntity(coordinate: Coordinate) = LocationEntity(
     address = getAddress(),
     countryCode = countryCode,
     timeZone = getTimezone(),
     latitude = coordinate.lat,
     longitude = coordinate.long,
-    isDisplayed = true
 )

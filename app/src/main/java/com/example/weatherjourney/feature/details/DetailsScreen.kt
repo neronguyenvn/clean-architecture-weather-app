@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,15 +18,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -51,43 +48,50 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
 import com.example.weatherjourney.core.common.util.roundTo
-import com.example.weatherjourney.core.model.info.CurrentWeather
-import com.example.weatherjourney.core.model.info.DailyWeather
-import com.example.weatherjourney.core.model.info.HourlyWeather
-import com.example.weatherjourney.core.model.unit.AllUnit
-import com.example.weatherjourney.core.model.unit.WindSpeedUnit
+import com.example.weatherjourney.core.datastore.model.UserData
+import com.example.weatherjourney.core.model.CurrentWeather
+import com.example.weatherjourney.core.model.DailyWeather
+import com.example.weatherjourney.core.model.HourlyWeather
+import com.example.weatherjourney.core.model.LocationWithWeather
+import com.example.weatherjourney.core.model.WindSpeedUnit
+import com.example.weatherjourney.feature.details.DetailsUiState.*
 import com.example.weatherjourney.presentation.theme.superscript
 import kotlin.math.roundToInt
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun DetailsScreen(
-
+    onBackClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: WeatherInfoViewModel = hiltViewModel()
+    viewModel: DetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val locationWithWeather by viewModel.locationWithWeather.collectAsStateWithLifecycle()
+    val userData by viewModel.userData.collectAsStateWithLifecycle()
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
+    Column(modifier = modifier) {
+        if (userData != null && locationWithWeather != null) {
             InfoTopBar(
-                address = uiState.address,
-                onSearchClick = onSearchClick,
-                onSettingClick = onSettingClick,
-                isCurrentLocation = uiState.isCurrentLocation
+                address = locationWithWeather!!.location.address,
+                onBackClick = onBackClick,
+                onSettingsClick = onSettingsClick,
             )
-        },
-    ) {
-        WeatherInfoUi(uiState = uiState)
+            WeatherInfoUi(
+                uiState = uiState,
+                locationWithWeather = locationWithWeather!!,
+                userData = userData!!
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherInfoUi(
-    uiState: WeatherInfoUiState,
+    uiState: DetailsUiState,
+    locationWithWeather: LocationWithWeather,
+    userData: UserData,
     modifier: Modifier = Modifier,
 ) {
     val screenPadding = PaddingValues(
@@ -96,10 +100,10 @@ fun WeatherInfoUi(
         top = dimensionResource(R.dimen.vertical_margin),
     )
 
-    uiState.weather?.current?.let {
+    locationWithWeather.weather?.current?.let {
         PullToRefreshBox(
-            isRefreshing = uiState.isLoading,
-            onRefresh = { uiState.eventSink(WeatherInfoEvent.Refresh) },
+            isRefreshing = uiState is Loading,
+            onRefresh = { }, // TODO
             modifier = modifier.padding(screenPadding),
         ) {
             LazyColumn(
@@ -108,14 +112,18 @@ fun WeatherInfoUi(
             ) {
                 item {
                     CurrentWeatherContent(
-                        uiState.weather.current,
-                        uiState.units,
-                        uiState.isCurrentLocation,
+                        weather = locationWithWeather.weather.current,
+                        userData = userData,
                     )
                 }
-                item { DailyWeatherContent(uiState.weather.listDaily) }
-                items(uiState.weather.listHourly) { hourly ->
-                    HourlyWeatherItem(hourly, uiState.units?.windSpeed)
+                item {
+                    DailyWeatherContent(locationWithWeather.weather.dailyForecasts)
+                }
+                items(locationWithWeather.weather.hourlyForecasts) { weather ->
+                    HourlyWeatherItem(
+                        weather = weather,
+                        windSpeedUnit = userData.windSpeedUnit
+                    )
                 }
             }
         }
@@ -124,85 +132,73 @@ fun WeatherInfoUi(
 
 @Composable
 fun CurrentWeatherContent(
-    current: CurrentWeather?,
-    allUnit: AllUnit?,
-    isCurrentLocation: Boolean,
+    weather: CurrentWeather,
+    userData: UserData,
     modifier: Modifier = Modifier,
 ) {
-    current?.let {
-        allUnit?.let { units ->
-            Card(modifier) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Row {
-                        if (isCurrentLocation) {
-                            Text(
-                                stringResource(R.string.your_location),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = Color.White,
-                            )
-                        }
-                        Spacer(Modifier.weight(1f))
-                        Text(
-                            current.date,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color.White,
-                        )
+    Card(modifier) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Row {
+                Spacer(Modifier.weight(1f))
+                Text(
+                    weather.date,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.White,
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            Image(
+                painter = painterResource(weather.weatherType.iconRes),
+                contentDescription = null,
+                modifier = Modifier.height(150.dp),
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                style = MaterialTheme.typography.displayLarge,
+                color = Color.White,
+                text = buildAnnotatedString {
+                    append("${weather.temp.roundTo(1)}")
+                    withStyle(superscript) {
+                        append(userData.temperatureUnit.label)
                     }
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Image(
-                        painter = painterResource(current.weatherType.iconRes),
-                        contentDescription = null,
-                        modifier = Modifier.height(150.dp),
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        style = MaterialTheme.typography.displayLarge,
-                        color = Color.White,
-                        text = buildAnnotatedString {
-                            append("${current.temp.roundTo(1)}")
-                            withStyle(superscript) {
-                                append(units.temperature.label)
-                            }
-                        },
-                    )
-                    Text(
-                        current.weatherType.weatherDesc,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color.White,
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                    ) {
-                        WeatherDataDisplay(
-                            value = current.pressure.roundTo(1),
-                            unit = units.pressure.label,
-                            icon = ImageVector.vectorResource(R.drawable.ic_pressure),
-                            iconTint = Color.White,
-                            textStyle = TextStyle(color = Color.White),
-                        )
-                        WeatherDataDisplay(
-                            value = current.humidity.roundToInt(),
-                            unit = "%",
-                            icon = ImageVector.vectorResource(R.drawable.ic_drop),
-                            iconTint = Color.White,
-                            textStyle = TextStyle(color = Color.White),
-                        )
-                        WeatherDataDisplay(
-                            value = current.windSpeed.roundTo(1),
-                            unit = units.windSpeed.label,
-                            icon = ImageVector.vectorResource(R.drawable.ic_wind),
-                            iconTint = Color.White,
-                            textStyle = TextStyle(color = Color.White),
-                        )
-                    }
-                }
+                },
+            )
+            Text(
+                weather.weatherType.weatherDesc,
+                style = MaterialTheme.typography.titleLarge,
+                color = Color.White,
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+            ) {
+                WeatherDataDisplay(
+                    value = weather.pressure.roundTo(1),
+                    unit = userData.pressureUnit.label,
+                    icon = ImageVector.vectorResource(R.drawable.ic_pressure),
+                    iconTint = Color.White,
+                    textStyle = TextStyle(color = Color.White),
+                )
+                WeatherDataDisplay(
+                    value = weather.humidity.roundToInt(),
+                    unit = "%",
+                    icon = ImageVector.vectorResource(R.drawable.ic_drop),
+                    iconTint = Color.White,
+                    textStyle = TextStyle(color = Color.White),
+                )
+                WeatherDataDisplay(
+                    value = weather.windSpeed.roundTo(1),
+                    unit = userData.windSpeedUnit.label,
+                    icon = ImageVector.vectorResource(R.drawable.ic_wind),
+                    iconTint = Color.White,
+                    textStyle = TextStyle(color = Color.White),
+                )
             }
         }
     }
@@ -234,7 +230,7 @@ fun DailyWeatherItem(
         val context = LocalContext.current
 
         Text(
-            text = "${daily.date.asString(context)}\n${daily.weatherType.weatherDesc}",
+            text = "${daily.date}\n${daily.weatherType.weatherDesc}",
             style = MaterialTheme.typography.titleSmall,
             textAlign = TextAlign.Center,
         )
@@ -256,41 +252,39 @@ fun DailyWeatherItem(
 
 @Composable
 fun HourlyWeatherItem(
-    hourly: HourlyWeather,
-    windSpeedUnit: WindSpeedUnit?,
+    weather: HourlyWeather,
+    windSpeedUnit: WindSpeedUnit,
     modifier: Modifier = Modifier,
 ) {
-    windSpeedUnit?.let {
-        Row(
-            modifier = modifier
-                .height(50.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                hourly.date,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f),
-            )
-            Image(
-                painter = painterResource(hourly.weatherType.iconRes),
-                contentDescription = null,
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier.width(40.dp),
-            )
-            Text(
-                stringResource(R.string.temperature, hourly.temp.roundTo(1)),
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(0.6f),
-            )
-            Text(
-                "${hourly.windSpeed.roundTo(1)}${windSpeedUnit.label}",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(2f),
-            )
-        }
+    Row(
+        modifier = modifier
+            .height(50.dp)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            weather.date,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f),
+        )
+        Image(
+            painter = painterResource(weather.weatherType.iconRes),
+            contentDescription = null,
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier.width(40.dp),
+        )
+        Text(
+            stringResource(R.string.temperature, weather.temp.roundTo(1)),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.weight(0.6f),
+        )
+        Text(
+            "${weather.windSpeed.roundTo(1)}${windSpeedUnit.label}",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(2f),
+        )
     }
 }
 
@@ -298,27 +292,22 @@ fun HourlyWeatherItem(
 @Composable
 fun InfoTopBar(
     address: String,
-    isCurrentLocation: Boolean,
-    onSearchClick: () -> Unit,
-    onSettingClick: () -> Unit,
+    onBackClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     CenterAlignedTopAppBar(
         modifier = modifier,
         navigationIcon = {
-            IconButton(onSearchClick) {
+            IconButton(onClick = onBackClick) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_search),
-                    contentDescription = stringResource(R.string.search),
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = "Back",
                 )
             }
         },
         title = {
             Row {
-                if (isCurrentLocation) {
-                    Icon(Icons.Default.LocationOn, "current location")
-                    Spacer(Modifier.width(4.dp))
-                }
                 Text(
                     address,
                     style = MaterialTheme.typography.titleMedium,
@@ -328,10 +317,10 @@ fun InfoTopBar(
             }
         },
         actions = {
-            IconButton(onSettingClick) {
+            IconButton(onClick = onSettingsClick) {
                 Icon(
                     painter = painterResource(R.drawable.ic_setting),
-                    contentDescription = stringResource(R.string.setting),
+                    contentDescription = "Back",
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }

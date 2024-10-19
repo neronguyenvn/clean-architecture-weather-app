@@ -1,16 +1,16 @@
 package com.example.weatherjourney.core.domain
 
 import com.example.weatherjourney.core.common.util.TimeUtils
-import com.example.weatherjourney.core.model.info.Weather
-import com.example.weatherjourney.core.model.info.convertPressure
-import com.example.weatherjourney.core.model.info.convertTemperature
-import com.example.weatherjourney.core.model.info.convertTimeFormat
-import com.example.weatherjourney.core.model.info.convertWindSpeed
-import com.example.weatherjourney.core.model.unit.PressureUnit
-import com.example.weatherjourney.core.model.unit.TemperatureUnit
-import com.example.weatherjourney.core.model.unit.TimeFormatUnit
-import com.example.weatherjourney.core.model.unit.WindSpeedUnit
+import com.example.weatherjourney.core.model.Weather
+import com.example.weatherjourney.core.model.convertPressure
+import com.example.weatherjourney.core.model.convertTemperature
+import com.example.weatherjourney.core.model.convertTimeFormat
+import com.example.weatherjourney.core.model.convertWindSpeed
 import javax.inject.Inject
+import com.example.weatherjourney.core.model.PressureUnit
+import com.example.weatherjourney.core.model.TemperatureUnit
+import com.example.weatherjourney.core.model.TimeFormatUnit
+import com.example.weatherjourney.core.model.WindSpeedUnit
 
 class ConvertUnitUseCase @Inject constructor() {
 

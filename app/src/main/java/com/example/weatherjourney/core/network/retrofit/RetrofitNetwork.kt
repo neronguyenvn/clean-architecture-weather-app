@@ -1,10 +1,11 @@
 package com.example.weatherjourney.core.network.retrofit
 
 import com.example.weatherjourney.core.model.Coordinate
-import com.example.weatherjourney.core.network.WtnNetworkDataSource
+import com.example.weatherjourney.core.network.NetworkDataSource
 import com.example.weatherjourney.core.network.model.ForwardGeocoding
+import com.example.weatherjourney.core.network.model.NetworkLocation
 import com.example.weatherjourney.core.network.model.NetworkWeather
-import com.example.weatherjourney.core.network.model.ReverseGeocoding
+import com.example.weatherjourney.core.network.model.ReversedNetworkLocation
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.Call
@@ -23,11 +24,11 @@ private interface RetrofitWtnNetworkApi {
     @GET("reverse-geocode-client")
     suspend fun getReverseGeocoding(
         @Query("latitude")
-        lat: Float,
+        lat: Double,
 
         @Query("longitude")
-        long: Float,
-    ): ReverseGeocoding
+        long: Double,
+    ): ReversedNetworkLocation
 
     @GET
     suspend fun getAllWeather(
@@ -35,10 +36,10 @@ private interface RetrofitWtnNetworkApi {
         url: String = OPENMETEO_GET_WEATHER_URL,
 
         @Query("latitude")
-        lat: Float,
+        lat: Double,
 
         @Query("longitude")
-        long: Float,
+        long: Double,
 
         @Query("timezone")
         timeZone: String,
@@ -63,10 +64,10 @@ private interface RetrofitWtnNetworkApi {
     ): ForwardGeocoding
 }
 
-class RetrofitWtnNetwork(
+class RetrofitNetwork(
     networkJson: Json,
     okHttpCallFactory: Call.Factory
-) : WtnNetworkDataSource {
+) : NetworkDataSource {
 
     private val networkApi = Retrofit.Builder()
         .baseUrl(BIGDATACLOUD_BASE_URL)
@@ -86,9 +87,10 @@ class RetrofitWtnNetwork(
         timeZone = timeZone
     )
 
-    override suspend fun getForwardGeocoding(address: String): ForwardGeocoding =
-        networkApi.getForwardGeocoding(address = address)
+    override suspend fun searchLocationsByAddress(address: String): List<NetworkLocation> {
+        return networkApi.getForwardGeocoding(address = address).results
+    }
 
-    override suspend fun getReverseGeocoding(coordinate: Coordinate): ReverseGeocoding =
+    override suspend fun getReverseGeocoding(coordinate: Coordinate): ReversedNetworkLocation =
         networkApi.getReverseGeocoding(coordinate.lat, coordinate.long)
 }

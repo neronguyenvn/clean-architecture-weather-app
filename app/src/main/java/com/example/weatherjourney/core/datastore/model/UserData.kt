@@ -1,10 +1,10 @@
 package com.example.weatherjourney.core.datastore.model
 
-import com.example.weatherjourney.core.model.unit.PressureUnit
-import com.example.weatherjourney.core.model.unit.TemperatureUnit
-import com.example.weatherjourney.core.model.unit.TimeFormatUnit
-import com.example.weatherjourney.core.model.unit.WindSpeedUnit
 import kotlinx.serialization.Serializable
+import com.example.weatherjourney.core.model.PressureUnit
+import com.example.weatherjourney.core.model.TemperatureUnit
+import com.example.weatherjourney.core.model.TimeFormatUnit
+import com.example.weatherjourney.core.model.WindSpeedUnit
 
 @Serializable
 data class UserData(

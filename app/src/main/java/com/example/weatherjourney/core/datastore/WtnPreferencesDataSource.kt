@@ -3,12 +3,12 @@ package com.example.weatherjourney.core.datastore
 import android.util.Log
 import androidx.datastore.core.DataStore
 import com.example.weatherjourney.core.datastore.model.UserData
-import com.example.weatherjourney.core.model.unit.PressureUnit
-import com.example.weatherjourney.core.model.unit.TemperatureUnit
-import com.example.weatherjourney.core.model.unit.TimeFormatUnit
-import com.example.weatherjourney.core.model.unit.WindSpeedUnit
 import java.io.IOException
 import javax.inject.Inject
+import com.example.weatherjourney.core.model.PressureUnit
+import com.example.weatherjourney.core.model.TemperatureUnit
+import com.example.weatherjourney.core.model.TimeFormatUnit
+import com.example.weatherjourney.core.model.WindSpeedUnit
 
 class WtnPreferencesDataSource @Inject constructor(
     private val userPreferences: DataStore<UserData>,

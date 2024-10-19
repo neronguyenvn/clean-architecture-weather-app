@@ -2,9 +2,8 @@ package com.example.weatherjourney.core.model
 
 import com.example.weatherjourney.core.common.util.roundTo
 
-const val INITIALIZATION_PRECISION = 2
-
-class Coordinate private constructor(
+@ConsistentCopyVisibility
+data class Coordinate private constructor(
     val lat: Double,
     val long: Double
 ) {
@@ -17,14 +16,26 @@ class Coordinate private constructor(
         }
     }
 
-    constructor(
+    private constructor(
         lat: Double,
         long: Double,
         precision: Int = INITIALIZATION_PRECISION
     ) : this(
         lat.roundTo(precision), long.roundTo(precision)
     )
+
+    companion object {
+        private const val INITIALIZATION_PRECISION = 2
+
+        fun create(
+            lat: Double,
+            long: Double,
+            precision: Int = INITIALIZATION_PRECISION
+        ): Coordinate {
+            return Coordinate(lat, long, precision)
+        }
+    }
 }
 
 val android.location.Location.coordinate
-    get() = Coordinate(latitude, longitude)
+    get() = Coordinate.create(latitude, longitude)

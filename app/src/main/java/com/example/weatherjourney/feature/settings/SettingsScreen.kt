@@ -1,4 +1,4 @@
-package com.example.weatherjourney.feature.setting
+package com.example.weatherjourney.feature.settings
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,18 +25,12 @@ import com.example.weatherjourney.core.designsystem.component.BasicTopBar
 import com.example.weatherjourney.core.designsystem.component.SegmentText
 import com.example.weatherjourney.core.designsystem.component.SegmentedControl
 import com.example.weatherjourney.core.model.unit.AllUnit
-import com.example.weatherjourney.core.model.unit.PressureUnit
-import com.example.weatherjourney.core.model.unit.TemperatureUnit
-import com.example.weatherjourney.core.model.unit.TimeFormatUnit
-import com.example.weatherjourney.core.model.unit.WindSpeedUnit
 import com.example.weatherjourney.presentation.theme.White70
 
 @Composable
-fun WeatherSettingScreen(
-    snackbarHostState: SnackbarHostState,
-    onBackClick: () -> Unit,
+fun SettingsScreen(
     modifier: Modifier = Modifier,
-    viewModel: WeatherSettingViewModel = hiltViewModel(),
+    viewModel: SettingViewModel = hiltViewModel(),
 ) {
     Scaffold(
         modifier = modifier,
@@ -49,10 +42,10 @@ fun WeatherSettingScreen(
 
         WeatherSettingScreenContent(
             uiState = uiState,
-            onTemperatureUnitUpdate = viewModel::onTemperatureUnitUpdate,
-            onWindSpeedUnitUpdate = viewModel::onWindSpeedUnitUpdate,
-            onPressureUnitUpdate = viewModel::onPressureUnitUpdate,
-            onTimeFormatUnitUpdate = viewModel::onTimeFormatUnitUpdate,
+            onTemperatureUnitUpdate = viewModel::onTemperatureChanged,
+            onWindSpeedUnitUpdate = viewModel::onWindSpeedChanged,
+            onPressureUnitUpdate = viewModel::onPressureChanged,
+            onTimeFormatUnitUpdate = viewModel::onTimeFormatChanged,
             modifier = Modifier.padding(paddingValues),
         )
     }

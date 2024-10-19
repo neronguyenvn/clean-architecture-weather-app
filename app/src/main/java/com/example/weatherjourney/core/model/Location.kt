@@ -1,7 +1,6 @@
-package com.example.weatherjourney.core.model.search
+package com.example.weatherjourney.core.model
 
 import com.example.weatherjourney.core.database.model.LocationEntity
-import com.example.weatherjourney.core.model.Coordinate
 
 data class Location(
     val id: Int,
