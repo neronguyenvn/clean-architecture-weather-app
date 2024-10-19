@@ -1,12 +1,12 @@
 package com.example.weatherjourney.core.data
 
-import com.example.weatherjourney.core.database.model.LocationEntityWithWeather
 import com.example.weatherjourney.core.model.search.Location
+import com.example.weatherjourney.core.model.search.LocationWithWeather
 import kotlinx.coroutines.flow.Flow
 
 interface LocationRepository {
 
-    fun getLocationsWithWeatherStream(): Flow<List<LocationEntityWithWeather>>
+    fun getLocationsWithWeatherStream(): Flow<List<LocationWithWeather>>
 
     suspend fun saveLocation(location: Location)
 

@@ -2,7 +2,7 @@ package com.example.weatherjourney.core.database.model
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.example.weatherjourney.core.common.constant.HOUR_PATTERN
+import com.example.weatherjourney.core.common.util.TimeUtils
 import com.example.weatherjourney.core.common.util.countPastHoursToday
 import com.example.weatherjourney.core.common.util.filterPastHours
 import com.example.weatherjourney.core.common.util.getCurrentDate
@@ -45,7 +45,7 @@ val LocationEntityWithWeather.weather: Weather?
                     weatherType = WeatherType.fromWMO(weatherCodes.list[count]),
                 )
             },
-            listDaily = dailyWeather.run {
+            dailyForecasts = dailyWeather.run {
                 time.list.mapIndexed { index, time ->
                     DailyWeather(
                         date = time.toDayNameInWeek(location.timeZone),
@@ -55,10 +55,10 @@ val LocationEntityWithWeather.weather: Weather?
                     )
                 }
             },
-            listHourly = hourlyWeather.run {
+            hourlyForecasts = hourlyWeather.run {
                 time.list.filterPastHours().mapIndexed { index, time ->
                     HourlyWeather(
-                        date = time.toDate(location.timeZone, HOUR_PATTERN),
+                        date = time.toDate(location.timeZone, TimeUtils.HOUR_PATTERN),
                         temp = temperatures.list[index + count],
                         windSpeed = windSpeeds.list[index + count],
                         weatherType = WeatherType.fromWMO(weatherCodes.list[index + count]),

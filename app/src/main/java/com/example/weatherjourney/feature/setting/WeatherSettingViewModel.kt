@@ -3,7 +3,7 @@ package com.example.weatherjourney.feature.setting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherjourney.core.data.UserDataRepository
-import com.example.weatherjourney.core.datastore.model.toAllUnit
+import com.example.weatherjourney.core.datastore.model.asAllUnit
 import com.example.weatherjourney.core.model.unit.getPressureUnit
 import com.example.weatherjourney.core.model.unit.getTemperatureUnit
 import com.example.weatherjourney.core.model.unit.getTimeFormatUnit
@@ -21,7 +21,7 @@ class WeatherSettingViewModel @Inject constructor(
 ) : ViewModel() {
 
     val uiState = userDataRepository.userData.map {
-        it.toAllUnit()
+        it.asAllUnit()
     }.stateIn(
         viewModelScope,
         SharingStarted.Eagerly,

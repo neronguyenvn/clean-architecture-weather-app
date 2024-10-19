@@ -9,7 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.weatherjourney.feature.details.WeatherInfoScreen
-import com.example.weatherjourney.feature.search.WeatherSearchScreen
+import com.example.weatherjourney.feature.home.HomeRoute
 import com.example.weatherjourney.feature.setting.WeatherSettingScreen
 
 @Composable
@@ -42,7 +42,7 @@ fun WtnNavGraph(
             )
         }
         composable(WtnDestinations.SEARCH_ROUTE) {
-            WeatherSearchScreen(
+            HomeRoute(
                 snackbarHostState = snackbarHostState,
                 onBackClick = { navController.popBackStack() },
                 navigateToInfo = { navActions.navigateToInfo() }

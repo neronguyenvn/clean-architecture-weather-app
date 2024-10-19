@@ -6,7 +6,6 @@ import com.example.weatherjourney.core.model.info.convertPressure
 import com.example.weatherjourney.core.model.info.convertTemperature
 import com.example.weatherjourney.core.model.info.convertTimeFormat
 import com.example.weatherjourney.core.model.info.convertWindSpeed
-import com.example.weatherjourney.core.model.unit.AllUnit
 import com.example.weatherjourney.core.model.unit.PressureUnit
 import com.example.weatherjourney.core.model.unit.TemperatureUnit
 import com.example.weatherjourney.core.model.unit.TimeFormatUnit
@@ -15,12 +14,17 @@ import javax.inject.Inject
 
 class ConvertUnitUseCase @Inject constructor() {
 
-    operator fun invoke(weather: Weather, units: AllUnit): Weather {
-        return weather
-            .convertTemperatureIfNeeded(units.temperature)
-            .convertWindSpeedIfNeeded(units.windSpeed)
-            .convertPressureIfNeeded(units.pressure)
-            .convertTimeFormatIfNeeded(units.timeFormat)
+    operator fun invoke(
+        weather: Weather,
+        temperatureUnit: TemperatureUnit? = null,
+        windSpeedUnit: WindSpeedUnit? = null,
+        pressureUnit: PressureUnit? = null,
+        timeFormatUnit: TimeFormatUnit? = null
+    ): Weather = weather.apply {
+        temperatureUnit?.let { convertTemperatureIfNeeded(it) }
+        windSpeedUnit?.let { convertWindSpeedIfNeeded(it) }
+        pressureUnit?.let { convertPressureIfNeeded(it) }
+        timeFormatUnit?.let { convertTimeFormatIfNeeded(it) }
     }
 
     private fun Weather.convertTemperatureIfNeeded(unit: TemperatureUnit): Weather {

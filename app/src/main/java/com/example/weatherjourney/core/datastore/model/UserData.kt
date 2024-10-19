@@ -1,6 +1,5 @@
 package com.example.weatherjourney.core.datastore.model
 
-import com.example.weatherjourney.core.model.unit.AllUnit
 import com.example.weatherjourney.core.model.unit.PressureUnit
 import com.example.weatherjourney.core.model.unit.TemperatureUnit
 import com.example.weatherjourney.core.model.unit.TimeFormatUnit
@@ -23,10 +22,3 @@ data class UserData(
         )
     }
 }
-
-fun UserData.toAllUnit() = AllUnit(
-    temperature = temperatureUnit,
-    windSpeed = windSpeedUnit,
-    pressure = pressureUnit,
-    timeFormat = timeFormatUnit
-)

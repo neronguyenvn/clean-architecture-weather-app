@@ -6,13 +6,16 @@ import com.example.weatherjourney.core.data.LocationRepository
 import com.example.weatherjourney.core.data.WeatherRepository
 import com.example.weatherjourney.core.database.LocationDao
 import com.example.weatherjourney.core.database.model.LocationEntityWithWeather
+import com.example.weatherjourney.core.database.model.asExternalModel
 import com.example.weatherjourney.core.model.search.Location
+import com.example.weatherjourney.core.model.search.LocationWithWeather
 import com.example.weatherjourney.core.model.search.asEntity
 import com.example.weatherjourney.core.network.WtnNetworkDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class OfflineFirstLocationRepository @Inject constructor(
@@ -22,8 +25,10 @@ class OfflineFirstLocationRepository @Inject constructor(
     @Dispatcher(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : LocationRepository {
 
-    override fun getLocationsWithWeatherStream(): Flow<List<LocationEntityWithWeather>> {
-        return locationDao.observeAllWithWeather()
+    override fun getLocationsWithWeatherStream(): Flow<List<LocationWithWeather>> {
+        return locationDao.observeAllWithWeather().map { locationEntities ->
+            locationEntities.map(LocationEntityWithWeather::asExternalModel)
+        }
     }
 
     override suspend fun saveLocation(location: Location) {

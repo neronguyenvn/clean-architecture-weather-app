@@ -1,12 +1,5 @@
 package com.example.weatherjourney.core.model.unit
 
-data class AllUnit(
-    val temperature: TemperatureUnit,
-    val windSpeed: WindSpeedUnit,
-    val pressure: PressureUnit,
-    val timeFormat: TimeFormatUnit,
-)
-
 interface LabeledEnum {
     val label: String
 }

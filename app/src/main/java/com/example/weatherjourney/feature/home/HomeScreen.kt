@@ -1,4 +1,4 @@
-package com.example.weatherjourney.feature.search
+package com.example.weatherjourney.feature.home
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -59,42 +59,18 @@ import com.example.weatherjourney.core.designsystem.component.CurrentLocationFie
 import com.example.weatherjourney.core.designsystem.component.HorizontalDivider
 import com.example.weatherjourney.core.model.search.Location
 import com.example.weatherjourney.core.model.search.LocationWithWeather
-import com.example.weatherjourney.feature.search.WeatherSearchEvent.ClickOnSavedLocation
-import com.example.weatherjourney.feature.search.WeatherSearchEvent.ClickOnSuggestionLocation
-import com.example.weatherjourney.feature.search.WeatherSearchEvent.InputLocation
-import com.example.weatherjourney.feature.search.WeatherSearchEvent.LongClickOnSavedLocation
-import com.example.weatherjourney.feature.search.WeatherSearchEvent.Refresh
-import com.example.weatherjourney.feature.search.WeatherSearchUiState.NoResult
-import com.example.weatherjourney.feature.search.WeatherSearchUiState.SavedLocationsFeed
-import com.example.weatherjourney.feature.search.WeatherSearchUiState.SuggestionLocationsFeed
 import com.example.weatherjourney.presentation.theme.White70
-
-
-sealed interface WeatherSearchEvent {
-
-    data object Refresh : WeatherSearchEvent
-
-    data class InputLocation(val value: String) : WeatherSearchEvent
-
-    data class ClickOnSuggestionLocation(val location: Location) : WeatherSearchEvent
-
-    data class ClickOnSavedLocation(val location: LocationWithWeather) : WeatherSearchEvent
-
-    data class LongClickOnSavedLocation(val location: LocationWithWeather?) : WeatherSearchEvent
-
-    data class DeleteSavedLocation(val location: LocationWithWeather) : WeatherSearchEvent
-}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun WeatherSearchScreen(
+fun HomeRoute(
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     navigateToInfo: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WeatherSearchViewModel = hiltViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.locationsWithWeather.collectAsStateWithLifecycle()
     LaunchedEffect(true) {
         uiState.eventSink(Refresh)
     }
@@ -123,59 +99,6 @@ fun WeatherSearchScreen(
         )
     }
 }
-
-/*        val activityResultLauncher = rememberLauncherForActivityResult(
-    ActivityResultContracts.StartIntentSenderForResult(),
-) { result ->
-    viewModel.onPermissionActionResult(result.resultCode == Activity.RESULT_OK, true)
-}
-
-val locationPermissionState = rememberMultiplePermissionsState(
-    listOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-    ),
-) { viewModel.onPermissionActionResult(it.any { permission -> permission.value }) }*/
-
-/*        uiState.userMessage?.let { userMessage ->
-            if (userMessage is RequestingTurnOnLocationService) {
-                val client = LocationServices.getSettingsClient(context)
-                val task = client.checkLocationSettings(
-                    LocationSettingsRequest.Builder()
-                        .addLocationRequest(
-                            LocationRequest.Builder(
-                                Priority.PRIORITY_HIGH_ACCURACY,
-                                5000,
-                            ).build(),
-                        )
-                        .build(),
-                )
-                task.addOnFailureListener { exception ->
-                    if (exception is ResolvableApiException) {
-                        // Location is not enabled, show the dialog to turn it on
-                        val intentSender = exception.resolution.intentSender
-                        val intent = IntentSenderRequest.Builder(intentSender).build()
-                        activityResultLauncher.launch(intent)
-                    }
-                }
-            }
-
-            if (userMessage is UserMessage.RequestingLocationPermission) {
-                if (locationPermissionState.permissions.any { it.status.isGranted }) {
-                    //      viewModel.onHandleUserMessageDone()
-                }
-
-                if (locationPermissionState.shouldShowRationale) {
-                    val snackbarText = stringResource(R.string.need_permission)
-                    LaunchedEffect(snackbarHostState, viewModel, snackbarText) {
-                        keyboardController?.hide()
-                        snackbarHostState.showSnackbar(snackbarText)
-                        //        viewModel.onHandleUserMessageDone()
-                    }
-                }
-
-                locationPermissionState.launchMultiplePermissionRequest()
-            }*/
 
 @Composable
 fun WeatherSearchUi(
