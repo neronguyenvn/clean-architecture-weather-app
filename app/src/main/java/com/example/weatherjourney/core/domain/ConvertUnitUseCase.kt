@@ -1,16 +1,17 @@
 package com.example.weatherjourney.core.domain
 
 import com.example.weatherjourney.core.common.util.TimeUtils
+import com.example.weatherjourney.core.model.PressureUnit
+import com.example.weatherjourney.core.model.TemperatureUnit
+import com.example.weatherjourney.core.model.TemperatureUnit.*
+import com.example.weatherjourney.core.model.TimeFormatUnit
 import com.example.weatherjourney.core.model.Weather
+import com.example.weatherjourney.core.model.WindSpeedUnit
 import com.example.weatherjourney.core.model.convertPressure
 import com.example.weatherjourney.core.model.convertTemperature
 import com.example.weatherjourney.core.model.convertTimeFormat
 import com.example.weatherjourney.core.model.convertWindSpeed
 import javax.inject.Inject
-import com.example.weatherjourney.core.model.PressureUnit
-import com.example.weatherjourney.core.model.TemperatureUnit
-import com.example.weatherjourney.core.model.TimeFormatUnit
-import com.example.weatherjourney.core.model.WindSpeedUnit
 
 class ConvertUnitUseCase @Inject constructor() {
 
@@ -20,39 +21,42 @@ class ConvertUnitUseCase @Inject constructor() {
         windSpeedUnit: WindSpeedUnit? = null,
         pressureUnit: PressureUnit? = null,
         timeFormatUnit: TimeFormatUnit? = null
-    ): Weather = weather.apply {
-        temperatureUnit?.let { convertTemperatureIfNeeded(it) }
-        windSpeedUnit?.let { convertWindSpeedIfNeeded(it) }
-        pressureUnit?.let { convertPressureIfNeeded(it) }
-        timeFormatUnit?.let { convertTimeFormatIfNeeded(it) }
+    ): Weather {
+
+        return weather.apply {
+            temperatureUnit?.let { convertTemperatureIfNeeded(it) }
+            windSpeedUnit?.let { convertWindSpeedIfNeeded(it) }
+            pressureUnit?.let { convertPressureIfNeeded(it) }
+            timeFormatUnit?.let { convertTimeFormatIfNeeded(it) }
+        }
     }
 
     private fun Weather.convertTemperatureIfNeeded(unit: TemperatureUnit): Weather {
         return when (unit) {
-            TemperatureUnit.FAHRENHEIT -> this.convertTemperature(::convertCelsiusToFahrenheit)
-            else -> this
+            Fahrenheit -> this.convertTemperature(::convertCelsiusToFahrenheit)
+            Celsius -> this
         }
     }
 
     private fun Weather.convertWindSpeedIfNeeded(unit: WindSpeedUnit): Weather {
         return when (unit) {
-            WindSpeedUnit.METER_PER_SECOND -> this.convertWindSpeed(::convertKmhToMs)
-            WindSpeedUnit.MILE_PER_HOUR -> this.convertWindSpeed(::convertKmhToMph)
-            else -> this
+            WindSpeedUnit.MeterPerSecond -> this.convertWindSpeed(::convertKmhToMs)
+            WindSpeedUnit.MilePerHour -> this.convertWindSpeed(::convertKmhToMph)
+            WindSpeedUnit.KilometerPerHour -> this
         }
     }
 
     private fun Weather.convertPressureIfNeeded(unit: PressureUnit): Weather {
         return when (unit) {
-            PressureUnit.INCH_OF_MERCURY -> this.convertPressure(::convertHPaToInHg)
+            PressureUnit.InchOfMercury -> this.convertPressure(::convertHPaToInHg)
             else -> this
         }
     }
 
     private fun Weather.convertTimeFormatIfNeeded(unit: TimeFormatUnit): Weather {
         return when (unit) {
-            TimeFormatUnit.AM_PM -> this.convertTimeFormat(TimeUtils::formatTimeToAmPm)
-            else -> this.convertTimeFormat(TimeUtils::formatTimeTo24Hour)
+            TimeFormatUnit.AmPm -> this.convertTimeFormat(TimeUtils::formatTimeToAmPm)
+            TimeFormatUnit.TwentyFour -> this.convertTimeFormat(TimeUtils::formatTimeTo24Hour)
         }
     }
 

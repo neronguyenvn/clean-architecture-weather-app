@@ -22,8 +22,14 @@ fun NavController.navigateToLocationDetails(locationId: Int) {
     navigate(route = DetailsRoute.LocationDetails(locationId))
 }
 
-fun NavGraphBuilder.detailsScreen() {
+fun NavGraphBuilder.detailsScreen(
+    onBackClick: () -> Unit,
+    onSettingsClick: () -> Unit
+) {
     composable<DetailsRoute> {
-        DetailsScreen()
+        DetailsScreen(
+            onBackClick = onBackClick,
+            onSettingsClick = onSettingsClick
+        )
     }
 }

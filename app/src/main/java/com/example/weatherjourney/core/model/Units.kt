@@ -1,22 +1,32 @@
 package com.example.weatherjourney.core.model
 
-enum class PressureUnit(val label: String) {
-    HECTOPASCAL("hPa"),
-    INCH_OF_MERCURY("inHg"),
+import kotlinx.serialization.Serializable
+
+interface WeatherUnit {
+    val label: String
 }
 
-enum class TemperatureUnit(val label: String) {
-    CELSIUS("°C"),
-    FAHRENHEIT("°F"),
+@Serializable
+enum class PressureUnit(override val label: String) : WeatherUnit {
+    Hectopascal("hPa"),
+    InchOfMercury("inHg")
 }
 
-enum class TimeFormatUnit(val label: String) {
-    TWENTY_FOUR("24-hour"),
-    AM_PM("12-hour"),
+@Serializable
+enum class TemperatureUnit(override val label: String) : WeatherUnit {
+    Celsius("°C"),
+    Fahrenheit("°F")
 }
 
-enum class WindSpeedUnit(val label: String) {
-    KILOMETER_PER_HOUR("km/h"),
-    METER_PER_SECOND("m/s"),
-    MILE_PER_HOUR("mph"),
+@Serializable
+enum class TimeFormatUnit(override val label: String) : WeatherUnit {
+    TwentyFour("24-hour"),
+    AmPm("12-hour")
+}
+
+@Serializable
+enum class WindSpeedUnit(override val label: String) : WeatherUnit {
+    KilometerPerHour("km/h"),
+    MeterPerSecond("m/s"),
+    MilePerHour("mph")
 }

@@ -1,10 +1,10 @@
 package com.example.weatherjourney.core.datastore.model
 
-import kotlinx.serialization.Serializable
 import com.example.weatherjourney.core.model.PressureUnit
 import com.example.weatherjourney.core.model.TemperatureUnit
 import com.example.weatherjourney.core.model.TimeFormatUnit
 import com.example.weatherjourney.core.model.WindSpeedUnit
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserData(
@@ -15,10 +15,10 @@ data class UserData(
 ) {
     companion object {
         val default = UserData(
-            temperatureUnit = TemperatureUnit.CELSIUS,
-            windSpeedUnit = WindSpeedUnit.KILOMETER_PER_HOUR,
-            pressureUnit = PressureUnit.HECTOPASCAL,
-            timeFormatUnit = TimeFormatUnit.AM_PM
+            temperatureUnit = TemperatureUnit.Celsius,
+            windSpeedUnit = WindSpeedUnit.KilometerPerHour,
+            pressureUnit = PressureUnit.Hectopascal,
+            timeFormatUnit = TimeFormatUnit.AmPm
         )
     }
 }

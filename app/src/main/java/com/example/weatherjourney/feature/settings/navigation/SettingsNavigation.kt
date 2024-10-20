@@ -3,7 +3,7 @@ package com.example.weatherjourney.feature.settings.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.example.weatherjourney.feature.settings.SettingsScreen
+import com.example.weatherjourney.feature.settings.SettingsRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -13,8 +13,8 @@ fun NavController.navigateToSettings() {
     navigate(SettingsRoute)
 }
 
-fun NavGraphBuilder.settingsScreen() {
+fun NavGraphBuilder.settingsScreen(onBackClick: () -> Unit) {
     composable<SettingsRoute> {
-        SettingsScreen()
+        SettingsRoute(onBackClick = onBackClick)
     }
 }
