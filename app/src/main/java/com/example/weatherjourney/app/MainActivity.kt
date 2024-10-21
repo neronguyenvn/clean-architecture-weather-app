@@ -3,9 +3,10 @@ package com.example.weatherjourney.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.example.weatherjourney.app.ui.WeatherApp
-import com.example.weatherjourney.presentation.theme.WtnTheme
+import com.example.weatherjourney.presentation.theme.WeatherTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -15,10 +16,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         // TODO: Use WorkManager to start a sync work
         viewModel.refreshAllWeather()
         setContent {
-            WtnTheme {
+            WeatherTheme {
                 WeatherApp()
             }
         }
