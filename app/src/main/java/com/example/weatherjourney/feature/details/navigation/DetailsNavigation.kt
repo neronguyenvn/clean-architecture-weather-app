@@ -6,12 +6,16 @@ import androidx.navigation.compose.composable
 import com.example.weatherjourney.feature.details.DetailsScreen
 import kotlinx.serialization.Serializable
 
-@Serializable
 sealed interface DetailsRoute {
 
+    @Serializable
     data class LocationDetails(val locationId: Int) : DetailsRoute
 
+    @Serializable
     data object CurrentLocationDetails : DetailsRoute
+
+    @Serializable
+    data object Placeholder : DetailsRoute
 }
 
 fun NavController.navigateToCurrentLocationDetails() {
@@ -26,7 +30,7 @@ fun NavGraphBuilder.detailsScreen(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    composable<DetailsRoute> {
+    composable<DetailsRoute.Placeholder> {
         DetailsScreen(
             onBackClick = onBackClick,
             onSettingsClick = onSettingsClick

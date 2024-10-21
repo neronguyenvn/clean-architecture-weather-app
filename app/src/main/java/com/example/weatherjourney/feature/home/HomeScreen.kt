@@ -33,8 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -47,7 +45,6 @@ import com.example.weatherjourney.core.designsystem.component.AddressWithFlag
 import com.example.weatherjourney.core.designsystem.component.HorizontalDivider
 import com.example.weatherjourney.core.model.LocationWithWeather
 import com.example.weatherjourney.feature.home.HomeUiState.*
-import com.example.weatherjourney.presentation.theme.White70
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -171,17 +168,14 @@ fun WeatherSearchBar(
             Box(Modifier.weight(1f)) {
                 if (query.isBlank()) {
                     Text(
-                        color = White70,
                         text = stringResource(R.string.enter_location),
                     )
                 }
                 BasicTextField(
                     value = query,
                     onValueChange = onQueryChange,
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
                     singleLine = true,
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                    cursorBrush = SolidColor(Color.White),
                     modifier = Modifier.focusRequester(focusRequester),
                 )
             }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -29,7 +28,6 @@ import com.example.weatherjourney.core.model.TemperatureUnit
 import com.example.weatherjourney.core.model.TimeFormatUnit
 import com.example.weatherjourney.core.model.WeatherUnit
 import com.example.weatherjourney.core.model.WindSpeedUnit
-import com.example.weatherjourney.presentation.theme.White70
 
 @Composable
 fun SettingsRoute(
@@ -79,7 +77,6 @@ fun SettingsScreen(
             ) {
                 Text(
                     stringResource(R.string.units),
-                    style = MaterialTheme.typography.labelLarge.copy(color = White70),
                 )
                 UnitRowItem(
                     title = R.string.temperature_unit,

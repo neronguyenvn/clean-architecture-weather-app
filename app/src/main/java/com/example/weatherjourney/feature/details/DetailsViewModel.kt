@@ -45,6 +45,8 @@ class DetailsViewModel @Inject constructor(
         is DetailsRoute.LocationDetails -> locationRepository.getLocationWithWeather(
             _detailsRoute.locationId
         )
+
+        DetailsRoute.Placeholder -> TODO()
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
@@ -58,6 +60,8 @@ class DetailsViewModel @Inject constructor(
                 is DetailsRoute.LocationDetails -> {
                     weatherRepository.refreshWeatherOfLocation(_detailsRoute.locationId)
                 }
+
+                DetailsRoute.Placeholder -> TODO()
             }
         }
     }

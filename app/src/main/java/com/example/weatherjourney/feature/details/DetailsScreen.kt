@@ -31,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -148,7 +147,6 @@ fun CurrentWeatherContent(
                 Text(
                     weather.date,
                     style = MaterialTheme.typography.labelMedium,
-                    color = Color.White,
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
@@ -160,7 +158,6 @@ fun CurrentWeatherContent(
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 style = MaterialTheme.typography.displayLarge,
-                color = Color.White,
                 text = buildAnnotatedString {
                     append("${weather.temp.roundTo(1)}")
                     withStyle(superscript) {
@@ -171,7 +168,6 @@ fun CurrentWeatherContent(
             Text(
                 weather.weatherType.weatherDesc,
                 style = MaterialTheme.typography.titleLarge,
-                color = Color.White,
             )
             Spacer(modifier = Modifier.height(32.dp))
             Row(
@@ -182,22 +178,16 @@ fun CurrentWeatherContent(
                     value = weather.pressure.roundTo(1),
                     unit = userData.pressureUnit.label,
                     icon = ImageVector.vectorResource(R.drawable.ic_pressure),
-                    iconTint = Color.White,
-                    textStyle = TextStyle(color = Color.White),
                 )
                 WeatherDataDisplay(
                     value = weather.humidity.roundToInt(),
                     unit = "%",
                     icon = ImageVector.vectorResource(R.drawable.ic_drop),
-                    iconTint = Color.White,
-                    textStyle = TextStyle(color = Color.White),
                 )
                 WeatherDataDisplay(
                     value = weather.windSpeed.roundTo(1),
                     unit = userData.windSpeedUnit.label,
                     icon = ImageVector.vectorResource(R.drawable.ic_wind),
-                    iconTint = Color.White,
-                    textStyle = TextStyle(color = Color.White),
                 )
             }
         }
@@ -335,7 +325,6 @@ fun WeatherDataDisplay(
     icon: ImageVector,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = TextStyle(),
-    iconTint: Color = Color.White,
 ) {
     Row(
         modifier = modifier,
@@ -344,7 +333,6 @@ fun WeatherDataDisplay(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = iconTint,
             modifier = Modifier.size(25.dp),
         )
         Spacer(modifier = Modifier.width(4.dp))
