@@ -33,8 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -94,9 +92,9 @@ fun WeatherInfoUi(
     modifier: Modifier = Modifier,
 ) {
     val screenPadding = PaddingValues(
-        start = dimensionResource(R.dimen.horizontal_margin),
-        end = dimensionResource(R.dimen.horizontal_margin),
-        top = dimensionResource(R.dimen.vertical_margin),
+        start = 16.dp,
+        end = 16.dp,
+        top = 16.dp,
     )
 
     locationWithWeather.weather?.current?.let {
@@ -217,8 +215,6 @@ fun DailyWeatherItem(
             .height(150.dp)
             .width(100.dp),
     ) {
-        val context = LocalContext.current
-
         Text(
             text = "${daily.date}\n${daily.weatherType.weatherDesc}",
             style = MaterialTheme.typography.titleSmall,
