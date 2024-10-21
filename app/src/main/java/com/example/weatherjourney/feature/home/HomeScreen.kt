@@ -1,10 +1,10 @@
 package com.example.weatherjourney.feature.home
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,26 +14,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -42,9 +39,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
 import com.example.weatherjourney.core.common.util.roundTo
 import com.example.weatherjourney.core.designsystem.component.AddressWithFlag
-import com.example.weatherjourney.core.designsystem.component.HorizontalDivider
 import com.example.weatherjourney.core.model.LocationWithWeather
 import com.example.weatherjourney.feature.home.HomeUiState.*
+
+private const val TAG = "HomeScreen"
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -56,6 +54,8 @@ fun HomeRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val locationsWithWeather by viewModel.locationsWithWeather.collectAsStateWithLifecycle()
+
+    Log.d(TAG, "Current UiState: $uiState")
 
     Column {
         WeatherSearchBar(onClick = onSearchClick)
@@ -81,7 +81,7 @@ fun HomeScreen(
         onRefresh = { }, // TODO
         modifier = modifier,
     ) {
-        LazyColumn {
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(
                 items = locationsWithWeather,
                 key = { it.location.id }
@@ -141,54 +141,34 @@ fun LocationWithWeatherItem(
 fun WeatherSearchBar(
     modifier: Modifier = Modifier,
     query: String = "",
-    onBackClick: () -> Unit = {},
+    onBackClick: (() -> Unit)? = null,
     onQueryChange: (String) -> Unit = {},
     onClick: () -> Unit = {}
 ) {
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    Column(
-        modifier = modifier
-            .padding(8.dp)
-            .clickable(onClick = onClick)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 4.dp),
-        ) {
-            IconButton(onClick = onBackClick) {
+    Column(modifier = modifier.clickable { onClick() }) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(
+                onClick = { onBackClick?.invoke() },
+                modifier = Modifier.alpha(if (onBackClick != null) 1f else 0f)
+            ) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.back),
+                    contentDescription = "Back",
                 )
             }
-            Box(Modifier.weight(1f)) {
-                if (query.isBlank()) {
-                    Text(
-                        text = stringResource(R.string.enter_location),
-                    )
-                }
-                BasicTextField(
-                    value = query,
-                    onValueChange = onQueryChange,
-                    singleLine = true,
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                    modifier = Modifier.focusRequester(focusRequester),
-                )
-            }
-            if (query.isNotBlank()) {
-                IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Filled.Close, "Delete input")
-                }
-            }
+            TextField(
+                value = query,
+                onValueChange = onQueryChange,
+                singleLine = true,
+                placeholder = { Text(text = stringResource(R.string.enter_location)) },
+                colors = TextFieldDefaults.colors(
+                    disabledContainerColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                ),
+                enabled = onBackClick != null,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
-        HorizontalDivider()
     }
-
-    LaunchedEffect(true) {
-        focusRequester.requestFocus()
-    }
+    HorizontalDivider()
 }

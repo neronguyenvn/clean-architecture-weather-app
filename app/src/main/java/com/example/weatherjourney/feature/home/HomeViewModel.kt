@@ -22,7 +22,7 @@ class HomeViewModel @Inject constructor(
     private val convertUnitUseCase: ConvertUnitUseCase,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(Loading)
+    private val _state = MutableStateFlow(Idle)
     val uiState = _state.asStateFlow()
 
     val locationsWithWeather = combine(
