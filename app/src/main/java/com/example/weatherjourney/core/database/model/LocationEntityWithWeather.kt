@@ -2,19 +2,18 @@ package com.example.weatherjourney.core.database.model
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.example.weatherjourney.core.common.constant.HOUR_PATTERN
+import com.example.weatherjourney.core.common.util.TimeUtils
 import com.example.weatherjourney.core.common.util.countPastHoursToday
 import com.example.weatherjourney.core.common.util.filterPastHours
 import com.example.weatherjourney.core.common.util.getCurrentDate
 import com.example.weatherjourney.core.common.util.toDate
 import com.example.weatherjourney.core.common.util.toDayNameInWeek
-import com.example.weatherjourney.core.model.Coordinate
 import com.example.weatherjourney.core.model.WeatherType
-import com.example.weatherjourney.core.model.info.CurrentWeather
-import com.example.weatherjourney.core.model.info.DailyWeather
-import com.example.weatherjourney.core.model.info.HourlyWeather
-import com.example.weatherjourney.core.model.info.Weather
-import com.example.weatherjourney.core.model.search.SavedLocation
+import com.example.weatherjourney.core.model.CurrentWeather
+import com.example.weatherjourney.core.model.DailyWeather
+import com.example.weatherjourney.core.model.HourlyWeather
+import com.example.weatherjourney.core.model.Weather
+import com.example.weatherjourney.core.model.LocationWithWeather
 
 data class LocationEntityWithWeather(
     @Embedded
@@ -46,7 +45,7 @@ val LocationEntityWithWeather.weather: Weather?
                     weatherType = WeatherType.fromWMO(weatherCodes.list[count]),
                 )
             },
-            listDaily = dailyWeather.run {
+            dailyForecasts = dailyWeather.run {
                 time.list.mapIndexed { index, time ->
                     DailyWeather(
                         date = time.toDayNameInWeek(location.timeZone),
@@ -56,10 +55,10 @@ val LocationEntityWithWeather.weather: Weather?
                     )
                 }
             },
-            listHourly = hourlyWeather.run {
+            hourlyForecasts = hourlyWeather.run {
                 time.list.filterPastHours().mapIndexed { index, time ->
                     HourlyWeather(
-                        date = time.toDate(location.timeZone, HOUR_PATTERN),
+                        date = time.toDate(location.timeZone, TimeUtils.HOUR_PATTERN),
                         temp = temperatures.list[index + count],
                         windSpeed = windSpeeds.list[index + count],
                         weatherType = WeatherType.fromWMO(weatherCodes.list[index + count]),
@@ -69,14 +68,7 @@ val LocationEntityWithWeather.weather: Weather?
         )
     }
 
-fun LocationEntityWithWeather.toSavedLocation(currentCoordinate: Coordinate?): SavedLocation? {
-    val weather = this.weather ?: return null
-    return SavedLocation(
-        temp = weather.current.temp,
-        weatherType = weather.current.weatherType,
-        id = location.id.toInt(),
-        address = location.address,
-        countryCode = location.countryCode,
-        isCurrentLocation = location.coordinate == currentCoordinate
-    )
-}
+fun LocationEntityWithWeather.asExternalModel(): LocationWithWeather = LocationWithWeather(
+    location = location.asExternalModel(),
+    weather = weather,
+)

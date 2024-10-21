@@ -2,85 +2,49 @@ package com.example.weatherjourney.core.data.implementation
 
 import com.example.weatherjourney.core.common.coroutine.Dispatcher
 import com.example.weatherjourney.core.common.coroutine.WtnDispatchers.IO
-import com.example.weatherjourney.core.common.util.Result
-import com.example.weatherjourney.core.common.util.runCatching
 import com.example.weatherjourney.core.data.LocationRepository
 import com.example.weatherjourney.core.data.WeatherRepository
 import com.example.weatherjourney.core.database.LocationDao
-import com.example.weatherjourney.core.database.model.LocationEntity
-import com.example.weatherjourney.core.database.model.LocationEntityWithWeather
-import com.example.weatherjourney.core.model.search.SuggestionLocation
-import com.example.weatherjourney.core.model.search.asEntity
-import com.example.weatherjourney.core.network.WtnNetworkDataSource
-import com.example.weatherjourney.core.network.model.toSuggestionLocation
+import com.example.weatherjourney.core.database.model.asExternalModel
+import com.example.weatherjourney.core.model.Location
+import com.example.weatherjourney.core.model.LocationWithWeather
+import com.example.weatherjourney.core.model.asEntity
+import com.example.weatherjourney.core.network.NetworkDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class OfflineFirstLocationRepository @Inject constructor(
     private val locationDao: LocationDao,
-    private val network: WtnNetworkDataSource,
+    private val network: NetworkDataSource,
     private val weatherRepository: WeatherRepository,
-
-    @Dispatcher(IO)
-    private val ioDispatcher: CoroutineDispatcher,
+    @Dispatcher(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : LocationRepository {
 
-    override fun getDisplayedLocationStream(): Flow<LocationEntity?> {
-        return locationDao.observeDisplayed()
-    }
-
-    override fun getDisplayedLocationWithWeatherStream(): Flow<LocationEntityWithWeather?> {
-        return locationDao.observeDisplayedWithWeather()
-    }
-
-    override fun getAllLocationWithWeatherStream(): Flow<List<LocationEntityWithWeather>> {
-        return locationDao.observeAllWithWeather()
-    }
-
-    override suspend fun saveLocation(suggestionLocation: SuggestionLocation) {
-        withContext(ioDispatcher) {
-            suggestionLocation.coordinate.run {
-
-                locationDao.getByCoordinate(latitude, longitude)?.let { location ->
-
-                    if (!location.isDisplayed) {
-                        launch { makeLocationDisplayed(location.id.toInt()) }
-                    }
-                    weatherRepository.refreshWeatherOfLocation(location)
-                    return@withContext
-                }
-            }
-
-            val entity = suggestionLocation.asEntity(true)
-            locationDao.observeDisplayed().firstOrNull()?.let {
-                locationDao.updateDisplayedById(it.id, false)
-            }
-            val insertedId = locationDao.insert(entity)
-
-            weatherRepository.refreshWeatherOfLocation(entity.copy(id = insertedId))
+    override fun getLocationsWithWeather(): Flow<List<LocationWithWeather>> {
+        return locationDao.observeAllWithWeather().map { locationEntities ->
+            locationEntities.map { it.asExternalModel() }
         }
     }
 
-    override suspend fun deleteLocation(locationId: Int) {
-        locationDao.deleteById(locationId.toLong())
+    override fun getLocationWithWeather(id: Int): Flow<LocationWithWeather> {
+        return locationDao.observeWithWeather(id).map { it.asExternalModel() }
     }
 
-    override suspend fun getSuggestionLocations(address: String): Result<List<SuggestionLocation>> =
-        runCatching {
-            withContext(ioDispatcher) {
-                network.getForwardGeocoding(address = address).results.map { it.toSuggestionLocation() }
+    override suspend fun saveLocation(location: Location) {
+        locationDao.insert(location.asEntity())
+    }
 
-            }
-        }
+    override suspend fun deleteLocation(id: Int) {
+        locationDao.deleteById(id.toLong())
+    }
 
-    override suspend fun makeLocationDisplayed(locationId: Int) {
-        locationDao.observeDisplayed().firstOrNull()?.let {
-            locationDao.updateDisplayedById(it.id, false)
-        }
-        locationDao.updateDisplayedById(locationId.toLong(), true)
+    override suspend fun getLocationsByAddress(address: String): Flow<List<Location>> {
+        return flow<List<Location>> {
+            network.searchLocationsByAddress(address)
+        }.catch { it.printStackTrace() }
     }
 }

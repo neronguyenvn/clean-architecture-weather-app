@@ -8,7 +8,7 @@ import com.example.weatherjourney.core.database.WeatherDao
 import com.example.weatherjourney.core.database.model.DailyWeatherEntity
 import com.example.weatherjourney.core.database.model.HourlyWeatherEntity
 import com.example.weatherjourney.core.database.model.LocationEntity
-import com.example.weatherjourney.core.database.util.FloatListConverter
+import com.example.weatherjourney.core.database.util.DoubleListConverter
 import com.example.weatherjourney.core.database.util.IntListConverter
 import com.example.weatherjourney.core.database.util.LongListConverter
 
@@ -24,7 +24,7 @@ import com.example.weatherjourney.core.database.util.LongListConverter
 @TypeConverters(
     IntListConverter::class,
     LongListConverter::class,
-    FloatListConverter::class
+    DoubleListConverter::class
 )
 abstract class RoomWtnDatabase : RoomDatabase() {
 

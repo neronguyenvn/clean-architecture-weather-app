@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.nero.weatherjourney"
-        minSdk = 26
+        minSdk = 28
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.lifecycle.runtimeCompose)
+    implementation(libs.androidx.navigation.compose)
 
     // Splash screen
     implementation(libs.androidx.core.splashscreen)

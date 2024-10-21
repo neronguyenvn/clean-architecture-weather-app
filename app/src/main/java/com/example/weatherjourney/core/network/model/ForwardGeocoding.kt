@@ -1,35 +1,40 @@
 package com.example.weatherjourney.core.network.model
 
 import com.example.weatherjourney.core.model.Coordinate
-import com.example.weatherjourney.core.model.search.SuggestionLocation
+import com.example.weatherjourney.core.model.Location
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class ForwardGeocoding(
-    val results: List<ForwardGeocodingResult> = emptyList(),
+    val results: List<NetworkLocation> = emptyList(),
 )
 
 @Serializable
-data class ForwardGeocodingResult(
+data class NetworkLocation(
     val name: String,
-    val admin1: String = "",
-    @SerialName("country_code") val countryCode: String,
-    val latitude: Float,
-    val longitude: Float,
-    val timezone: String = "",
+    val admin1: String,
+    val latitude: Double,
+    val longitude: Double,
+    val timezone: String,
+
+    @SerialName("country_code")
+    val countryCode: String,
 ) {
-    fun getAddress() = when {
-        name != admin1 && admin1.isNotBlank() -> "$name, $admin1"
-        else -> name
-    }
+    val address
+        get() = when {
+            name != admin1 && admin1.isNotBlank() -> "$name, $admin1"
+            else -> name
+        }
+
+    val coordinate get() = Coordinate.create(latitude, longitude)
 }
 
-
-fun ForwardGeocodingResult.toSuggestionLocation() = SuggestionLocation(
+fun NetworkLocation.asExternalModel() = Location(
     countryCode = countryCode,
-    address = getAddress(),
-    coordinate = Coordinate(latitude, longitude),
+    address = address,
+    coordinate = coordinate,
     timeZone = timezone,
+    id = hashCode()
 )
 

@@ -17,8 +17,8 @@
 package com.example.weatherjourney.core.network.di
 
 import com.example.weatherjourney.BuildConfig
-import com.example.weatherjourney.core.network.WtnNetworkDataSource
-import com.example.weatherjourney.core.network.retrofit.RetrofitWtnNetwork
+import com.example.weatherjourney.core.network.NetworkDataSource
+import com.example.weatherjourney.core.network.retrofit.RetrofitNetwork
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -55,5 +55,5 @@ object NetworkModule {
     fun providesNetworkDataSource(
         networkJson: Json,
         okHttpCallFactory: Call.Factory
-    ): WtnNetworkDataSource = RetrofitWtnNetwork(networkJson, okHttpCallFactory)
+    ): NetworkDataSource = RetrofitNetwork(networkJson, okHttpCallFactory)
 }
