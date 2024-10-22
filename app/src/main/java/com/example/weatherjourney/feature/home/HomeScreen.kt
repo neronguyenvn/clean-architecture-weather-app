@@ -14,23 +14,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -39,6 +31,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
 import com.example.weatherjourney.core.common.util.roundTo
 import com.example.weatherjourney.core.designsystem.component.AddressWithFlag
+import com.example.weatherjourney.core.designsystem.component.SearchTopBar
+import com.example.weatherjourney.core.designsystem.component.SearchTopBarAction
 import com.example.weatherjourney.core.model.LocationWithWeather
 import com.example.weatherjourney.feature.home.HomeUiState.*
 
@@ -54,11 +48,10 @@ fun HomeRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val locationsWithWeather by viewModel.locationsWithWeather.collectAsStateWithLifecycle()
-
     Log.d(TAG, "Current UiState: $uiState")
 
     Column {
-        WeatherSearchBar(onClick = onSearchClick)
+        SearchTopBar(action = SearchTopBarAction.NoBack(onSearchClick))
         HomeScreen(
             uiState = uiState,
             locationsWithWeather = locationsWithWeather,
@@ -135,40 +128,4 @@ fun LocationWithWeatherItem(
         Spacer(Modifier.height(16.dp))
         HorizontalDivider()
     }
-}
-
-@Composable
-fun WeatherSearchBar(
-    modifier: Modifier = Modifier,
-    query: String = "",
-    onBackClick: (() -> Unit)? = null,
-    onQueryChange: (String) -> Unit = {},
-    onClick: () -> Unit = {}
-) {
-    Column(modifier = modifier.clickable { onClick() }) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-                onClick = { onBackClick?.invoke() },
-                modifier = Modifier.alpha(if (onBackClick != null) 1f else 0f)
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                )
-            }
-            TextField(
-                value = query,
-                onValueChange = onQueryChange,
-                singleLine = true,
-                placeholder = { Text(text = stringResource(R.string.enter_location)) },
-                colors = TextFieldDefaults.colors(
-                    disabledContainerColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                ),
-                enabled = onBackClick != null,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-    }
-    HorizontalDivider()
 }

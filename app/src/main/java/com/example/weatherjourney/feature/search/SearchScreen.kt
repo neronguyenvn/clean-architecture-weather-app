@@ -1,6 +1,7 @@
 package com.example.weatherjourney.feature.search
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,16 +16,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherjourney.R
 import com.example.weatherjourney.core.designsystem.component.AddressWithFlag
+import com.example.weatherjourney.core.designsystem.component.SearchTopBar
+import com.example.weatherjourney.core.designsystem.component.SearchTopBarAction
 import com.example.weatherjourney.core.model.Location
-import com.example.weatherjourney.feature.home.WeatherSearchBar
 
 @Composable
 fun SearchRoute(
@@ -55,33 +57,22 @@ fun SearchScreen(
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
-        WeatherSearchBar(
+        SearchTopBar(
             query = query,
             onQueryChange = onQueryChange,
-            onBackClick = onBackClick
+            action = SearchTopBarAction.WithBack(onBackClick)
         )
-        LazyColumn {
+        LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
             if (searchResults.isEmpty()) {
-                item { NoResultText() }
+                noResults()
+            } else {
+                searchResults(
+                    locations = searchResults,
+                    onLocationClick = onLocationClick
+                )
             }
-            searchResults(
-                locations = searchResults,
-                onLocationClick = onLocationClick
-            )
         }
     }
-}
-
-@Composable
-fun NoResultText(modifier: Modifier = Modifier) {
-    Text(
-        stringResource(R.string.no_result),
-        style = MaterialTheme.typography.titleMedium,
-        textAlign = TextAlign.Center,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
-    )
 }
 
 fun LazyListScope.searchResults(
@@ -107,3 +98,18 @@ fun LazyListScope.searchResults(
     }
 }
 
+fun LazyListScope.noResults(modifier: Modifier = Modifier) {
+    item {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        ) {
+            Text(
+                stringResource(R.string.no_result),
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+    }
+}
