@@ -18,7 +18,7 @@ fun AddressWithFlag(
     modifier: Modifier = Modifier,
 ) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-        Text(countryCode.toFlagEmoji())
+        Text(countryCode.toFlagEmoji(), style = MaterialTheme.typography.bodyLarge)
         Spacer(Modifier.width(8.dp))
         Text(address, style = MaterialTheme.typography.bodyLarge)
     }
