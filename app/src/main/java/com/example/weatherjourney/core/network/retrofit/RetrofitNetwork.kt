@@ -2,10 +2,10 @@ package com.example.weatherjourney.core.network.retrofit
 
 import com.example.weatherjourney.core.model.Coordinate
 import com.example.weatherjourney.core.network.NetworkDataSource
-import com.example.weatherjourney.core.network.model.ForwardGeocoding
 import com.example.weatherjourney.core.network.model.NetworkLocation
 import com.example.weatherjourney.core.network.model.NetworkWeather
 import com.example.weatherjourney.core.network.model.ReversedNetworkLocation
+import com.example.weatherjourney.core.network.model.SearchLocationsResponse
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.Call
@@ -55,13 +55,10 @@ private interface RetrofitWtnNetworkApi {
     ): NetworkWeather
 
     @GET
-    suspend fun getForwardGeocoding(
-        @Url
-        url: String = OPENMETEO_GET_GEOCODING_URL,
-
-        @Query("name", encoded = true)
-        address: String,
-    ): ForwardGeocoding
+    suspend fun searchLocationsByAddress(
+        @Url url: String = OPENMETEO_GET_GEOCODING_URL,
+        @Query("name", encoded = true) address: String,
+    ): SearchLocationsResponse
 }
 
 class RetrofitNetwork(
@@ -72,9 +69,7 @@ class RetrofitNetwork(
     private val networkApi = Retrofit.Builder()
         .baseUrl(BIGDATACLOUD_BASE_URL)
         .callFactory(okHttpCallFactory)
-        .addConverterFactory(
-            networkJson.asConverterFactory("application/json".toMediaType()),
-        )
+        .addConverterFactory(networkJson.asConverterFactory("application/json".toMediaType()))
         .build()
         .create(RetrofitWtnNetworkApi::class.java)
 
@@ -88,7 +83,7 @@ class RetrofitNetwork(
     )
 
     override suspend fun searchLocationsByAddress(address: String): List<NetworkLocation> {
-        return networkApi.getForwardGeocoding(address = address).results
+        return networkApi.searchLocationsByAddress(address = address).results
     }
 
     override suspend fun getReverseGeocoding(coordinate: Coordinate): ReversedNetworkLocation =

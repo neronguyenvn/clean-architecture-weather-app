@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
@@ -24,6 +25,9 @@ class SearchViewModel @Inject constructor(
     val query = _query.asStateFlow()
 
     val searchResults = query.flatMapLatest {
+        if (it.length < SEARCH_QUERY_MIN_LENGTH) {
+            return@flatMapLatest flowOf(emptyList())
+        }
         locationRepository.getLocationsByAddress(it)
     }.stateIn(
         scope = viewModelScope,
@@ -35,3 +39,5 @@ class SearchViewModel @Inject constructor(
         _query.update { query }
     }
 }
+
+private const val SEARCH_QUERY_MIN_LENGTH = 3

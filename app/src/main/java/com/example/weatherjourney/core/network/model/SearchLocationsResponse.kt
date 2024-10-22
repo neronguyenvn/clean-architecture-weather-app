@@ -6,17 +6,17 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ForwardGeocoding(
+data class SearchLocationsResponse(
     val results: List<NetworkLocation> = emptyList(),
 )
 
 @Serializable
 data class NetworkLocation(
     val name: String,
-    val admin1: String,
+    val admin1: String = "",
     val latitude: Double,
     val longitude: Double,
-    val timezone: String,
+    val timezone: String = "",
 
     @SerialName("country_code")
     val countryCode: String,
