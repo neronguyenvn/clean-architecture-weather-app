@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,14 +38,22 @@ fun SearchRoute(
     val query by viewModel.query.collectAsState()
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
 
-    SearchScreen(
-        query = query,
-        searchResults = searchResults,
-        onBackClick = onBackClick,
-        onLocationClick = {},
-        onQueryChange = viewModel::onQueryChanged,
-        modifier = modifier
-    )
+    Box(modifier = modifier.fillMaxSize()) {
+        if (searchResults.isEmpty()) {
+            Text(
+                stringResource(R.string.no_result),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+        SearchScreen(
+            query = query,
+            searchResults = searchResults,
+            onBackClick = onBackClick,
+            onLocationClick = { /* No action */ }, // TODO
+            onQueryChange = viewModel::onQueryChanged,
+        )
+    }
 }
 
 @Composable
@@ -56,21 +65,17 @@ fun SearchScreen(
     onLocationClick: (Location) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier) {
+    Column(modifier = modifier) {
         SearchTopBar(
             query = query,
             onQueryChange = onQueryChange,
             action = SearchTopBarAction.WithBack(onBackClick)
         )
         LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
-            if (searchResults.isEmpty()) {
-                noResults()
-            } else {
-                searchResults(
-                    locations = searchResults,
-                    onLocationClick = onLocationClick
-                )
-            }
+            searchResults(
+                locations = searchResults,
+                onLocationClick = onLocationClick
+            )
         }
     }
 }
@@ -94,22 +99,6 @@ fun LazyListScope.searchResults(
             AddressWithFlag(countryCode = location.countryCode, address = location.address)
             Spacer(Modifier.height(16.dp))
             HorizontalDivider()
-        }
-    }
-}
-
-fun LazyListScope.noResults(modifier: Modifier = Modifier) {
-    item {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-        ) {
-            Text(
-                stringResource(R.string.no_result),
-                style = MaterialTheme.typography.titleMedium,
-            )
         }
     }
 }

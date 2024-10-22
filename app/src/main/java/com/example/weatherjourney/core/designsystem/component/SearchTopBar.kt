@@ -3,6 +3,7 @@ package com.example.weatherjourney.core.designsystem.component
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.HorizontalDivider
@@ -20,6 +21,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import com.example.weatherjourney.R
 import com.example.weatherjourney.core.designsystem.component.SearchTopBarAction.NoBack
@@ -38,9 +40,12 @@ fun SearchTopBar(
     onQueryChange: (String) -> Unit = { /* No action */ },
 ) {
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
+
     Column(modifier = modifier.clickable { if (action is NoBack) action.onBarClick() }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
@@ -64,7 +69,10 @@ fun SearchTopBar(
                 enabled = action is WithBack,
                 modifier = Modifier
                     .weight(1f)
-                    .focusRequester(focusRequester)
+                    .focusRequester(focusRequester),
+                keyboardActions = KeyboardActions(
+                    onDone = { focusManager.clearFocus() },
+                )
             )
         }
         HorizontalDivider()
